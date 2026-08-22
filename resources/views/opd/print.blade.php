@@ -195,7 +195,10 @@
 <body>
     <div class="header">
         <div class="title">{{ $judulLaporan }}</div>
-        <div class="meta">Tanggal Cetak: {{ $generatedAt->setTimezone('Asia/Tokyo')->format('d-m-Y H:i') }}</div>
+        @if(isset($pemeriksaan) && $pemeriksaan)
+            <div class="meta" style="font-weight:bold;color:#1e40af;">Pemeriksaan: {{ $pemeriksaan->nama }} ({{ $pemeriksaan->tahun }})</div>
+        @endif
+        <div class="meta">Tanggal Cetak: {{ $generatedAt->setTimezone('Asia/Jayapura')->format('d-m-Y H:i') }} WIT</div>
         @if(!empty($search))
             <div class="meta">Filter pencarian OPD: "{{ $search }}"</div>
         @endif

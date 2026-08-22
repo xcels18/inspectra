@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/permintaan-opd/{permintaanOpd}', [PermintaanOpdController::class, 'update'])->name('permintaan-opd.update');
     Route::delete('/permintaan-opd/{permintaanOpd}', [PermintaanOpdController::class, 'destroy'])->name('permintaan-opd.destroy');
     Route::get('/opd', [OpdController::class, 'index'])->name('opd.index');
+    Route::get('/laporan', [OpdController::class, 'laporanIndex'])->name('laporan.index');
     Route::get('/opd/print', [OpdController::class, 'print'])->name('opd.print');
     Route::get('/opd/{opd}', [OpdController::class, 'show'])->name('opd.show');
     Route::resource('master-opd', \App\Http\Controllers\MasterOpdController::class);

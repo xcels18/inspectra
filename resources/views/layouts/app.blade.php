@@ -68,6 +68,9 @@
             <a href="{{ route('opd.index') }}" class="nav-link {{ request()->routeIs('opd.*') ? 'active' : '' }}">
                 <i class="bi bi-building"></i> Monitoring OPD
             </a>
+            <a href="{{ route('laporan.index') }}" class="nav-link {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
+                <i class="bi bi-file-earmark-pdf"></i> Cetak Laporan
+            </a>
             @if(auth()->user()->isAdmin())
             <div class="nav-label mt-3">Pengaturan</div>
             <a href="{{ route('master-opd.index') }}" class="nav-link {{ request()->routeIs('master-opd.*') ? 'active' : '' }}">

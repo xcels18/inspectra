@@ -150,11 +150,6 @@
                    class="btn btn-sm btn-outline-secondary" style="font-size:0.75rem;">Reset</a>
                 @endif
             </form>
-            <button type="button" class="btn btn-sm"
-                    onclick="openPrintModal()"
-                    style="background:#fee2e2;color:#dc2626;border:1px solid #fecaca;font-size:0.75rem;">
-                <i class="bi bi-file-earmark-pdf me-1"></i>Cetak PDF
-            </button>
         </div>
         <div class="d-flex align-items-center gap-1">
             <span class="text-muted me-1" style="font-size:0.75rem;">Tampilan:</span>
@@ -305,55 +300,7 @@
 
 </div>
 
-{{-- Modal Cetak PDF --}}
-<div class="modal fade" id="printModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <form id="printForm" method="GET" action="{{ route('opd.print') }}" target="_blank" class="modal-content border-0 shadow" style="border-radius:10px;overflow:hidden;">
-            <div class="modal-header border-0 py-3 px-4" style="background:linear-gradient(135deg,#0b192c 0%,#1a365d 100%);">
-                <h6 class="modal-title text-white fw-bold mb-0 d-flex align-items-center gap-2">
-                    <i class="bi bi-file-earmark-pdf"></i>Cetak Laporan Monitoring OPD
-                </h6>
-                <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label fw-semibold" style="font-size:0.82rem;">Judul Laporan <span class="text-danger">*</span></label>
-                    <input type="text" name="judul_laporan" class="form-control form-control-sm"
-                           placeholder="Contoh: Laporan Monitoring OPD Triwulan I" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold" style="font-size:0.82rem;">Surat Dasar Perhitungan <span class="text-danger">*</span></label>
-                    <div class="border rounded p-2" style="max-height:200px;overflow:auto;">
-                        @foreach($suratList as $s)
-                        <div class="form-check mb-1">
-                            <input class="form-check-input" type="checkbox" name="surat_ids[]"
-                                   value="{{ $s->id }}" id="ps_{{ $s->id }}"
-                                   {{ in_array($s->id,$filterSuratIds??[])?'checked':'' }}>
-                            <label class="form-check-label" for="ps_{{ $s->id }}" style="font-size:0.8rem;">
-                                <strong>{{ $s->nomor_surat }}</strong> — {{ Str::limit($s->perihal, 90) }}
-                            </label>
-                        </div>
-                        @endforeach
-                    </div>
-                    <div class="form-text" style="font-size:0.72rem;">Centang minimal 1 nomor surat.</div>
-                </div>
-                <div class="form-check form-switch mb-2">
-                    <input class="form-check-input" type="checkbox" role="switch" id="print_detail" name="detail" value="1">
-                    <label class="form-check-label fw-semibold" for="print_detail" style="font-size:0.82rem;">Tampilkan Detail Permintaan</label>
-                    <div class="form-text" style="font-size:0.72rem;">Jika aktif, PDF menampilkan rincian per status (Belum, Proses, Selesai).</div>
-                </div>
-                <input type="hidden" name="search" value="{{ $search??'' }}">
-                <input type="hidden" name="pemeriksaan_id" value="{{ $filterPemeriksaanId??'' }}">
-            </div>
-            <div class="modal-footer" style="gap:0.5rem;">
-                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-sm fw-semibold" style="background:#dc2626;color:#fff;border:0;font-size:0.82rem;">
-                    <i class="bi bi-download me-1"></i>Generate PDF
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+
 @endsection
 
 @section('scripts')
@@ -395,28 +342,11 @@ function filterOpd(q) {
     document.getElementById('listEmpty').style.display  = listVisible === 0 ? '' : 'none';
 }
 
-document.getElementById('searchOpd').addEventListener('input', function() {
-    filterOpd(this.value);
-});
+    document.getElementById('searchOpd').addEventListener('input', function() {
+        filterOpd(this.value);
+    });
 
-function openPrintModal() {
-    new bootstrap.Modal(document.getElementById('printModal')).show();
-}
-
-function addSelectedSurat() {
-    const select = document.getElementById('suratFilterSelect');
-    const val = select.value;
-    if (!val) return;
-    const container = document.getElementById('selectedSuratInputs');
-    if (container.querySelector(`input[value="${val}"]`)) return;
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'surat_ids[]';
-    input.value = val;
-    container.appendChild(input);
-}
-
-const savedView = localStorage.getItem('opdView') || 'grid';
-setView(savedView);
+    const savedView = localStorage.getItem('opdView') || 'grid';
+    setView(savedView);
 </script>
 @endsection

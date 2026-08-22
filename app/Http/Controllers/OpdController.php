@@ -72,6 +72,32 @@ class OpdController extends Controller
         return view('opd.index', compact('stats', 'suratList', 'search', 'filterSuratIds', 'filterPemeriksaanId', 'pemeriksaanList'));
     }
 
+    public function laporanIndex(Request $request)
+    {
+        $user = auth()->user();
+        $isAdmin = $user->isAdmin();
+        $userId = $user->id;
+
+        $pemeriksaanQuery = \App\Models\Pemeriksaan::orderByDesc('created_at');
+        if (!$isAdmin) {
+            $pemeriksaanQuery->whereHas('users', fn($q) => $q->where('user_id', $userId));
+        }
+        $pemeriksaanList = $pemeriksaanQuery->get();
+
+        $suratQuery = \App\Models\Surat::with('pemeriksaan')->orderByDesc('tanggal_terima');
+        if (!$isAdmin) {
+            $suratQuery->where(function ($q) use ($userId) {
+                $q->whereNull('pemeriksaan_id')
+                  ->orWhereHas('pemeriksaan.users', fn($uq) => $uq->where('user_id', $userId));
+            });
+        }
+        $suratList = $suratQuery->get();
+
+        $masterOpds = \App\Models\MasterOpd::orderBy('nama')->get()->groupBy('kategori');
+
+        return view('laporan.index', compact('pemeriksaanList', 'suratList', 'masterOpds'));
+    }
+
     public function print(Request $request)
     {
         $validated = $request->validate([
@@ -80,6 +106,9 @@ class OpdController extends Controller
             'surat_ids.*' => 'required|integer|exists:surat,id',
             'search' => 'nullable|string|max:255',
             'detail' => 'nullable|boolean',
+            'pemeriksaan_id' => 'nullable|integer|exists:pemeriksaan,id',
+            'opds' => 'nullable|array',
+            'opds.*' => 'string',
         ], [
             'judul_laporan.required' => 'Judul laporan wajib diisi.',
             'surat_ids.required' => 'Pilih minimal 1 nomor surat untuk mencetak laporan.',
@@ -89,9 +118,10 @@ class OpdController extends Controller
 
         $search = trim((string) ($validated['search'] ?? ''));
         $filterSuratIds = collect($validated['surat_ids'])->map(fn($id) => (int) $id)->unique()->values()->all();
-        $filterPemeriksaanId = request('pemeriksaan_id');
+        $filterPemeriksaanId = $validated['pemeriksaan_id'] ?? null;
+        $filterOpds = $validated['opds'] ?? [];
 
-        $stats = $this->buildStats($search, $filterSuratIds, $filterPemeriksaanId);
+        $stats = $this->buildStats($search, $filterSuratIds, $filterPemeriksaanId, $filterOpds);
         $user = auth()->user();
         $suratQuery = \App\Models\Surat::whereIn('id', $filterSuratIds)
             ->orderByDesc('tanggal_terima');
@@ -104,13 +134,17 @@ class OpdController extends Controller
         $selectedSurat = $suratQuery->get(['id', 'nomor_surat', 'perihal', 'tanggal_surat']);
         $showDetail = (bool) ($validated['detail'] ?? false);
 
-        $detailByStatus = $showDetail ? $this->buildDetailByStatus($search, $filterSuratIds, $filterPemeriksaanId) : [
+        $detailByStatus = $showDetail ? $this->buildDetailByStatus($search, $filterSuratIds, $filterPemeriksaanId, $filterOpds) : [
             'belum' => [],
             'proses' => [],
             'selesai' => [],
         ];
 
         $stats = array_values(array_filter($stats, fn($row) => $row['total'] > 0));
+
+        $pemeriksaan = $filterPemeriksaanId
+            ? \App\Models\Pemeriksaan::find($filterPemeriksaanId)
+            : null;
 
         $generatedAt = now()->setTimezone('Asia/Jayapura');
         $filename = 'monitoring-opd-' . $generatedAt->format('Ymd-His') . '.pdf';
@@ -123,6 +157,7 @@ class OpdController extends Controller
             'generatedAt' => $generatedAt,
             'showDetail' => $showDetail,
             'detailByStatus' => $detailByStatus,
+            'pemeriksaan' => $pemeriksaan,
         ])->setPaper('a4', 'landscape');
 
         return response($pdf->output(), 200, [
@@ -133,12 +168,16 @@ class OpdController extends Controller
         ]);
     }
 
-    private function buildStats(string $search = '', array $filterSuratIds = [], $filterPemeriksaanId = null): array
+    private function buildStats(string $search = '', array $filterSuratIds = [], $filterPemeriksaanId = null, array $filterOpds = []): array
     {
         $user = auth()->user();
         $isAdmin = $user->isAdmin();
         $userId = $user->id;
         $daftarOpd = PermintaanData::daftarOpd();
+
+        if (!empty($filterOpds)) {
+            $daftarOpd = array_values(array_intersect($daftarOpd, $filterOpds));
+        }
 
         if ($search !== '') {
             $daftarOpd = array_values(array_filter($daftarOpd, function ($opd) use ($search) {
@@ -209,12 +248,17 @@ class OpdController extends Controller
         return $stats;
     }
 
-    private function buildDetailByStatus(string $search = '', array $filterSuratIds = [], $filterPemeriksaanId = null): array
+    private function buildDetailByStatus(string $search = '', array $filterSuratIds = [], $filterPemeriksaanId = null, array $filterOpds = []): array
     {
         $user = auth()->user();
         $isAdmin = $user->isAdmin();
         $userId = $user->id;
         $allowedOpd = PermintaanData::daftarOpd();
+        
+        if (!empty($filterOpds)) {
+            $allowedOpd = array_values(array_intersect($allowedOpd, $filterOpds));
+        }
+
         if ($search !== '') {
             $allowedOpd = array_values(array_filter($allowedOpd, function ($opd) use ($search) {
                 return stripos($opd, $search) !== false;
