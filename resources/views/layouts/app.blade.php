@@ -18,7 +18,7 @@
         .sidebar .sidebar-brand h5 { color: #fff; font-weight: 800; margin: 0; font-size: 1.15rem; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .sidebar .sidebar-brand .sub-brand { color: #bae6fd; font-size: 0.75rem; font-weight: 600; margin-top: 2px; }
         .sidebar .sidebar-brand p { color: rgba(255,255,255,0.5); margin: 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.5rem; }
-        .sidebar .nav-link { color: rgba(255,255,255,0.75); padding: 0.65rem 1.25rem; border-radius: 0.5rem; margin: 0.1rem 0.75rem; display: flex; align-items: center; gap: 0.6rem; font-size: 0.875rem; transition: all 0.2s; }
+        .sidebar .nav-link { color: rgba(255,255,255,0.75); padding: 0.65rem 1.25rem; border-radius: 0; margin: 0.1rem 0; display: flex; align-items: center; gap: 0.6rem; font-size: 0.875rem; transition: all 0.2s; }
         .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.12); color: #fff; box-shadow: inset 3px 0 0 #38bdf8; }
         .sidebar .nav-label { color: rgba(255,255,255,0.35); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; padding: 1.2rem 1.25rem 0.4rem; font-weight: 700; }
         .main-content { margin-left: 250px; padding: 0; min-height: 100vh; }
