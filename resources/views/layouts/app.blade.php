@@ -9,7 +9,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f4f6f9; font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-size: 0.875rem; }
+        :root {
+            --bs-font-sans-serif: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+            --bs-body-font-family: var(--bs-font-sans-serif);
+        }
+        body, input, button, select, textarea, .btn, .form-control, .form-select { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif !important; }
+        body { background-color: #f4f6f9; font-size: 0.875rem; }
         .sidebar { min-height: 100vh; background: linear-gradient(135deg, #0b192c 0%, #1a365d 100%); width: 250px; position: fixed; top: 0; left: 0; z-index: 1000; box-shadow: 2px 0 15px rgba(0,0,0,0.08); }
         .sidebar::before { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 60%); pointer-events: none; z-index: 0; }
         .sidebar .sidebar-brand, .sidebar nav, .sidebar .mt-auto { position: relative; z-index: 1; }

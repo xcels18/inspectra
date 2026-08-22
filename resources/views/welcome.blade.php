@@ -14,12 +14,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
-            background-color: #f4f6f9;
-            color: #333;
+        :root {
+            --bs-font-sans-serif: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+            --bs-body-font-family: var(--bs-font-sans-serif);
         }
-        
+        body, input, button, select, textarea, .btn, .form-control {
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif !important;
+            background-color: #f8fafc;
+            color: #334155;
+            -webkit-font-smoothing: antialiased;
+        }
         /* Hero Section */
         .hero-section {
             background: linear-gradient(135deg, #0b192c 0%, #1a365d 100%);
