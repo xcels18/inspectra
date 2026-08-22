@@ -16,9 +16,10 @@ use Google\Service\Drive\DriveFile;
 
 class GoogleDriveSyncController extends Controller
 {
-    const DEFAULT_STRUCTURE = ['nomor_surat', 'opd', 'judul_permintaan'];
+    const DEFAULT_STRUCTURE = ['pemeriksaan', 'nomor_surat', 'opd', 'judul_permintaan'];
 
     const LEVEL_LABELS = [
+        'pemeriksaan'      => 'Pemeriksaan',
         'nomor_surat'      => 'Nomor Surat',
         'opd'              => 'OPD',
         'judul_permintaan' => 'List Permintaan',
@@ -148,6 +149,17 @@ class GoogleDriveSyncController extends Controller
 
     private function getOrCreateRootFolder(Drive $service, ?string $folderInduk = null): string
     {
+        // 1. Use the explicit GUI setting (gdrive_folder_id) if available
+        $configuredFolderId = Setting::get('gdrive_folder_id');
+        if ($configuredFolderId) {
+            if ($folderInduk) {
+                // Create or find a subfolder named $folderInduk inside the configured root folder
+                return $this->getOrCreateFolder($service, $folderInduk, $configuredFolderId);
+            }
+            return $configuredFolderId;
+        }
+
+        // 2. Legacy fallback: find or create by name in 'root'
         $folderName = $folderInduk ?: Setting::get('gdrive_root_folder_name', env('GOOGLE_DRIVE_ROOT_FOLDER_NAME', 'BPK Dokumen'));
 
         $results = $service->files->listFiles([
@@ -185,42 +197,54 @@ class GoogleDriveSyncController extends Controller
         $permintaan    = $permintaanOpd->permintaan;
         $surat         = $permintaan->surat;
 
-        $structure = $surat->gdrive_folder_structure ?: self::DEFAULT_STRUCTURE;
+        $structure = $surat->gdrive_folder_structure ?: ['opd', 'judul_permintaan'];
+        $remainingLevels = array_values(array_filter($structure, fn($l) => !in_array($l, ['pemeriksaan', 'nomor_surat'])));
 
         $levelValues = [
+            'pemeriksaan'      => $this->sanitize($surat->pemeriksaan ? $surat->pemeriksaan->nama : 'Belum Dipetakan'),
             'nomor_surat'      => $this->sanitize($surat->nomor_surat ?? ('Surat-' . $surat->id)),
             'opd'              => $this->sanitize($permintaanOpd->opd ?? 'OPD'),
             'judul_permintaan' => $this->sanitize($permintaan->judul_permintaan ?? ('Permintaan-' . $permintaan->id)),
         ];
 
         $fileName = $dokumen->nama_file;
-
         $rootFolderId = $this->getOrCreateRootFolder($service, $folderInduk);
+        $currentFolderId = $rootFolderId;
+        $pathParts = [$folderInduk ?: Setting::get('gdrive_root_folder_name', env('GOOGLE_DRIVE_ROOT_FOLDER_NAME', 'BPK Dokumen'))];
 
+        // 1. Level Pemeriksaan
+        if ($surat->pemeriksaan) {
+            $pemeriksaan = $surat->pemeriksaan;
+            if ($pemeriksaan->gdrive_folder_id && $this->folderExists($service, $pemeriksaan->gdrive_folder_id)) {
+                $currentFolderId = $pemeriksaan->gdrive_folder_id;
+            } else {
+                $currentFolderId = $this->getOrCreateFolder($service, $levelValues['pemeriksaan'], $currentFolderId);
+                $pemeriksaan->update(['gdrive_folder_id' => $currentFolderId]);
+            }
+            $pathParts[] = $levelValues['pemeriksaan'];
+        } else {
+            $currentFolderId = $this->getOrCreateFolder($service, $levelValues['pemeriksaan'], $currentFolderId);
+            $pathParts[] = $levelValues['pemeriksaan'];
+        }
+
+        // 2. Level Surat
         if ($surat->gdrive_folder_id && $this->folderExists($service, $surat->gdrive_folder_id)) {
             $currentFolderId = $surat->gdrive_folder_id;
         } else {
-            $nomorSurat = $levelValues['nomor_surat'];
-            $currentFolderId = $this->getOrCreateFolder($service, $nomorSurat, $rootFolderId);
+            $currentFolderId = $this->getOrCreateFolder($service, $levelValues['nomor_surat'], $currentFolderId);
             $surat->update(['gdrive_folder_id' => $currentFolderId]);
         }
+        $pathParts[] = $levelValues['nomor_surat'];
 
-        $remainingLevels = array_filter($structure, fn($l) => $l !== 'nomor_surat');
+        // 3. Level-level berikutnya sesuai pengaturan user
         foreach ($remainingLevels as $level) {
             if (isset($levelValues[$level])) {
                 $currentFolderId = $this->getOrCreateFolder($service, $levelValues[$level], $currentFolderId);
+                $pathParts[] = $levelValues[$level];
             }
         }
 
         $this->uploadFile($service, $localPath, $fileName, $currentFolderId);
-
-        $rootLabel    = $folderInduk ?: Setting::get('gdrive_root_folder_name', env('GOOGLE_DRIVE_ROOT_FOLDER_NAME', 'BPK Dokumen'));
-        $pathParts    = [$rootLabel, $levelValues['nomor_surat']];
-        foreach ($remainingLevels as $level) {
-            if (isset($levelValues[$level])) {
-                $pathParts[] = $levelValues[$level];
-            }
-        }
         $pathParts[] = $fileName;
 
         $dokumen->update([
@@ -232,41 +256,96 @@ class GoogleDriveSyncController extends Controller
     public function index(Request $request)
     {
         $rootFolderName = Setting::get('gdrive_root_folder_name', env('GOOGLE_DRIVE_ROOT_FOLDER_NAME', 'BPK Dokumen'));
-        $perPage        = 10;
+        $perPage        = 5;
         $page           = $request->get('page', 1);
 
-        $suratList = Surat::with([
-            'judulPermintaan.permintaanData.permintaanOpd.dokumen',
+        // Get Pemeriksaan with Surat
+        $pemeriksaanList = \App\Models\Pemeriksaan::with([
+            'surat.judulPermintaan.permintaanData.permintaanOpd.dokumen'
         ])->orderByDesc('created_at')->get();
 
-        $suratStats = $suratList->map(function ($surat) {
-            $allDokumen = $surat->judulPermintaan
+        $pemeriksaanStats = $pemeriksaanList->map(function ($pemeriksaan) {
+            $allDokumen = $pemeriksaan->surat
+                ->flatMap->judulPermintaan
                 ->flatMap->permintaanData
                 ->flatMap->permintaanOpd
                 ->flatMap->dokumen;
 
+            $suratStats = $pemeriksaan->surat->map(function ($surat) {
+                $suratDokumen = $surat->judulPermintaan
+                    ->flatMap->permintaanData
+                    ->flatMap->permintaanOpd
+                    ->flatMap->dokumen;
+                return [
+                    'surat'    => $surat,
+                    'total'    => $suratDokumen->count(),
+                    'synced'   => $suratDokumen->whereNotNull('gdrive_synced_at')->count(),
+                    'unsynced' => $suratDokumen->whereNull('gdrive_synced_at')->count(),
+                    'structure'=> $surat->gdrive_folder_structure ?: ['opd', 'judul_permintaan'],
+                ];
+            });
+
             return [
-                'surat'      => $surat,
-                'total'      => $allDokumen->count(),
-                'synced'     => $allDokumen->whereNotNull('gdrive_synced_at')->count(),
-                'unsynced'   => $allDokumen->whereNull('gdrive_synced_at')->count(),
-                'structure'  => $surat->gdrive_folder_structure ?: self::DEFAULT_STRUCTURE,
+                'pemeriksaan' => $pemeriksaan,
+                'surat_stats' => $suratStats,
+                'total'       => $allDokumen->count(),
+                'synced'      => $allDokumen->whereNotNull('gdrive_synced_at')->count(),
+                'unsynced'    => $allDokumen->whereNull('gdrive_synced_at')->count(),
             ];
         });
 
-        $suratStatsPaginated = new LengthAwarePaginator(
-            $suratStats->forPage($page, $perPage)->values(),
-            $suratStats->count(),
+        $pemeriksaanStatsPaginated = new LengthAwarePaginator(
+            $pemeriksaanStats->forPage($page, $perPage)->values(),
+            $pemeriksaanStats->count(),
             $perPage,
             $page,
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
+        // Get Unmapped Surat
+        $unmappedSuratList = Surat::whereNull('pemeriksaan_id')->with([
+            'judulPermintaan.permintaanData.permintaanOpd.dokumen'
+        ])->orderByDesc('created_at')->get();
+
+        $unmappedAllDokumen = $unmappedSuratList
+            ->flatMap->judulPermintaan
+            ->flatMap->permintaanData
+            ->flatMap->permintaanOpd
+            ->flatMap->dokumen;
+
+        $unmappedSuratStats = $unmappedSuratList->map(function ($surat) {
+            $suratDokumen = $surat->judulPermintaan
+                ->flatMap->permintaanData
+                ->flatMap->permintaanOpd
+                ->flatMap->dokumen;
+            return [
+                'surat'    => $surat,
+                'total'    => $suratDokumen->count(),
+                'synced'   => $suratDokumen->whereNotNull('gdrive_synced_at')->count(),
+                'unsynced' => $suratDokumen->whereNull('gdrive_synced_at')->count(),
+                'structure'=> $surat->gdrive_folder_structure ?: ['opd', 'judul_permintaan'],
+            ];
+        });
+
+        $unmappedStats = [
+            'surat_stats' => $unmappedSuratStats,
+            'total'      => $unmappedAllDokumen->count(),
+            'synced'     => $unmappedAllDokumen->whereNotNull('gdrive_synced_at')->count(),
+            'unsynced'   => $unmappedAllDokumen->whereNull('gdrive_synced_at')->count(),
+        ];
+
         $totalDokumen = Dokumen::count();
         $sudahSync    = Dokumen::whereNotNull('gdrive_synced_at')->count();
         $belumSync    = $totalDokumen - $sudahSync;
 
-        return view('google-drive.index', compact('suratStatsPaginated', 'totalDokumen', 'sudahSync', 'belumSync', 'rootFolderName'));
+        return view('google-drive.index', compact(
+            'pemeriksaanStatsPaginated', 
+            'unmappedStats', 
+            'totalDokumen', 
+            'sudahSync', 
+            'belumSync', 
+            'rootFolderName'
+        ));
     }
 
     public function setRootFolder(Request $request)
@@ -280,14 +359,14 @@ class GoogleDriveSyncController extends Controller
     {
         $request->validate([
             'structure'   => 'required|array|min:1',
-            'structure.*' => 'in:nomor_surat,opd,judul_permintaan',
+            'structure.*' => 'in:pemeriksaan,nomor_surat,opd,judul_permintaan',
             'folder_url'  => 'nullable|string',
         ]);
 
         $structure = $request->input('structure');
 
-        if (!in_array('nomor_surat', $structure)) {
-            array_unshift($structure, 'nomor_surat');
+        if (empty($structure)) {
+            $structure = ['pemeriksaan', 'nomor_surat'];
         }
 
         $updateData = ['gdrive_folder_structure' => $structure];

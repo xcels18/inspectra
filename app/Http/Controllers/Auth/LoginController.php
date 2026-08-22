@@ -37,4 +37,13 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
     }
+
+    /**
+     * Override redirect path so login ALWAYS goes to /dashboard,
+     * ignoring any "intended URL" stored in the session.
+     */
+    protected function redirectTo()
+    {
+        return '/dashboard';
+    }
 }

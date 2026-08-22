@@ -36,16 +36,7 @@ return [
             'serve' => true,
             'throw' => false,
             'report' => false,
-            'google' => [
-            'driver'        => 'google',
-            'clientId'      => '',
-            'clientSecret'  => '',
-            'refreshToken'  => '',
-            'folder'        => env('GOOGLE_DRIVE_FOLDER_ID'),
-            'serviceAccountCredentials' => env('GOOGLE_DRIVE_CREDENTIALS'),
         ],
-
-    ],
 
         'public' => [
             'driver' => 'local',
@@ -54,16 +45,7 @@ return [
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
-            'google' => [
-            'driver'        => 'google',
-            'clientId'      => '',
-            'clientSecret'  => '',
-            'refreshToken'  => '',
-            'folder'        => env('GOOGLE_DRIVE_FOLDER_ID'),
-            'serviceAccountCredentials' => env('GOOGLE_DRIVE_CREDENTIALS'),
         ],
-
-    ],
 
         's3' => [
             'driver' => 's3',
@@ -76,24 +58,16 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
             'report' => false,
-            'google' => [
-            'driver'        => 'google',
-            'clientId'      => '',
-            'clientSecret'  => '',
-            'refreshToken'  => '',
-            'folder'        => env('GOOGLE_DRIVE_FOLDER_ID'),
-            'serviceAccountCredentials' => env('GOOGLE_DRIVE_CREDENTIALS'),
         ],
-
-    ],
 
         'google' => [
             'driver'        => 'google',
             'clientId'      => '',
             'clientSecret'  => '',
             'refreshToken'  => '',
-            'folder'        => env('GOOGLE_DRIVE_FOLDER_ID'),
-            'serviceAccountCredentials' => env('GOOGLE_DRIVE_CREDENTIALS'),
+            // Settings from GUI will override these in AppServiceProvider, but we keep env as fallback
+            'folder'        => env('GOOGLE_DRIVE_FOLDER_ID', ''),
+            'serviceAccountCredentials' => env('GOOGLE_DRIVE_CREDENTIALS', ''),
         ],
 
     ],
@@ -111,15 +85,7 @@ return [
 
     'links' => [
         public_path('storage') => storage_path('app/public'),
-        'google' => [
-            'driver'        => 'google',
-            'clientId'      => '',
-            'clientSecret'  => '',
-            'refreshToken'  => '',
-            'folder'        => env('GOOGLE_DRIVE_FOLDER_ID'),
-            'serviceAccountCredentials' => env('GOOGLE_DRIVE_CREDENTIALS'),
-        ],
-
     ],
 
 ];
+

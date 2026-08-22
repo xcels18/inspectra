@@ -5,16 +5,18 @@
 
 @section('content')
 <div class="container-fluid py-3" style="max-width:1200px;">
-    <div class="card shadow-sm mb-3 border-0" style="background:linear-gradient(135deg,#1a73e8 0%,#0d47a1 100%);">
-        <div class="card-body py-3 px-4">
-            <div class="row align-items-center g-2">
-                <div class="col-auto">
-                    <h5 class="mb-0 fw-bold text-white">
-                        <i class="bi bi-file-earmark-zip me-2"></i>Backup Dokumen ZIP
+    {{-- Header --}}
+    <div class="card shadow-sm mb-3 border-0 overflow-hidden" style="background:linear-gradient(135deg,#0b192c 0%,#1a365d 100%); position:relative;">
+        <!-- decorative overlay -->
+        <div style="position:absolute; top:0; right:0; bottom:0; left:0; background:radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 60%); pointer-events:none;"></div>
+        
+        <div class="card-body py-3 px-4 position-relative z-1">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+                        <i class="bi bi-file-earmark-zip"></i> Backup Dokumen ZIP
                     </h5>
-                </div>
-                <div class="col text-white-50" style="font-size:0.82rem;">
-                    Pilih nomor surat, atur struktur folder, lalu proses backup ke file ZIP.
+                    <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Pilih nomor surat, atur struktur folder, lalu proses backup ke file ZIP.</div>
                 </div>
             </div>
         </div>
@@ -61,8 +63,14 @@
         <div class="card shadow-sm border-0">
             <div class="card-header py-2 px-3 d-flex align-items-center justify-content-between" style="background:#f8f9fa; border-bottom:1px solid #e9ecef;">
                 <span class="fw-semibold text-muted" style="font-size:0.82rem;">
+                    @php
+                        $totalSurat = $unmappedSurats->count();
+                        foreach($pemeriksaans as $p) {
+                            $totalSurat += $p->surat->count();
+                        }
+                    @endphp
                     <i class="bi bi-envelope me-1"></i>Daftar Surat
-                    <span class="badge bg-secondary ms-1" style="font-size:0.68rem;">{{ $suratStats->count() }}</span>
+                    <span class="badge bg-secondary ms-1" style="font-size:0.68rem;">{{ $totalSurat }}</span>
                 </span>
                 <div class="d-flex align-items-center gap-2">
                     <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="btnSelectAll" style="font-size:0.72rem;">
@@ -75,27 +83,101 @@
             </div>
 
             <div class="card-body p-0">
-                @forelse($suratStats as $row)
-                @php
-                    $surat = $row['surat'];
-                    $dokCount = $row['dokumen_count'];
-                @endphp
-                <label class="d-flex align-items-center gap-2 px-3 py-2 border-bottom" style="cursor:pointer;">
-                    <input type="checkbox" class="form-check-input surat-check" name="surat_ids[]" value="{{ $surat->id }}">
-                    <div class="flex-grow-1">
-                        <div class="fw-semibold" style="font-size:0.82rem;">{{ $surat->nomor_surat }}</div>
-                        <div class="text-muted" style="font-size:0.74rem;">{{ $surat->perihal }}</div>
+                <div class="accordion accordion-flush" id="accordionPemeriksaan">
+                    @forelse($pemeriksaans as $pemeriksaan)
+                    <div class="accordion-item border-bottom">
+                        <div class="accordion-header d-flex align-items-center bg-light" id="headingPem_{{ $pemeriksaan->id }}">
+                            <div class="ps-3 pe-2">
+                                <input type="checkbox" class="form-check-input pem-check" data-pem-id="{{ $pemeriksaan->id }}">
+                            </div>
+                            <button class="accordion-button collapsed py-2 px-2 shadow-none bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePem_{{ $pemeriksaan->id }}" style="font-size:0.85rem;">
+                                <div>
+                                    <div class="fw-semibold text-primary"><i class="bi bi-folder-fill me-1"></i>{{ $pemeriksaan->nama }}</div>
+                                    <div class="text-muted" style="font-size:0.7rem;">{{ $pemeriksaan->surat->count() }} Surat</div>
+                                </div>
+                            </button>
+                        </div>
+                        <div id="collapsePem_{{ $pemeriksaan->id }}" class="accordion-collapse collapse" data-bs-parent="#accordionPemeriksaan">
+                            <div class="accordion-body p-0 bg-white">
+                                @forelse($pemeriksaan->surat as $surat)
+                                    @php
+                                        $dokCount = 0;
+                                        foreach ($surat->judulPermintaan as $judul) {
+                                            foreach ($judul->permintaanData as $perm) {
+                                                foreach ($perm->permintaanOpd as $opd) {
+                                                    $dokCount += $opd->dokumen->count();
+                                                }
+                                            }
+                                        }
+                                    @endphp
+                                    <label class="d-flex align-items-center gap-2 px-4 py-2 border-bottom" style="cursor:pointer; background-color: #fafafa;">
+                                        <input type="checkbox" class="form-check-input surat-check surat-pem-{{ $pemeriksaan->id }}" name="surat_ids[]" value="{{ $surat->id }}">
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold" style="font-size:0.82rem;">{{ $surat->nomor_surat }}</div>
+                                            <div class="text-muted" style="font-size:0.74rem;">{{ $surat->perihal }}</div>
+                                        </div>
+                                        <span class="badge bg-light text-dark border" style="font-size:0.68rem;">
+                                            <i class="bi bi-file-earmark"></i> {{ $dokCount }} dokumen
+                                        </span>
+                                    </label>
+                                @empty
+                                    <div class="px-4 py-2 text-muted text-center" style="font-size:0.8rem;">Tidak ada surat</div>
+                                @endforelse
+                            </div>
+                        </div>
                     </div>
-                    <span class="badge bg-light text-dark border" style="font-size:0.68rem;">
-                        <i class="bi bi-file-earmark"></i> {{ $dokCount }} dokumen
-                    </span>
-                </label>
-                @empty
-                <div class="text-center py-5 text-muted">
-                    <i class="bi bi-inbox" style="font-size:2rem;"></i>
-                    <div class="mt-2" style="font-size:0.85rem;">Belum ada data surat.</div>
+                    @empty
+                    @endforelse
+
+                    @if($unmappedSurats->count() > 0)
+                    <div class="accordion-item border-bottom">
+                        <div class="accordion-header d-flex align-items-center" style="background:#fff3cd;" id="headingUnmapped">
+                            <div class="ps-3 pe-2">
+                                <input type="checkbox" class="form-check-input pem-check" data-pem-id="unmapped">
+                            </div>
+                            <button class="accordion-button collapsed py-2 px-2 shadow-none bg-transparent" type="button" data-bs-toggle="collapse" data-bs-target="#collapseUnmapped" style="font-size:0.85rem;">
+                                <div>
+                                    <div class="fw-semibold text-warning-emphasis"><i class="bi bi-exclamation-triangle-fill me-1"></i>Belum Dipetakan</div>
+                                    <div class="text-muted" style="font-size:0.7rem;">{{ $unmappedSurats->count() }} Surat</div>
+                                </div>
+                            </button>
+                        </div>
+                        <div id="collapseUnmapped" class="accordion-collapse collapse" data-bs-parent="#accordionPemeriksaan">
+                            <div class="accordion-body p-0 bg-white">
+                                @foreach($unmappedSurats as $surat)
+                                    @php
+                                        $dokCount = 0;
+                                        foreach ($surat->judulPermintaan as $judul) {
+                                            foreach ($judul->permintaanData as $perm) {
+                                                foreach ($perm->permintaanOpd as $opd) {
+                                                    $dokCount += $opd->dokumen->count();
+                                                }
+                                            }
+                                        }
+                                    @endphp
+                                    <label class="d-flex align-items-center gap-2 px-4 py-2 border-bottom" style="cursor:pointer; background-color: #fafafa;">
+                                        <input type="checkbox" class="form-check-input surat-check surat-pem-unmapped" name="surat_ids[]" value="{{ $surat->id }}">
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold" style="font-size:0.82rem;">{{ $surat->nomor_surat }}</div>
+                                            <div class="text-muted" style="font-size:0.74rem;">{{ $surat->perihal }}</div>
+                                        </div>
+                                        <span class="badge bg-light text-dark border" style="font-size:0.68rem;">
+                                            <i class="bi bi-file-earmark"></i> {{ $dokCount }} dokumen
+                                        </span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if($pemeriksaans->isEmpty() && $unmappedSurats->isEmpty())
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-inbox" style="font-size:2rem;"></i>
+                        <div class="mt-2" style="font-size:0.85rem;">Belum ada data surat.</div>
+                    </div>
+                    @endif
                 </div>
-                @endforelse
             </div>
 
             <div class="card-footer d-flex justify-content-between align-items-center">
@@ -118,10 +200,13 @@
         </div>
         <h6 class="fw-bold mb-1">Memproses Backup ZIP...</h6>
         <p class="text-muted mb-3" style="font-size:0.82rem;">Mohon tunggu, jangan tutup halaman ini.</p>
-        <div style="height:8px; background:#e9ecef; border-radius:6px; overflow:hidden;" class="mb-2">
-            <div id="backupBar" style="height:100%; width:0%; background:#3b82f6; border-radius:6px; transition:width 0.3s;"></div>
+        <div style="height:12px; border-radius:6px; overflow:hidden;" class="progress mb-2">
+            <div class="progress-bar progress-bar-striped progress-bar-animated w-100" style="background-color:#3b82f6;"></div>
         </div>
-        <div id="backupPct" class="text-primary fw-semibold" style="font-size:0.8rem;">0%</div>
+        <div class="text-primary fw-semibold mb-3" style="font-size:0.8rem;">Proses ini mungkin memakan waktu beberapa saat...</div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('overlayBackup').style.display='none'">
+            Sembunyikan Jendela Ini
+        </button>
     </div>
 </div>
 @endsection
@@ -147,12 +232,24 @@
 
     btnSelectAll.addEventListener('click', function () {
         checks.forEach(c => c.checked = true);
+        document.querySelectorAll('.pem-check').forEach(pc => pc.checked = true);
         updateSelectedCount();
     });
 
     btnUnselectAll.addEventListener('click', function () {
         checks.forEach(c => c.checked = false);
+        document.querySelectorAll('.pem-check').forEach(pc => pc.checked = false);
         updateSelectedCount();
+    });
+
+    const pemChecks = document.querySelectorAll('.pem-check');
+    pemChecks.forEach(pc => {
+        pc.addEventListener('change', function() {
+            const pemId = this.getAttribute('data-pem-id');
+            const suratChecks = document.querySelectorAll('.surat-pem-' + pemId);
+            suratChecks.forEach(c => c.checked = this.checked);
+            updateSelectedCount();
+        });
     });
 
     const sortable = document.getElementById('sortableStructure');
@@ -230,36 +327,13 @@ form.addEventListener('submit', function (e) {
         }
 
         overlay.style.display = 'flex';
-        let prog = 0;
-        bar.style.width = '0%';
-        pct.textContent = '0%';
-        let timer = null;
-
-        function updateProgress() {
-            prog = Math.min(prog + 8, 92);
-            bar.style.width = prog + '%';
-            pct.textContent = prog + '%';
-        }
-
-        timer = setInterval(updateProgress, 250);
-
-        // Auto-close setelah download ~10s atau tab unload
+        
+        // Auto-close setelah ~30s
         setTimeout(() => {
             if (overlay.style.display === 'flex') {
                 overlay.style.display = 'none';
-                if (timer) clearInterval(timer);
             }
-        }, 10000);
-
-        // Close on tab visibility change / unload
-        const hideModal = () => {
-            overlay.style.display = 'none';
-            if (timer) clearInterval(timer);
-        };
-
-        window.addEventListener('visibilitychange', hideModal);
-        window.addEventListener('pagehide', hideModal);
-        window.addEventListener('beforeunload', hideModal);
+        }, 30000);
     });
 })();
 </script>

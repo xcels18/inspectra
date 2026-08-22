@@ -14,9 +14,26 @@ class UserController extends Controller
         $this->middleware('admin');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('name')->paginate(15);
+        $query = User::query();
+
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status === 'aktif' ? 1 : 0);
+        }
+
+        $users = $query->orderBy('name')->paginate(15)->withQueryString();
         return view('users.index', compact('users'));
     }
 
@@ -58,7 +75,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required|in:admin,tim_bpk',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable',
             'password' => 'nullable|min:6|confirmed',
         ]);
 

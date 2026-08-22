@@ -17,55 +17,141 @@ class DashboardController extends Controller
 
     public function index()
     {
-        $totalSurat = Surat::count();
-        $suratAktif = Surat::where('status', 'aktif')->count();
-        $suratSelesai = Surat::where('status', 'selesai')->count();
+        $user = auth()->user();
+        $isAdmin = $user->isAdmin();
+        $userId = $user->id;
 
-        $opdBaseQuery = PermintaanOpd::whereHas('permintaan.surat', fn($q) => $q->whereNull('deleted_at'));
+        // Base Query untuk Pemeriksaan
+        $pemeriksaanBaseQuery = \App\Models\Pemeriksaan::query();
+        if (!$isAdmin) {
+            $pemeriksaanBaseQuery->whereHas('users', fn($q) => $q->where('user_id', $userId));
+        }
 
+        // 1. Pemeriksaan Stats
+        $totalPemeriksaan = (clone $pemeriksaanBaseQuery)->count();
+        $pemeriksaanAktif = (clone $pemeriksaanBaseQuery)->where('status', 'aktif')->count();
+        $pemeriksaanSelesai = (clone $pemeriksaanBaseQuery)->where('status', 'selesai')->count();
+
+        // Base Query untuk Surat
+        $suratBaseQuery = Surat::query();
+        if (!$isAdmin) {
+            $suratBaseQuery->whereHas('pemeriksaan.users', fn($q) => $q->where('user_id', $userId));
+        }
+
+        // 2. Surat Stats (Global)
+        $totalSurat = (clone $suratBaseQuery)->count();
+        $suratAktif = (clone $suratBaseQuery)->where('status', 'aktif')->count();
+
+        // 3. OPD Progress (Hanya pada Pemeriksaan Aktif)
+        $opdBaseQuery = PermintaanOpd::whereHas('permintaan.surat', function($q) use ($isAdmin, $userId) {
+            $q->whereNull('deleted_at')
+              ->whereHas('pemeriksaan', function($pq) use ($isAdmin, $userId) {
+                  $pq->where('status', 'aktif');
+                  if (!$isAdmin) {
+                      $pq->whereHas('users', fn($uq) => $uq->where('user_id', $userId));
+                  }
+              });
+        });
         $totalOpd = (clone $opdBaseQuery)->count();
         $opdBelum = (clone $opdBaseQuery)->where('status', 'belum')->count();
         $opdProses = (clone $opdBaseQuery)->where('status', 'proses')->count();
         $opdSelesai = (clone $opdBaseQuery)->where('status', 'selesai')->count();
-
-        $totalDokumen = Dokumen::where(function ($q) {
-            $q->whereHas('permintaan.surat', fn($sq) => $sq->whereNull('deleted_at'))
-              ->orWhereHas('permintaanOpd.permintaan.surat', fn($sq) => $sq->whereNull('deleted_at'));
-        })->count();
-
         $progressPersen = $totalOpd > 0 ? round((($opdSelesai + $opdProses) / $totalOpd) * 100) : 0;
 
-        $suratDeadlineDekat = Surat::whereNotNull('deadline')
+        $dokumenQuery = Dokumen::where(function ($q) {
+            $q->whereHas('permintaan.surat', fn($sq) => $sq->whereNull('deleted_at'))
+              ->orWhereHas('permintaanOpd.permintaan.surat', fn($sq) => $sq->whereNull('deleted_at'));
+        });
+        if (!$isAdmin) {
+            $dokumenQuery->whereHas('permintaan.surat.pemeriksaan.users', fn($q) => $q->where('user_id', $userId));
+        }
+        $totalDokumen = $dokumenQuery->count();
+
+        // 4. Critical Alerts
+        $suratDeadlineDekat = (clone $suratBaseQuery)->whereNotNull('deadline')
             ->where('deadline', '>=', now())
             ->where('deadline', '<=', now()->addDays(14))
             ->where('status', '!=', 'selesai')
-            ->orderBy('deadline')
             ->count();
-
-        $suratOverdue = Surat::whereNotNull('deadline')
+            
+        $suratOverdue = (clone $suratBaseQuery)->whereNotNull('deadline')
             ->where('deadline', '<', now())
             ->where('status', '!=', 'selesai')
             ->count();
 
-        $suratTerbaru = Surat::orderByDesc('tanggal_terima')->limit(5)->get();
+        // 5. Ranking OPD (Reward & Punishment) based on Active Pemeriksaan
+        $opdRankings = PermintaanOpd::whereHas('permintaan.surat.pemeriksaan', function($q) use ($isAdmin, $userId) {
+                $q->where('status', 'aktif');
+                if (!$isAdmin) {
+                    $q->whereHas('users', fn($uq) => $uq->where('user_id', $userId));
+                }
+            })
+            ->selectRaw('opd, count(*) as total, sum(case when status in ("selesai","proses") then 1 else 0 end) as selesai')
+            ->groupBy('opd')
+            ->having('total', '>', 0)
+            ->get()
+            ->map(function($item) {
+                $item->persentase = round(($item->selesai / $item->total) * 100);
+                return $item;
+            });
+            
+        // Urutkan persentase, lalu jika seri urutkan berdasar jumlah selesai
+        $topOpd = $opdRankings->sortByDesc(function($item) {
+            return $item->persentase * 1000 + $item->selesai;
+        })->take(5)->values();
+        
+        $bottomOpd = $opdRankings->sortBy(function($item) {
+            return $item->persentase * 1000 - $item->total;
+        })->take(5)->values();
 
-        $aktivitasTerbaru = Dokumen::with([
+        // 6. Progres per Pemeriksaan Aktif
+        $pemeriksaanProgress = (clone $pemeriksaanBaseQuery)->where('status', 'aktif')->get()->map(function($p) {
+            $opdQuery = PermintaanOpd::whereHas('permintaan.surat', function($q) use ($p) {
+                $q->where('pemeriksaan_id', $p->id)->whereNull('deleted_at');
+            });
+            
+            $total = (clone $opdQuery)->count();
+            $selesai = (clone $opdQuery)->whereIn('status', ['selesai', 'proses'])->count();
+            $persentase = $total > 0 ? round(($selesai / $total) * 100) : 0;
+            
+            return (object)[
+                'nama' => $p->nama,
+                'total' => $total,
+                'selesai' => $selesai,
+                'persentase' => $persentase
+            ];
+        })->sortByDesc('persentase')->values();
+
+        // 7. Recent Activity & Deadline list
+        $aktivitasTerbaruQuery = Dokumen::with([
             'permintaanOpd',
-            'permintaan.surat',
+            'permintaan.surat.pemeriksaan',
             'permintaan.judulPermintaan',
             'uploader',
         ])->where(function ($q) {
             $q->whereHas('permintaan.surat', fn($sq) => $sq->whereNull('deleted_at'))
               ->orWhereHas('permintaanOpd.permintaan.surat', fn($sq) => $sq->whereNull('deleted_at'));
-        })->orderByDesc('created_at')->limit(10)->get();
+        });
+        
+        if (!$isAdmin) {
+            $aktivitasTerbaruQuery->whereHas('permintaan.surat.pemeriksaan.users', fn($q) => $q->where('user_id', $userId));
+        }
+        $aktivitasTerbaru = $aktivitasTerbaruQuery->orderByDesc('created_at')->limit(8)->get();
 
-        $suratDeadline = Surat::whereNotNull('deadline')
+        $suratDeadline = (clone $suratBaseQuery)->with('pemeriksaan')->whereNotNull('deadline')
             ->where('status', '!=', 'selesai')
             ->orderBy('deadline')
             ->limit(6)
             ->get();
 
-        $opdProgress = PermintaanOpd::whereHas('permintaan.surat', fn($q) => $q->whereNull('deleted_at'))
+        $suratTerbaru = (clone $suratBaseQuery)->orderByDesc('tanggal_terima')->limit(5)->get();
+
+        $opdProgress = PermintaanOpd::whereHas('permintaan.surat', function($q) use ($isAdmin, $userId) {
+            $q->whereNull('deleted_at');
+            if (!$isAdmin) {
+                $q->whereHas('pemeriksaan.users', fn($uq) => $uq->where('user_id', $userId));
+            }
+        })
             ->selectRaw('opd, count(*) as total, sum(case when status in ("selesai","proses") then 1 else 0 end) as selesai')
             ->groupBy('opd')
             ->having('total', '>', 0)
@@ -74,11 +160,12 @@ class DashboardController extends Controller
             ->get();
 
         return view('dashboard', compact(
-            'totalSurat', 'suratAktif', 'suratSelesai',
-            'totalOpd', 'opdBelum', 'opdProses', 'opdSelesai',
-            'totalDokumen', 'progressPersen',
+            'totalPemeriksaan', 'pemeriksaanAktif', 'pemeriksaanSelesai',
+            'totalSurat', 'suratAktif',
+            'totalOpd', 'opdBelum', 'opdProses', 'opdSelesai', 'progressPersen', 'totalDokumen',
             'suratDeadlineDekat', 'suratOverdue',
-            'suratTerbaru', 'aktivitasTerbaru', 'suratDeadline', 'opdProgress'
+            'topOpd', 'bottomOpd', 'pemeriksaanProgress',
+            'aktivitasTerbaru', 'suratDeadline', 'suratTerbaru', 'opdProgress'
         ));
     }
 }

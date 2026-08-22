@@ -3,300 +3,415 @@
 
 @section('styles')
 <style>
-.stat-card { background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border:1px solid #f0f0f0; padding:1rem 1.25rem; }
-.stat-icon { width:40px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
-.stat-value { font-size:1.6rem; font-weight:700; line-height:1; color:#1e3a8a; }
-.stat-label { font-size:0.75rem; color:#6b7280; margin-top:2px; }
-.stat-sub { font-size:0.7rem; color:#9ca3af; margin-top:5px; }
-.sec-card { background:#fff; border-radius:10px; box-shadow:0 1px 4px rgba(0,0,0,0.07); border:1px solid #f0f0f0; overflow:hidden; display:flex; flex-direction:column; }
-.sec-header { padding:0.75rem 1rem; border-bottom:1px solid #f3f4f6; font-weight:600; font-size:0.82rem; color:#374151; display:flex; justify-content:space-between; align-items:center; }
-.sec-body { overflow-y:auto; flex:1; }
-.row-item { padding:0.6rem 1rem; border-bottom:1px solid #f9fafb; font-size:0.8rem; }
-.row-item:last-child { border-bottom:none; }
-.row-item:hover { background:#fafafa; }
-.deadline-pill { font-size:0.68rem; padding:2px 8px; border-radius:999px; font-weight:500; white-space:nowrap; }
-.bar-wrap { height:4px; background:#f3f4f6; border-radius:99px; overflow:hidden; margin-top:4px; }
-.bar-fill { height:100%; border-radius:99px; transition:width 0.4s; }
+/* ── Base ── */
+:root {
+    --navy: #0b192c;
+    --navy-2: #1a365d;
+    --accent: #3b82f6;
+}
+
+/* ── Stat Cards ── */
+.kpi-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #f0f4f8;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    padding: 1rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.kpi-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.kpi-card .accent-bar {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 12px 0 0 12px;
+}
+.kpi-icon {
+    width: 42px; height: 42px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.15rem; flex-shrink: 0;
+}
+.kpi-value { font-size: 1.8rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+.kpi-label { font-size: 0.72rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+.kpi-sub { font-size: 0.68rem; color: #9ca3af; margin-top: 6px; }
+
+/* ── Alert banners ── */
+.alert-banner {
+    border-radius: 10px;
+    border: 0;
+    border-left: 4px solid;
+    padding: 0.65rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.78rem;
+}
+
+/* ── Section Cards ── */
+.sec-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #f0f4f8;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.sec-header {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: #1e293b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fafbfc;
+}
+.sec-body { overflow-y: auto; flex: 1; }
+
+/* ── Row items ── */
+.row-item {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #f8fafc;
+    font-size: 0.78rem;
+    transition: background 0.1s;
+}
+.row-item:last-child { border-bottom: none; }
+.row-item:hover { background: #f8fafc; }
+
+/* ── Ranking ── */
+.rank-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 700; flex-shrink: 0;
+}
+
+/* ── Progress bar ── */
+.prog-bar { height: 4px; background: #f1f5f9; border-radius: 99px; overflow: hidden; margin-top: 5px; }
+.prog-fill { height: 100%; border-radius: 99px; }
+
+/* ── Deadline pills ── */
+.dl-pill {
+    font-size: 0.65rem; padding: 2px 8px; border-radius: 999px;
+    font-weight: 600; white-space: nowrap; flex-shrink: 0;
+}
 </style>
 @endsection
 
 @section('content')
 <div class="container-fluid py-3" style="max-width:1300px;">
 
-    {{-- Header --}}
-    <div class="card border-0 shadow-sm mb-4" style="background:linear-gradient(135deg,#1e40af 0%,#1e3a8a 100%); border-radius:10px;">
-        <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+    {{-- ══ HEADER ══ --}}
+    <div class="card border-0 mb-3 overflow-hidden" style="background:linear-gradient(135deg,#0b192c 0%,#1a365d 100%); border-radius:14px; position:relative;">
+        <div style="position:absolute;top:0;right:0;bottom:0;left:0;background:radial-gradient(circle at top right,rgba(255,255,255,0.07),transparent 60%);pointer-events:none;"></div>
+        <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2 position-relative" style="z-index:1;">
             <div>
-                <h5 class="mb-0 fw-bold text-white"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h5>
-                <div style="font-size:0.75rem; color:rgba(255,255,255,0.65); margin-top:2px;">Rekap pengumpulan data BPK — {{ now()->format('d F Y') }}</div>
+                <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="font-size:0.95rem;">
+                    <i class="bi bi-speedometer2"></i> Dashboard — INSPECTRA
+                </h5>
+                <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">
+                    Pemantauan dokumen Pemeriksaan BPK &mdash; {{ now()->isoFormat('dddd, D MMMM Y') }}
+                </div>
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a href="{{ route('surat.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); font-size:0.78rem;">
+                <a href="{{ route('pemeriksaan.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.2);font-size:0.75rem;">
+                    <i class="bi bi-folder2-open me-1"></i>Pemeriksaan
+                </a>
+                <a href="{{ route('surat.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.2);font-size:0.75rem;">
                     <i class="bi bi-envelope me-1"></i>Surat
                 </a>
-                <a href="{{ route('opd.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); font-size:0.78rem;">
+                <a href="{{ route('opd.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.2);font-size:0.75rem;">
                     <i class="bi bi-building me-1"></i>OPD
                 </a>
             </div>
         </div>
     </div>
 
-    {{-- Stat Cards --}}
+    {{-- ══ KPI CARDS ══ --}}
     <div class="row g-3 mb-3">
+
+        {{-- Pemeriksaan --}}
         <div class="col-6 col-md-3">
-            <div class="stat-card h-100">
-                <div class="d-flex align-items-start gap-3">
-                    <div class="stat-icon" style="background:#eff6ff;">
-                        <i class="bi bi-envelope-paper text-primary"></i>
-                    </div>
+            <div class="kpi-card h-100">
+                <div class="accent-bar" style="background:#3b82f6;"></div>
+                <div class="d-flex align-items-start gap-3 ps-2">
+                    <div class="kpi-icon" style="background:#eff6ff;"><i class="bi bi-folder-check text-primary"></i></div>
                     <div>
-                        <div class="stat-value">{{ $totalSurat }}</div>
-                        <div class="stat-label">Total Surat</div>
+                        <div class="kpi-value" style="color:#1e40af;">{{ $totalPemeriksaan }}</div>
+                        <div class="kpi-label">Pemeriksaan</div>
                     </div>
                 </div>
-                <div class="stat-sub">{{ $suratAktif }} aktif &bull; {{ $suratSelesai }} selesai</div>
+                <div class="kpi-sub ps-2">
+                    <span class="me-2"><i class="bi bi-lightning-fill text-primary" style="font-size:0.65rem;"></i> {{ $pemeriksaanAktif }} aktif</span>
+                    <span><i class="bi bi-check-circle-fill text-success" style="font-size:0.65rem;"></i> {{ $pemeriksaanSelesai }} selesai</span>
+                </div>
             </div>
         </div>
+
+        {{-- Surat --}}
         <div class="col-6 col-md-3">
-            <div class="stat-card h-100">
-                <div class="d-flex align-items-start gap-3">
-                    <div class="stat-icon" style="background:#fef9c3;">
-                        <i class="bi bi-hourglass-split" style="color:#ca8a04;"></i>
-                    </div>
+            <div class="kpi-card h-100">
+                <div class="accent-bar" style="background:#f59e0b;"></div>
+                <div class="d-flex align-items-start gap-3 ps-2">
+                    <div class="kpi-icon" style="background:#fefce8;"><i class="bi bi-envelope-paper" style="color:#ca8a04;"></i></div>
                     <div>
-                        <div class="stat-value" style="color:#ca8a04;">{{ $opdBelum }}</div>
-                        <div class="stat-label">OPD Belum Kirim</div>
+                        <div class="kpi-value" style="color:#b45309;">{{ $totalSurat }}</div>
+                        <div class="kpi-label">Total Surat</div>
                     </div>
                 </div>
-                <div class="stat-sub">{{ $opdProses }} sedang diproses</div>
+                <div class="kpi-sub ps-2">
+                    <i class="bi bi-circle-fill text-warning" style="font-size:0.5rem;"></i> {{ $suratAktif }} surat aktif saat ini
+                </div>
             </div>
         </div>
+
+        {{-- OPD --}}
         <div class="col-6 col-md-3">
-            <div class="stat-card h-100">
-                <div class="d-flex align-items-start gap-3">
-                    <div class="stat-icon" style="background:#f0fdf4;">
-                        <i class="bi bi-check2-circle" style="color:#16a34a;"></i>
-                    </div>
+            <div class="kpi-card h-100">
+                <div class="accent-bar" style="background:#22c55e;"></div>
+                <div class="d-flex align-items-start gap-3 ps-2">
+                    <div class="kpi-icon" style="background:#f0fdf4;"><i class="bi bi-building" style="color:#16a34a;"></i></div>
                     <div>
-                        <div class="stat-value" style="color:#16a34a;">{{ $opdSelesai }}</div>
-                        <div class="stat-label">OPD Selesai</div>
+                        <div class="kpi-value" style="color:#15803d;">{{ $totalOpd }}</div>
+                        <div class="kpi-label">Penugasan OPD</div>
                     </div>
                 </div>
-                <div class="stat-sub">dari {{ $totalOpd }} total penugasan</div>
+                <div class="kpi-sub ps-2">
+                    <i class="bi bi-check2-circle text-success" style="font-size:0.65rem;"></i> {{ $opdSelesai }} penugasan selesai
+                </div>
             </div>
         </div>
+
+        {{-- Dokumen --}}
         <div class="col-6 col-md-3">
-            <div class="stat-card h-100">
-                <div class="d-flex align-items-start gap-3">
-                    <div class="stat-icon" style="background:#fdf4ff;">
-                        <i class="bi bi-file-earmark-arrow-up" style="color:#9333ea;"></i>
-                    </div>
+            <div class="kpi-card h-100">
+                <div class="accent-bar" style="background:#8b5cf6;"></div>
+                <div class="d-flex align-items-start gap-3 ps-2">
+                    <div class="kpi-icon" style="background:#faf5ff;"><i class="bi bi-file-earmark-arrow-up" style="color:#7c3aed;"></i></div>
                     <div>
-                        <div class="stat-value" style="color:#9333ea;">{{ $totalDokumen }}</div>
-                        <div class="stat-label">Dokumen Upload</div>
+                        <div class="kpi-value" style="color:#6d28d9;">{{ $totalDokumen }}</div>
+                        <div class="kpi-label">Dokumen Upload</div>
                     </div>
                 </div>
-                <div class="stat-sub">
-                    @if($suratOverdue > 0)
-                    <span class="text-danger"><i class="bi bi-exclamation-circle"></i> {{ $suratOverdue }} surat overdue</span>
-                    @elseif($suratDeadlineDekat > 0)
-                    <span class="text-warning"><i class="bi bi-clock"></i> {{ $suratDeadlineDekat }} deadline dekat</span>
-                    @else
-                    <span class="text-success"><i class="bi bi-shield-check"></i> Semua deadline aman</span>
-                    @endif
+                <div class="kpi-sub ps-2">
+                    <i class="bi bi-cloud-upload" style="font-size:0.65rem; color:#8b5cf6;"></i> Terkumpul keseluruhan
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Progress Global --}}
-    <div class="stat-card mb-3">
-        <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-            <div>
-                <span class="fw-semibold" style="font-size:0.85rem; color:#1e3a8a;">Progress Keseluruhan Pengumpulan Data</span>
-                <span class="text-muted ms-2" style="font-size:0.75rem;">{{ $opdSelesai + $opdProses }} dari {{ $totalOpd }} penugasan OPD berjalan</span>
+    {{-- ══ ALERT BANNERS ══ --}}
+    @if($suratDeadlineDekat > 0 || $suratOverdue > 0 || $opdBelum > 0)
+    <div class="row g-2 mb-3">
+        @if($suratDeadlineDekat > 0 || $suratOverdue > 0)
+        <div class="col-12 col-md-6">
+            <div class="alert-banner shadow-sm" style="background:#fef2f2;border-left-color:#ef4444;">
+                <i class="bi bi-exclamation-triangle-fill" style="color:#ef4444;font-size:1.3rem;flex-shrink:0;"></i>
+                <div>
+                    <div class="fw-bold" style="color:#991b1b;font-size:0.8rem;">Peringatan Deadline</div>
+                    <div style="color:#b91c1c;">
+                        <strong>{{ $suratOverdue }}</strong> surat lewat deadline &bull; <strong>{{ $suratDeadlineDekat }}</strong> mendekati batas waktu (H‑14)
+                    </div>
+                </div>
             </div>
-            <span class="fw-bold" style="font-size:1.1rem; color:{{ $progressPersen >= 75 ? '#16a34a' : ($progressPersen >= 40 ? '#d97706' : '#dc2626') }};">
-                {{ $progressPersen }}%
-            </span>
         </div>
-        <div style="height:8px; background:#e9ecef; border-radius:99px; overflow:hidden;">
-            <div style="height:100%; width:{{ $progressPersen }}%; border-radius:99px; transition:width 0.6s;
-                background:{{ $progressPersen >= 75 ? '#22c55e' : ($progressPersen >= 40 ? '#f59e0b' : '#ef4444') }};"></div>
+        @endif
+        @if($opdBelum > 0)
+        <div class="col-12 col-md-6">
+            <div class="alert-banner shadow-sm" style="background:#fffbeb;border-left-color:#f59e0b;">
+                <i class="bi bi-info-circle-fill" style="color:#f59e0b;font-size:1.3rem;flex-shrink:0;"></i>
+                <div>
+                    <div class="fw-bold" style="color:#92400e;font-size:0.8rem;">Status Kepatuhan OPD</div>
+                    <div style="color:#b45309;">
+                        <strong>{{ $opdBelum }}</strong> penugasan OPD belum ditindaklanjuti sama sekali
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="d-flex gap-3 mt-2" style="font-size:0.72rem;">
-            <span style="color:#dc2626;"><span class="fw-semibold">{{ $opdBelum }}</span> belum</span>
-            <span style="color:#ca8a04;"><span class="fw-semibold">{{ $opdProses }}</span> proses</span>
-            <span style="color:#16a34a;"><span class="fw-semibold">{{ $opdSelesai }}</span> selesai</span>
-        </div>
+        @endif
     </div>
+    @endif
 
-    {{-- Content Row --}}
-    <div class="row g-3 mb-3" style="align-items:stretch;">
+    {{-- ══ ROW: RANKING + PROGRESS ══ --}}
+    <div class="row g-3 mb-3">
 
-        {{-- Surat Terbaru --}}
-        <div class="col-lg-5">
-            <div class="sec-card h-100">
+        {{-- OPD Ranking --}}
+        <div class="col-12 col-lg-7">
+            <div class="sec-card">
                 <div class="sec-header">
-                    <span><i class="bi bi-envelope-paper me-2 text-primary"></i>Surat Terbaru</span>
-                    <a href="{{ route('surat.index') }}" class="btn btn-sm py-0 px-2"
-                       style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:0.72rem;">
-                        Lihat Semua
-                    </a>
+                    <span><i class="bi bi-trophy-fill me-2" style="color:#f59e0b;"></i>Ranking Kepatuhan OPD <span style="font-weight:400;color:#94a3b8;">(Pemeriksaan Aktif)</span></span>
                 </div>
-                <div class="sec-body">
-                    @forelse($suratTerbaru as $surat)
-                    <div class="row-item d-flex justify-content-between align-items-start gap-2">
-                        <div style="min-width:0; flex:1;">
-                            <a href="{{ route('surat.show', $surat) }}" class="fw-semibold text-decoration-none text-dark" style="font-size:0.8rem;">
-                                {{ $surat->nomor_surat }}
-                            </a>
-                            <div class="text-muted text-truncate" style="font-size:0.7rem; max-width:240px;">{{ $surat->perihal }}</div>
+                <div class="sec-body p-0">
+                    <div class="row g-0 h-100">
+                        {{-- Top 5 --}}
+                        <div class="col-12 col-md-6" style="border-right:1px solid #f1f5f9;">
+                            <div class="px-3 py-2 d-flex align-items-center gap-1" style="background:#f0fdf4;border-bottom:1px solid #dcfce7;">
+                                <i class="bi bi-hand-thumbs-up-fill" style="color:#16a34a;font-size:0.78rem;"></i>
+                                <span style="font-size:0.72rem;font-weight:700;color:#166534;">Capaian Tertinggi</span>
+                            </div>
+                            @forelse($topOpd as $idx => $opd)
+                            <div class="row-item d-flex align-items-center gap-2">
+                                @if($idx == 0)
+                                    <div class="rank-num" style="background:#fbbf24;color:#fff;">1</div>
+                                @elseif($idx == 1)
+                                    <div class="rank-num" style="background:#94a3b8;color:#fff;">2</div>
+                                @elseif($idx == 2)
+                                    <div class="rank-num" style="background:#cd7f32;color:#fff;">3</div>
+                                @else
+                                    <div class="rank-num" style="background:#f1f5f9;color:#64748b;">{{ $idx+1 }}</div>
+                                @endif
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="fw-semibold text-truncate" style="font-size:0.78rem;" title="{{ $opd->opd }}">{{ $opd->opd }}</div>
+                                    <div class="text-muted" style="font-size:0.65rem;">{{ $opd->selesai }}/{{ $opd->total }} selesai</div>
+                                </div>
+                                <span class="dl-pill" style="background:#dcfce7;color:#15803d;">{{ $opd->persentase }}%</span>
+                            </div>
+                            @empty
+                            <div class="text-center py-4 text-muted" style="font-size:0.75rem;">Belum ada data</div>
+                            @endforelse
                         </div>
-                        <div class="text-end flex-shrink-0">
-                            <span class="badge bg-{{ $surat->status_badge }}" style="font-size:0.62rem;">{{ $surat->status_label }}</span>
-                            <div class="text-muted mt-1" style="font-size:0.65rem;">{{ $surat->tanggal_terima->format('d/m/Y') }}</div>
+
+                        {{-- Bottom 5 --}}
+                        <div class="col-12 col-md-6">
+                            <div class="px-3 py-2 d-flex align-items-center gap-1" style="background:#fef2f2;border-bottom:1px solid #fecaca;">
+                                <i class="bi bi-hand-thumbs-down-fill" style="color:#dc2626;font-size:0.78rem;"></i>
+                                <span style="font-size:0.72rem;font-weight:700;color:#991b1b;">Perlu Perhatian</span>
+                            </div>
+                            @forelse($bottomOpd as $idx => $opd)
+                            <div class="row-item d-flex align-items-center gap-2">
+                                <div class="rank-num" style="background:#f1f5f9;color:#64748b;">{{ count($bottomOpd)-$idx }}</div>
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="fw-semibold text-truncate" style="font-size:0.78rem;" title="{{ $opd->opd }}">{{ $opd->opd }}</div>
+                                    <div class="text-muted" style="font-size:0.65rem;">{{ $opd->selesai }}/{{ $opd->total }} selesai</div>
+                                </div>
+                                <span class="dl-pill" style="background:#fecaca;color:#991b1b;">{{ $opd->persentase }}%</span>
+                            </div>
+                            @empty
+                            <div class="text-center py-4 text-muted" style="font-size:0.75rem;">Belum ada data</div>
+                            @endforelse
                         </div>
                     </div>
-                    @empty
-                    <div class="text-center text-muted py-4" style="font-size:0.8rem;">Belum ada surat</div>
-                    @endforelse
                 </div>
             </div>
         </div>
 
-        {{-- Deadline Surat --}}
-        <div class="col-lg-4">
-            <div class="sec-card h-100">
+        {{-- Progress Pemeriksaan Aktif --}}
+        <div class="col-12 col-lg-5">
+            <div class="sec-card">
                 <div class="sec-header">
-                    <span><i class="bi bi-calendar-event me-2 text-danger"></i>Deadline Surat</span>
+                    <span><i class="bi bi-bar-chart-fill me-2 text-primary"></i>Progres Pemeriksaan Aktif</span>
+                    <a href="{{ route('pemeriksaan.index') }}" class="text-decoration-none" style="font-size:0.72rem;color:#3b82f6;">Lihat Semua</a>
                 </div>
-                <div class="sec-body">
-                    @forelse($suratDeadline as $surat)
-                    @php
-                        $daysLeft  = now()->startOfDay()->diffInDays($surat->deadline->startOfDay(), false);
-                        $isOverdue = $daysLeft < 0;
-                        $isNear    = $daysLeft <= 7;
-                        $pillStyle = $isOverdue
-                            ? 'background:#fee2e2; color:#dc2626;'
-                            : ($isNear ? 'background:#fef9c3; color:#ca8a04;' : 'background:#f3f4f6; color:#6b7280;');
-                        $label = $isOverdue
-                            ? 'Lewat ' . abs($daysLeft) . 'h'
-                            : ($daysLeft == 0 ? 'Hari Ini' : $daysLeft . ' hari lagi');
-                    @endphp
-                    <div class="row-item d-flex justify-content-between align-items-center gap-2">
-                        <div style="min-width:0;">
-                            <a href="{{ route('surat.show', $surat) }}" class="text-decoration-none text-dark fw-semibold" style="font-size:0.8rem;">
-                                {{ $surat->nomor_surat }}
-                            </a>
-                            <div class="text-muted" style="font-size:0.7rem;">{{ $surat->deadline->format('d M Y') }}</div>
-                        </div>
-                        <span class="deadline-pill flex-shrink-0" style="{{ $pillStyle }}">{{ $label }}</span>
-                    </div>
-                    @empty
-                    <div class="text-center text-muted py-4" style="font-size:0.8rem;">Tidak ada deadline aktif</div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        {{-- Progress OPD --}}
-        <div class="col-lg-3">
-            <div class="sec-card h-100">
-                <div class="sec-header">
-                    <span><i class="bi bi-building me-2 text-primary"></i>Progress OPD</span>
-                    <a href="{{ route('opd.index') }}" class="btn btn-sm py-0 px-2"
-                       style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:0.72rem;">
-                        Semua
-                    </a>
-                </div>
-                <div class="sec-body">
-                    @forelse($opdProgress as $opd)
-                    @php
-                        $pct       = $opd->total > 0 ? round(($opd->selesai / $opd->total) * 100) : 0;
-                        $barColor  = $pct >= 75 ? '#22c55e' : ($pct >= 40 ? '#f59e0b' : '#ef4444');
-                    @endphp
+                <div class="sec-body p-0">
+                    @forelse($pemeriksaanProgress as $p)
                     <div class="row-item">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="text-truncate" style="font-size:0.72rem; color:#374151; max-width:140px;" title="{{ $opd->opd }}">
-                                {{ $opd->opd }}
-                            </span>
-                            <span class="fw-semibold ms-1 flex-shrink-0" style="font-size:0.68rem; color:{{ $barColor }};">{{ $pct }}%</span>
+                            <div class="fw-semibold text-truncate pe-2" style="font-size:0.78rem;max-width:220px;" title="{{ $p->nama }}">{{ $p->nama }}</div>
+                            <span style="font-size:0.68rem;font-weight:700;color:{{ $p->persentase==100?'#16a34a':'#1d4ed8' }};flex-shrink:0;">{{ $p->persentase }}%</span>
                         </div>
-                        <div class="bar-wrap">
-                            <div class="bar-fill" style="width:{{ $pct }}%; background:{{ $barColor }};"></div>
+                        <div class="text-muted mt-1" style="font-size:0.65rem;">{{ $p->selesai }} dari {{ $p->total }} penugasan OPD selesai</div>
+                        <div class="prog-bar">
+                            <div class="prog-fill" style="width:{{ $p->persentase }}%;background:{{ $p->persentase==100?'#22c55e':'#3b82f6' }};"></div>
                         </div>
                     </div>
                     @empty
-                    <div class="text-center text-muted py-4" style="font-size:0.8rem;">Belum ada data OPD</div>
+                    <div class="py-5 text-center text-muted" style="font-size:0.78rem;">
+                        <i class="bi bi-folder-x d-block mb-2" style="font-size:2rem;opacity:0.3;"></i>
+                        Tidak ada pemeriksaan aktif saat ini
+                    </div>
                     @endforelse
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Aktivitas Terbaru --}}
-    <div class="sec-card">
-        <div class="sec-header">
-            <span><i class="bi bi-clock-history me-2 text-primary"></i>Dokumen Terbaru Diupload</span>
-            <span class="text-muted" style="font-size:0.72rem;">10 aktivitas terakhir</span>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-sm mb-0" style="font-size:0.78rem;">
-                <thead style="background:#f8f9fa;">
-                    <tr>
-                        <th style="width:30px; color:#9ca3af; font-weight:500;"></th>
-                        <th style="color:#6b7280; font-weight:500;">File</th>
-                        <th style="width:200px; color:#6b7280; font-weight:500;">OPD</th>
-                        <th style="color:#6b7280; font-weight:500;">Data yang Diminta</th>
-                        <th style="width:160px; color:#6b7280; font-weight:500;">Surat</th>
-                        <th style="width:100px; color:#6b7280; font-weight:500;">Waktu</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @forelse($aktivitasTerbaru as $dok)
-                @php
-                    $surat  = $dok->permintaan?->surat;
-                    $opd    = $dok->permintaanOpd?->opd ?? '-';
-                    $opdUrl = $dok->permintaanOpd?->opd ? url('/opd/' . rawurlencode($dok->permintaanOpd->opd)) : null;
-                    $itemUrl = $opdUrl ?? ($surat ? route('surat.show', $surat) : '#');
-                @endphp
-                <tr style="transition:background 0.1s;" onmouseenter="this.style.background='#f8f9fa'" onmouseleave="this.style.background=''">
-                    <td class="text-center" style="color:#3b82f6;"><i class="bi bi-file-earmark-arrow-up"></i></td>
-                    <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                        <a href="{{ $itemUrl }}" class="text-decoration-none fw-semibold text-dark" title="{{ $dok->nama_file }}">
-                            {{ $dok->nama_file }}
-                        </a>
-                    </td>
-                    <td class="text-muted" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:200px;" title="{{ $opd }}">{{ $opd }}</td>
-                    <td class="text-muted" style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="{{ $dok->permintaan?->judul_permintaan }}">
-                        {{ Str::limit($dok->permintaan?->judul_permintaan ?? '-', 50) }}
-                    </td>
-                    <td>
-                        @if($surat)
-                        <a href="{{ route('surat.show', $surat) }}" class="text-decoration-none">
-                            <span style="font-size:0.68rem; background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; padding:1px 7px; border-radius:4px; font-weight:500;">
-                                {{ $surat->nomor_surat }}
-                            </span>
-                        </a>
-                        @else
-                        <span class="text-muted">-</span>
-                        @endif
-                    </td>
-                    <td class="text-muted" style="white-space:nowrap; font-size:0.72rem;">{{ $dok->created_at->diffForHumans() }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="text-center text-muted py-4">
-                        <i class="bi bi-inbox" style="font-size:1.5rem; display:block; margin-bottom:4px;"></i>
-                        Belum ada dokumen diupload
-                    </td>
-                </tr>
-                @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+    {{-- ══ ROW: AKTIVITAS + DEADLINE ══ --}}
+    <div class="row g-3">
 
+        {{-- Aktivitas Upload Terbaru --}}
+        <div class="col-12 col-lg-7">
+            <div class="sec-card" style="min-height:280px;">
+                <div class="sec-header">
+                    <span><i class="bi bi-clock-history me-2" style="color:#6366f1;"></i>Aktivitas Upload Terbaru</span>
+                </div>
+                <div class="sec-body p-0">
+                    @forelse($aktivitasTerbaru as $dok)
+                    @php
+                        $surat = $dok->permintaanOpd
+                            ? $dok->permintaanOpd->permintaan->surat
+                            : ($dok->permintaan ? $dok->permintaan->surat : null);
+                        $pemeriksaan = $surat?->pemeriksaan;
+                    @endphp
+                    <div class="row-item d-flex gap-3 align-items-start">
+                        <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:34px;height:34px;background:#eff6ff;">
+                            <i class="bi bi-file-earmark-text text-primary" style="font-size:0.9rem;"></i>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <div class="fw-semibold text-truncate" style="font-size:0.78rem;max-width:320px;">{{ $dok->nama_file }}</div>
+                                <span class="text-muted flex-shrink-0" style="font-size:0.62rem;">{{ $dok->created_at->diffForHumans() }}</span>
+                            </div>
+                            <div class="text-muted mt-1 text-truncate" style="font-size:0.68rem;">
+                                Oleh: <strong>{{ $dok->uploader?->name ?? 'Unknown' }}</strong>
+                                @if($pemeriksaan) &bull; {{ Str::limit($pemeriksaan->nama, 30) }} @endif
+                            </div>
+                            <div class="text-muted mt-1" style="font-size:0.65rem;">
+                                Surat: {{ $surat?->nomor_surat ?? '-' }}
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="py-5 text-center text-muted" style="font-size:0.78rem;">
+                        <i class="bi bi-inbox d-block mb-2" style="font-size:2rem;opacity:0.3;"></i>
+                        Belum ada aktivitas dokumen
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        {{-- Deadline Mendekat --}}
+        <div class="col-12 col-lg-5">
+            <div class="sec-card" style="min-height:280px;">
+                <div class="sec-header">
+                    <span><i class="bi bi-calendar-event me-2" style="color:#ef4444;"></i>Surat Menunggu Deadline</span>
+                    <a href="{{ route('surat.index') }}" class="text-decoration-none" style="font-size:0.72rem;color:#3b82f6;">Semua Surat</a>
+                </div>
+                <div class="sec-body p-0">
+                    @forelse($suratDeadline as $surat)
+                    @php
+                        $isOverdue = $surat->deadline < now();
+                        $daysLeft  = (int) now()->diffInDays($surat->deadline, false);
+                    @endphp
+                    <a href="{{ route('surat.show', $surat->id) }}" class="text-decoration-none text-dark row-item d-block">
+                        <div class="d-flex justify-content-between align-items-center gap-2">
+                            <div class="fw-semibold text-truncate" style="font-size:0.78rem;max-width:200px;">{{ $surat->nomor_surat }}</div>
+                            @if($isOverdue)
+                                <span class="dl-pill" style="background:#fee2e2;color:#dc2626;">Terlewat</span>
+                            @elseif($daysLeft <= 3)
+                                <span class="dl-pill" style="background:#fef9c3;color:#854d0e;">{{ $daysLeft }}h lagi</span>
+                            @else
+                                <span class="dl-pill" style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;">{{ $daysLeft }}h lagi</span>
+                            @endif
+                        </div>
+                        <div class="text-muted text-truncate mt-1" style="font-size:0.7rem;">{{ $surat->perihal }}</div>
+                        <div class="d-flex align-items-center justify-content-between mt-1" style="font-size:0.65rem;">
+                            <span style="color:#3b82f6;"><i class="bi bi-folder me-1"></i>{{ $surat->pemeriksaan ? Str::limit($surat->pemeriksaan->nama, 22) : 'Tanpa Pemeriksaan' }}</span>
+                            <span class="text-muted"><i class="bi bi-calendar me-1"></i>{{ $surat->deadline->format('d/m/Y') }}</span>
+                        </div>
+                    </a>
+                    @empty
+                    <div class="py-5 text-center text-muted" style="font-size:0.78rem;">
+                        <i class="bi bi-calendar-check d-block mb-2" style="font-size:2rem;opacity:0.3;"></i>
+                        Tidak ada surat dengan deadline mendesak
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 @endsection

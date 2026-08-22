@@ -10,13 +10,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
     <style>
         body { background-color: #f4f6f9; font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; font-size: 0.875rem; }
-        .sidebar { min-height: 100vh; background: linear-gradient(180deg, #1a3a6b 0%, #0d2247 100%); width: 250px; position: fixed; top: 0; left: 0; z-index: 1000; }
-        .sidebar .sidebar-brand { padding: 1.5rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .sidebar .sidebar-brand h5 { color: #fff; font-weight: 700; margin: 0; font-size: 1rem; }
-        .sidebar .sidebar-brand p { color: rgba(255,255,255,0.6); margin: 0; font-size: 0.75rem; }
+        .sidebar { min-height: 100vh; background: linear-gradient(135deg, #0b192c 0%, #1a365d 100%); width: 250px; position: fixed; top: 0; left: 0; z-index: 1000; box-shadow: 2px 0 15px rgba(0,0,0,0.08); }
+        .sidebar::before { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 60%); pointer-events: none; z-index: 0; }
+        .sidebar .sidebar-brand, .sidebar nav, .sidebar .mt-auto { position: relative; z-index: 1; }
+        .sidebar .sidebar-brand { padding: 1.4rem 1rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .sidebar .sidebar-brand .brand-icon { width: 60px; height: 60px; background: rgba(255,255,255,0.08); border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.7rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.12); overflow: hidden; padding: 6px; }
+        .sidebar .sidebar-brand h5 { color: #fff; font-weight: 800; margin: 0; font-size: 1.15rem; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .sidebar .sidebar-brand .sub-brand { color: #bae6fd; font-size: 0.75rem; font-weight: 600; margin-top: 2px; }
+        .sidebar .sidebar-brand p { color: rgba(255,255,255,0.5); margin: 0; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.5rem; }
         .sidebar .nav-link { color: rgba(255,255,255,0.75); padding: 0.65rem 1.25rem; border-radius: 0.5rem; margin: 0.1rem 0.75rem; display: flex; align-items: center; gap: 0.6rem; font-size: 0.875rem; transition: all 0.2s; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.15); color: #fff; }
-        .sidebar .nav-label { color: rgba(255,255,255,0.4); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; padding: 1rem 1.25rem 0.3rem; font-weight: 600; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: rgba(255,255,255,0.12); color: #fff; box-shadow: inset 3px 0 0 #38bdf8; }
+        .sidebar .nav-label { color: rgba(255,255,255,0.35); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; padding: 1.2rem 1.25rem 0.4rem; font-weight: 700; }
         .main-content { margin-left: 250px; padding: 0; min-height: 100vh; }
         .topbar { background: #fff; border-bottom: 1px solid #e0e5ec; padding: 0.75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 999; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
         .notif-bell { position: relative; cursor: pointer; }
@@ -43,14 +47,20 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-brand">
-            <h5><i class=></i>INSPECTRA</h5>
-            <h5><i class=></i>Kabupaten Puncak Jaya</h5>
+            <div class="brand-icon">
+                <img src="/images/logo-inspektorat.png" alt="Logo Inspektorat" style="width:100%; height:100%; object-fit:contain;">
+            </div>
+            <h5>INSPECTRA</h5>
+            <div class="sub-brand">Kabupaten Puncak Jaya</div>
             <p>Manajemen Bahan Pemeriksaan</p>
         </div>
         <nav class="mt-2">
             <div class="nav-label">Menu Utama</div>
             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
                 <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a href="{{ route('pemeriksaan.index') }}" class="nav-link {{ request()->routeIs('pemeriksaan.*') ? 'active' : '' }}">
+                <i class="bi bi-folder2-open"></i> Daftar Pemeriksaan
             </a>
             <a href="{{ route('surat.index') }}" class="nav-link {{ request()->routeIs('surat.*') ? 'active' : '' }}">
                 <i class="bi bi-envelope-paper"></i> Surat Permintaan
@@ -59,7 +69,10 @@
                 <i class="bi bi-building"></i> Monitoring OPD
             </a>
             @if(auth()->user()->isAdmin())
-            <div class="nav-label">Administrasi</div>
+            <div class="nav-label mt-3">Pengaturan</div>
+            <a href="{{ route('master-opd.index') }}" class="nav-link {{ request()->routeIs('master-opd.*') ? 'active' : '' }}">
+                <i class="bi bi-building-add"></i> Master OPD
+            </a>
             <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                 <i class="bi bi-people"></i> Pengguna
             </a>
@@ -68,6 +81,9 @@
             </a>
             <a href="{{ route('backup-dokumen.index') }}" class="nav-link {{ request()->routeIs('backup-dokumen.*') ? 'active' : '' }}">
                 <i class="bi bi-file-earmark-zip"></i> Backup Dokumen
+            </a>
+            <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
+                <i class="bi bi-gear"></i> Pengaturan
             </a>
             @endif
         </nav>

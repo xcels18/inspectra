@@ -3,24 +3,34 @@
 @section('page-title', 'Detail Permintaan: ' . $opdNama)
 
 @section('content')
-<div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-    <a href="{{ route('opd.index') }}{{ $filterSurat ? '?surat_id='.$filterSurat : '' }}" class="btn btn-sm btn-outline-secondary">
-        <i class="bi bi-arrow-left me-1"></i> Kembali
-    </a>
-    <form method="GET" action="{{ route('opd.show', urlencode($opdNama)) }}" class="d-flex align-items-center gap-2">
-        <label class="form-label mb-0 fw-semibold text-nowrap small">Filter Surat:</label>
-        <select name="surat_id" class="form-select form-select-sm" style="max-width: 350px;" onchange="this.form.submit()">
-            <option value="">Semua Surat</option>
-            @foreach($suratList as $s)
-            <option value="{{ $s->id }}" {{ $filterSurat == $s->id ? 'selected' : '' }}>
-                {{ $s->nomor_surat }} — {{ $s->perihal }}
-            </option>
-            @endforeach
-        </select>
-        @if($filterSurat)
-        <a href="{{ route('opd.show', urlencode($opdNama)) }}" class="btn btn-sm btn-outline-secondary">Reset</a>
-        @endif
-    </form>
+<div class="card border-0 shadow-sm mb-4 overflow-hidden" style="background:linear-gradient(135deg,#0b192c 0%,#1a365d 100%); border-radius:10px; position:relative;">
+    <div style="position:absolute; top:0; right:0; bottom:0; left:0; background:radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 60%); pointer-events:none;"></div>
+    <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-3 position-relative z-1">
+        <div>
+            <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+                <i class="bi bi-building"></i> {{ $opdNama }}
+            </h5>
+            <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Monitoring dokumen dan status permintaan OPD</div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <form method="GET" action="{{ route('opd.show', urlencode($opdNama)) }}" class="d-flex align-items-center gap-2">
+                <select name="surat_id" class="form-select form-select-sm border-0 shadow-sm" style="background:rgba(255,255,255,0.9); font-size:0.78rem; width:220px;" onchange="this.form.submit()">
+                    <option value="">Semua Surat</option>
+                    @foreach($suratList as $s)
+                    <option value="{{ $s->id }}" {{ $filterSurat == $s->id ? 'selected' : '' }}>
+                        {{ $s->nomor_surat }}
+                    </option>
+                    @endforeach
+                </select>
+                @if($filterSurat)
+                <a href="{{ route('opd.show', urlencode($opdNama)) }}" class="btn btn-sm btn-light" style="font-size:0.78rem;"><i class="bi bi-x-lg"></i></a>
+                @endif
+            </form>
+            <a href="{{ route('opd.index') }}{{ $filterSurat ? '?surat_id='.$filterSurat : '' }}" class="btn btn-sm" style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); font-size:0.78rem;">
+                <i class="bi bi-arrow-left me-1"></i>Kembali
+            </a>
+        </div>
+    </div>
 </div>
 
 @php
@@ -31,25 +41,28 @@
     $pct     = $total > 0 ? round(($selesai + $proses) / $total * 100) : 0;
 @endphp
 
-<div class="card mb-3">
-    <div class="card-body">
-        <div class="row g-3 align-items-center">
-            <div class="col-md-6">
-                <div class="fw-semibold mb-1"><i class="bi bi-building text-primary me-2"></i>{{ $opdNama }}</div>
-                <div class="d-flex gap-2 flex-wrap">
-                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">{{ $belum }} Belum</span>
-                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">{{ $proses }} Proses</span>
-                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">{{ $selesai }} Selesai</span>
-                    <span class="badge bg-secondary">{{ $total }} Total</span>
-                </div>
+<div class="card border-0 shadow-sm mb-3" style="border-radius:10px;">
+    <div class="card-body p-0">
+        <div class="row g-0 align-items-center text-center">
+            <div class="col-3 border-end py-2">
+                <div class="text-muted" style="font-size:0.65rem; font-weight:600; text-transform:uppercase;">Belum</div>
+                <div class="fw-bold text-danger" style="font-size:1.1rem; line-height:1.2;">{{ $belum }}</div>
             </div>
-            <div class="col-md-6">
-                <div class="d-flex justify-content-between mb-1" style="font-size: 0.8rem;">
-                    <span class="text-muted">Progress Keseluruhan</span>
-                    <span class="fw-semibold">{{ $pct }}%</span>
+            <div class="col-3 border-end py-2">
+                <div class="text-muted" style="font-size:0.65rem; font-weight:600; text-transform:uppercase;">Proses</div>
+                <div class="fw-bold text-warning" style="font-size:1.1rem; line-height:1.2;">{{ $proses }}</div>
+            </div>
+            <div class="col-3 border-end py-2">
+                <div class="text-muted" style="font-size:0.65rem; font-weight:600; text-transform:uppercase;">Selesai</div>
+                <div class="fw-bold text-success" style="font-size:1.1rem; line-height:1.2;">{{ $selesai }}</div>
+            </div>
+            <div class="col-3 py-2 px-3 text-start">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="text-muted" style="font-size:0.65rem; font-weight:600; text-transform:uppercase;">Total: {{ $total }}</div>
+                    <span class="fw-bold text-dark" style="font-size: 0.75rem;">{{ $pct }}%</span>
                 </div>
-                <div class="progress" style="height: 8px;">
-                    <div class="progress-bar bg-success" style="width: {{ $pct }}%"></div>
+                <div class="progress" style="height: 4px; border-radius:2px; background:#f1f5f9;">
+                    <div class="progress-bar" style="width: {{ $pct }}%; background:#0b192c;"></div>
                 </div>
             </div>
         </div>
@@ -65,36 +78,38 @@
     $itemProses  = $suratRows->where('status','proses')->count();
     $itemPct     = $itemTotal > 0 ? round(($itemSelesai + $itemProses) / $itemTotal * 100) : 0;
 @endphp
-<div class="card mb-3">
-    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-1"
-         style="cursor:pointer;"
+<div class="card mb-2 border-0 shadow-sm" style="border-radius:8px; overflow:hidden;">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2 py-2 px-3"
+         style="cursor:pointer; border-bottom:1px solid #f1f5f9;"
          onclick="toggleSurat({{ $suratId }})"
-         onmouseenter="this.style.background='#f8f9fa'"
+         onmouseenter="this.style.background='#f8fafc'"
          onmouseleave="this.style.background=''">
         <div class="d-flex align-items-center gap-2">
-            <span id="toggleIcon{{ $suratId }}" class="text-muted" style="font-size:0.75rem;">
+            <span id="toggleIcon{{ $suratId }}" class="text-muted" style="font-size:0.75rem; width:14px; text-align:center;">
                 <i class="bi bi-chevron-right"></i>
             </span>
             <div>
-                <div class="fw-semibold" style="font-size: 0.88rem;">
-                    <i class="bi bi-envelope me-1 text-primary"></i>
+                <div class="fw-bold text-dark" style="font-size:0.85rem; line-height:1.2;">
+                    <i class="bi bi-envelope-paper me-1 text-primary" style="font-size:0.8rem;"></i>
                     <a href="{{ route('surat.show', $surat) }}" class="text-decoration-none text-dark"
                        onclick="event.stopPropagation()">{{ $surat->nomor_surat }}</a>
                 </div>
-                <div class="text-muted" style="font-size: 0.78rem; padding-left: 1.4rem;">{{ $surat->perihal }}</div>
+                <div class="text-muted text-truncate" style="font-size:0.7rem; max-width:400px;" title="{{ $surat->perihal }}">{{ $surat->perihal }}</div>
             </div>
         </div>
-        <div class="d-flex flex-wrap gap-1 align-items-center" onclick="event.stopPropagation()">
+        <div class="d-flex flex-wrap gap-2 align-items-center" onclick="event.stopPropagation()">
             @if($surat->deadline)
-            <span class="badge {{ $surat->deadline->isPast() ? 'bg-danger' : 'bg-light text-dark border' }}" style="font-size: 0.7rem;">
-                <i class="bi bi-calendar-event me-1"></i>Deadline: {{ $surat->deadline->format('d/m/Y') }}
+            <span class="text-{{ $surat->deadline->isPast() ? 'danger' : 'muted' }}" style="font-size:0.7rem; font-weight:500;">
+                <i class="bi bi-calendar-event me-1"></i>{{ $surat->deadline->format('d M Y') }}
             </span>
             @endif
-            <span class="badge bg-secondary" style="font-size: 0.7rem;">{{ $itemSelesai + $itemProses }}/{{ $itemTotal }} progress</span>
+            <div class="d-flex align-items-center gap-1" style="font-size:0.7rem; font-weight:600;">
+                <span class="text-primary">{{ $itemSelesai + $itemProses }}</span><span class="text-muted">/ {{ $itemTotal }}</span>
+            </div>
         </div>
     </div>
-    <div class="progress" style="height: 4px; border-radius: 0;">
-        <div class="progress-bar bg-success" style="width: {{ $itemPct }}%"></div>
+    <div class="progress" style="height:2px; border-radius:0; background:#f1f5f9;">
+        <div class="progress-bar" style="width:{{ $itemPct }}%; background:#10b981;"></div>
     </div>
     <div id="suratBody{{ $suratId }}" class="card-body p-0" style="display:none;">
         @if(auth()->user()->isAdmin())
@@ -355,7 +370,7 @@ function toggleSurat(id) {
     body.style.display = expanded ? 'none' : '';
     icon.innerHTML = expanded
         ? '<i class="bi bi-chevron-right"></i>'
-        : '<i class="bi bi-chevron-down text-primary"></i>';
+        : '<i class="bi bi-chevron-down text-dark"></i>';
 }
 
 const modalUbahStatus = document.getElementById('modalUbahStatus');

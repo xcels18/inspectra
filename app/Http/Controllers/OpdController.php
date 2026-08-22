@@ -23,11 +23,53 @@ class OpdController extends Controller
             ->unique()
             ->values()
             ->all();
+        $filterPemeriksaanId = $request->get('pemeriksaan_id');
 
-        $stats = $this->buildStats($search, $filterSuratIds);
-        $suratList = \App\Models\Surat::orderByDesc('tanggal_terima')->get();
+        $user = auth()->user();
+        $isAdmin = $user->isAdmin();
+        $userId = $user->id;
 
-        return view('opd.index', compact('stats', 'suratList', 'search', 'filterSuratIds'));
+        // Auto-select the first active pemeriksaan if none specified
+        if (!$filterPemeriksaanId) {
+            $activePemeriksaanQuery = \App\Models\Pemeriksaan::where('status', 'aktif')
+                ->orderByDesc('created_at');
+            if (!$isAdmin) {
+                $activePemeriksaanQuery->whereHas('users', fn($q) => $q->where('user_id', $userId));
+            }
+            $activePemeriksaan = $activePemeriksaanQuery->first();
+            if ($activePemeriksaan) {
+                $filterPemeriksaanId = $activePemeriksaan->id;
+                // Redirect to include pemeriksaan_id in URL so the dropdown shows as selected
+                return redirect()->route('opd.index', array_merge($request->except('pemeriksaan_id'), ['pemeriksaan_id' => $filterPemeriksaanId]));
+            }
+        }
+
+        $stats = $this->buildStats($search, $filterSuratIds, $filterPemeriksaanId);
+
+        $suratQuery = \App\Models\Surat::orderByDesc('tanggal_terima');
+        if (!$isAdmin) {
+            $suratQuery->where(function ($q) use ($userId) {
+                $q->whereNull('pemeriksaan_id')
+                  ->orWhereHas('pemeriksaan.users', fn($uq) => $uq->where('user_id', $userId));
+            });
+        }
+        
+        if ($filterPemeriksaanId) {
+            if ($filterPemeriksaanId === 'null') {
+                $suratQuery->whereNull('pemeriksaan_id');
+            } else {
+                $suratQuery->where('pemeriksaan_id', $filterPemeriksaanId);
+            }
+        }
+        $suratList = $suratQuery->get();
+
+        $pemeriksaanQuery = \App\Models\Pemeriksaan::orderByDesc('created_at');
+        if (!$isAdmin) {
+            $pemeriksaanQuery->whereHas('users', fn($q) => $q->where('user_id', $userId));
+        }
+        $pemeriksaanList = $pemeriksaanQuery->get();
+
+        return view('opd.index', compact('stats', 'suratList', 'search', 'filterSuratIds', 'filterPemeriksaanId', 'pemeriksaanList'));
     }
 
     public function print(Request $request)
@@ -47,14 +89,22 @@ class OpdController extends Controller
 
         $search = trim((string) ($validated['search'] ?? ''));
         $filterSuratIds = collect($validated['surat_ids'])->map(fn($id) => (int) $id)->unique()->values()->all();
+        $filterPemeriksaanId = request('pemeriksaan_id');
 
-        $stats = $this->buildStats($search, $filterSuratIds);
-        $selectedSurat = \App\Models\Surat::whereIn('id', $filterSuratIds)
-            ->orderByDesc('tanggal_terima')
-            ->get(['id', 'nomor_surat', 'perihal', 'tanggal_surat']);
+        $stats = $this->buildStats($search, $filterSuratIds, $filterPemeriksaanId);
+        $user = auth()->user();
+        $suratQuery = \App\Models\Surat::whereIn('id', $filterSuratIds)
+            ->orderByDesc('tanggal_terima');
+        if (!$user->isAdmin()) {
+            $suratQuery->where(function ($q) use ($user) {
+                $q->whereNull('pemeriksaan_id')
+                  ->orWhereHas('pemeriksaan.users', fn($uq) => $uq->where('user_id', $user->id));
+            });
+        }
+        $selectedSurat = $suratQuery->get(['id', 'nomor_surat', 'perihal', 'tanggal_surat']);
         $showDetail = (bool) ($validated['detail'] ?? false);
 
-        $detailByStatus = $showDetail ? $this->buildDetailByStatus($search, $filterSuratIds) : [
+        $detailByStatus = $showDetail ? $this->buildDetailByStatus($search, $filterSuratIds, $filterPemeriksaanId) : [
             'belum' => [],
             'proses' => [],
             'selesai' => [],
@@ -83,8 +133,11 @@ class OpdController extends Controller
         ]);
     }
 
-    private function buildStats(string $search = '', array $filterSuratIds = []): array
+    private function buildStats(string $search = '', array $filterSuratIds = [], $filterPemeriksaanId = null): array
     {
+        $user = auth()->user();
+        $isAdmin = $user->isAdmin();
+        $userId = $user->id;
         $daftarOpd = PermintaanData::daftarOpd();
 
         if ($search !== '') {
@@ -94,10 +147,26 @@ class OpdController extends Controller
         }
 
         $query = PermintaanOpd::with('permintaan')
-            ->whereHas('permintaan.surat', fn($q) => $q->whereNull('deleted_at'));
+            ->whereHas('permintaan.surat', function($q) use ($isAdmin, $userId) {
+                $q->whereNull('deleted_at');
+                if (!$isAdmin) {
+                    $q->where(function ($sq) use ($userId) {
+                        $sq->whereNull('pemeriksaan_id')
+                           ->orWhereHas('pemeriksaan.users', fn($uq) => $uq->where('user_id', $userId));
+                    });
+                }
+            });
 
         if (!empty($filterSuratIds)) {
             $query->whereHas('permintaan', fn($q) => $q->whereIn('surat_id', $filterSuratIds));
+        }
+
+        if ($filterPemeriksaanId) {
+            if ($filterPemeriksaanId === 'null') {
+                $query->whereHas('permintaan.surat', fn($q) => $q->whereNull('pemeriksaan_id'));
+            } else {
+                $query->whereHas('permintaan.surat', fn($q) => $q->where('pemeriksaan_id', $filterPemeriksaanId));
+            }
         }
 
         $allRows = $query->get();
@@ -107,6 +176,10 @@ class OpdController extends Controller
             $filtered = $allRows->where('opd', $opd);
 
             $total = $filtered->count();
+            if ($total === 0) {
+                continue;
+            }
+            
             $belum = $filtered->where('status', 'belum')->count();
             $proses = $filtered->where('status', 'proses')->count();
             $selesai = $filtered->where('status', 'selesai')->count();
@@ -136,8 +209,11 @@ class OpdController extends Controller
         return $stats;
     }
 
-    private function buildDetailByStatus(string $search = '', array $filterSuratIds = []): array
+    private function buildDetailByStatus(string $search = '', array $filterSuratIds = [], $filterPemeriksaanId = null): array
     {
+        $user = auth()->user();
+        $isAdmin = $user->isAdmin();
+        $userId = $user->id;
         $allowedOpd = PermintaanData::daftarOpd();
         if ($search !== '') {
             $allowedOpd = array_values(array_filter($allowedOpd, function ($opd) use ($search) {
@@ -147,10 +223,26 @@ class OpdController extends Controller
 
         $query = PermintaanOpd::with(['permintaan.surat', 'permintaan.judulPermintaan'])
             ->whereIn('status', ['belum', 'proses', 'selesai'])
-            ->whereHas('permintaan.surat', fn($q) => $q->whereNull('deleted_at'));
+            ->whereHas('permintaan.surat', function($q) use ($isAdmin, $userId) {
+                $q->whereNull('deleted_at');
+                if (!$isAdmin) {
+                    $q->where(function ($sq) use ($userId) {
+                        $sq->whereNull('pemeriksaan_id')
+                           ->orWhereHas('pemeriksaan.users', fn($uq) => $uq->where('user_id', $userId));
+                    });
+                }
+            });
 
         if (!empty($filterSuratIds)) {
             $query->whereHas('permintaan', fn($q) => $q->whereIn('surat_id', $filterSuratIds));
+        }
+
+        if ($filterPemeriksaanId) {
+            if ($filterPemeriksaanId === 'null') {
+                $query->whereHas('permintaan.surat', fn($q) => $q->whereNull('pemeriksaan_id'));
+            } else {
+                $query->whereHas('permintaan.surat', fn($q) => $q->where('pemeriksaan_id', $filterPemeriksaanId));
+            }
         }
 
         if (!empty($allowedOpd)) {
@@ -253,9 +345,18 @@ class OpdController extends Controller
         $opdNama = urldecode($opd);
         $filterSurat = $request->get('surat_id');
 
+        $user = auth()->user();
         $query = PermintaanOpd::with(['permintaan.surat', 'permintaan.judulPermintaan', 'dokumen'])
             ->where('opd', $opdNama)
-            ->whereHas('permintaan.surat', fn($q) => $q->whereNull('deleted_at'));
+            ->whereHas('permintaan.surat', function($q) use ($user) {
+                $q->whereNull('deleted_at');
+                if (!$user->isAdmin()) {
+                    $q->where(function ($sq) use ($user) {
+                        $sq->whereNull('pemeriksaan_id')
+                           ->orWhereHas('pemeriksaan.users', fn($uq) => $uq->where('user_id', $user->id));
+                    });
+                }
+            });
         if ($filterSurat) {
             $query->whereHas('permintaan', fn($q) => $q->where('surat_id', $filterSurat));
         }
@@ -267,7 +368,16 @@ class OpdController extends Controller
         ]);
 
         $groupedBySurat = $rows->groupBy(fn($r) => $r->permintaan->surat_id)->sortKeys();
-        $suratList = \App\Models\Surat::orderByDesc('tanggal_terima')->get();
+        
+        $user = auth()->user();
+        $suratQuery = \App\Models\Surat::orderByDesc('tanggal_terima');
+        if (!$user->isAdmin()) {
+            $suratQuery->where(function ($q) use ($user) {
+                $q->whereNull('pemeriksaan_id')
+                  ->orWhereHas('pemeriksaan.users', fn($uq) => $uq->where('user_id', $user->id));
+            });
+        }
+        $suratList = $suratQuery->get();
 
         return view('opd.show', compact('opdNama', 'rows', 'groupedBySurat', 'suratList', 'filterSurat'));
     }

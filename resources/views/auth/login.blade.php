@@ -58,30 +58,23 @@
         .brand-logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
-
-        .brand-logo .icon {
-            width: 42px;
-            height: 42px;
-            background: rgba(255,255,255,0.15);
-            border: 1px solid rgba(255,255,255,0.25);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: #fff;
-            backdrop-filter: blur(8px);
+        
+        .brand-logo img.logo-inspektorat {
+            height: 52px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.35));
         }
-
+        
         .brand-logo .name {
             font-size: 1.1rem;
             font-weight: 700;
             color: #fff;
             letter-spacing: -0.01em;
         }
-
+        
         .brand-logo .tagline {
             font-size: 0.7rem;
             color: rgba(255,255,255,0.55);
@@ -263,11 +256,11 @@
     {{-- Branding kiri --}}
     <div class="brand-panel">
         <div class="brand-logo">
-            <img src="/images/logo-puncak-jaya.png" alt="Logo Kab. Puncak Jaya" style="height:40px; width:auto; filter:brightness(0) invert(1);">
-            <img src="/images/logo-berakhlak.png" alt="Logo BerAKHLAK" style="height:28px; width:auto; filter:brightness(0) invert(1);">
+            <img src="/images/logo-puncak-jaya.png" alt="Logo Kab. Puncak Jaya" class="logo-inspektorat">
+            <img src="/images/logo-inspektorat.png" alt="Logo Inspektorat" class="logo-inspektorat">
             <div>
-                <div class="name">Inspectra</div>
-                <div class="tagline">Sistem Informasi Manajemen Bahan Pemeriksaan</div>
+                <div class="name">INSPECTRA</div>
+                <div class="tagline">Inspektorat &mdash; Kab. Puncak Jaya</div>
             </div>
         </div>
 
@@ -285,13 +278,15 @@
     <div class="login-panel">
         <div class="login-box">
             {{-- Logo --}}
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:2rem;">
-                <img src="/images/logo-puncak-jaya.png" alt="Logo Kab. Puncak Jaya" style="height:42px; width:auto; object-fit:contain;">
-                <div style="width:1px; height:36px; background:#e5e7eb;"></div>
-                <img src="/images/logo-berakhlak.png" alt="Logo BerAKHLAK" style="height:32px; width:auto; object-fit:contain;">
-                <div style="margin-left:4px;">
-                    <div style="font-size:0.85rem;font-weight:700;color:#0f172a;line-height:1.2;">Inspectra</div>
-                    <div style="font-size:0.62rem;color:#9ca3af;line-height:1.3;">Manajemen Bahan Pemeriksaan</div>
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:2rem;">
+                <img src="/images/logo-puncak-jaya.png" alt="Logo Kab. Puncak Jaya" style="height:54px; width:auto; object-fit:contain;">
+                <div style="width:1px; height:44px; background:#e5e7eb;"></div>
+                <img src="/images/logo-inspektorat.png" alt="Logo Inspektorat" style="height:54px; width:auto; object-fit:contain;">
+                <div style="width:1px; height:44px; background:#e5e7eb;"></div>
+                <div>
+                    <div style="font-size:1rem;font-weight:800;color:#0b192c;line-height:1.2;letter-spacing:-0.01em;">INSPECTRA</div>
+                    <div style="font-size:0.68rem;color:#64748b;line-height:1.4;margin-top:2px;">Inspektorat Kab. Puncak Jaya</div>
+                    <div style="font-size:0.62rem;color:#94a3b8;line-height:1.3;">Manajemen Bahan Pemeriksaan</div>
                 </div>
             </div>
 

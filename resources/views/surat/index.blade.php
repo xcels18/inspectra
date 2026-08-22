@@ -5,73 +5,96 @@
 <div class="container-fluid py-3" style="max-width:1200px;">
 
     {{-- Header --}}
-    <div class="card shadow-sm mb-3 border-0" style="background:linear-gradient(135deg,#1e40af 0%,#1e3a8a 100%);">
-        <div class="card-body py-3 px-4">
-            <div class="row align-items-center g-2">
-                <div class="col-auto">
-                    <h5 class="mb-0 fw-bold text-white">
-                        <i class="bi bi-envelope-paper me-2"></i>Surat Permintaan Data BPK
-                    </h5>
+    <div class="card shadow-sm mb-3 border-0 overflow-hidden" style="background:linear-gradient(135deg,#0b192c 0%,#1a365d 100%); position:relative;">
+        <!-- decorative overlay -->
+        <div style="position:absolute; top:0; right:0; bottom:0; left:0; background:radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 60%); pointer-events:none;"></div>
+        
+        <div class="card-body py-3 px-4 position-relative z-1">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-envelope-paper"></i> Surat Permintaan Data BPK
+                </h5>
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    @php
+                        $totalSurat  = $suratList->total();
+                        $aktifCount  = \App\Models\Surat::where('status','aktif')->count();
+                        $selesaiCount= \App\Models\Surat::where('status','selesai')->count();
+                    @endphp
+                    <div class="d-flex align-items-center gap-1 px-3 py-1 rounded-pill" style="background:rgba(255,255,255,0.1); font-size:0.75rem; color:#e2e8f0; border:1px solid rgba(255,255,255,0.15);">
+                        <i class="bi bi-envelope me-1"></i>{{ $totalSurat }} surat
+                    </div>
+                    <div class="d-flex align-items-center gap-1 px-3 py-1 rounded-pill" style="background:rgba(59,130,246,0.2); font-size:0.75rem; color:#93c5fd; border:1px solid rgba(59,130,246,0.3);">
+                        <i class="bi bi-lightning me-1"></i>{{ $aktifCount }} aktif
+                    </div>
+                    <div class="d-flex align-items-center gap-1 px-3 py-1 rounded-pill" style="background:rgba(16,185,129,0.2); font-size:0.75rem; color:#6ee7b7; border:1px solid rgba(16,185,129,0.3);">
+                        <i class="bi bi-check-circle me-1"></i>{{ $selesaiCount }} selesai
+                    </div>
+                    @if(auth()->user()->isAdmin() || $pemeriksaanList->count() > 0)
+                    <a href="{{ route('surat.create') }}" class="btn btn-sm fw-semibold shadow-sm"
+                       style="background:#fff; color:#0b192c; font-size:0.78rem; margin-left:0.5rem; transition:transform 0.15s;" 
+                       onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform=''">
+                        <i class="bi bi-plus-lg me-1"></i>Tambah
+                    </a>
+                    @endif
                 </div>
-                <div class="col">
-                    <form method="GET" action="{{ route('surat.index') }}" class="d-flex align-items-center gap-2 flex-wrap">
-                        <div class="input-group input-group-sm" style="max-width:260px;">
-                            <span class="input-group-text" style="background:rgba(255,255,255,0.15); color:#fff; border-color:rgba(255,255,255,0.3);">
+            </div>
+
+            <!-- Filters -->
+            <div class="p-2 rounded-3" style="background:rgba(0,0,0,0.18); border:1px solid rgba(255,255,255,0.06);">
+                <form method="GET" action="{{ route('surat.index') }}" class="row g-2 align-items-center m-0">
+                    <div class="col-12 col-md-4">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text border-0" style="background:rgba(255,255,255,0.08); color:#cbd5e1;">
                                 <i class="bi bi-search"></i>
                             </span>
-                            <input type="text" name="search" class="form-control form-control-sm"
-                                   placeholder="Nomor / perihal..."
+                            <input type="text" name="search" class="form-control form-control-sm border-0"
+                                   placeholder="Cari nomor surat / perihal..."
                                    value="{{ request('search') }}"
-                                   style="background:rgba(255,255,255,0.12); color:#fff; border-color:rgba(255,255,255,0.3); font-size:0.78rem;">
+                                   style="background:rgba(255,255,255,0.08); color:#fff; font-size:0.78rem; box-shadow:none;">
                         </div>
-                        <select name="status" class="form-select form-select-sm"
-                                style="max-width:130px; background:rgba(255,255,255,0.12); color:#fff; border-color:rgba(255,255,255,0.3); font-size:0.78rem;"
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <select name="status" class="form-select form-select-sm border-0"
+                                style="background:rgba(255,255,255,0.08); color:#fff; font-size:0.78rem; box-shadow:none;"
                                 onchange="this.form.submit()">
-                            <option value="" style="color:#000;">Semua Status</option>
+                            <option value="semua" style="color:#000;" {{ request('status') === 'semua' ? 'selected' : '' }}>Semua Status</option>
                             <option value="aktif"   style="color:#000;" {{ request('status') === 'aktif'   ? 'selected' : '' }}>Aktif</option>
                             <option value="selesai" style="color:#000;" {{ request('status') === 'selesai' ? 'selected' : '' }}>Selesai</option>
                             <option value="arsip"   style="color:#000;" {{ request('status') === 'arsip'   ? 'selected' : '' }}>Arsip</option>
                         </select>
-                        <select name="tahun" class="form-select form-select-sm"
-                                style="max-width:110px; background:rgba(255,255,255,0.12); color:#fff; border-color:rgba(255,255,255,0.3); font-size:0.78rem;"
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <select name="tahun" class="form-select form-select-sm border-0"
+                                style="background:rgba(255,255,255,0.08); color:#fff; font-size:0.78rem; box-shadow:none;"
                                 onchange="this.form.submit()">
                             <option value="" style="color:#000;">Semua Tahun</option>
                             @foreach($tahunList as $tahun)
                             <option value="{{ $tahun }}" style="color:#000;" {{ request('tahun') === $tahun ? 'selected' : '' }}>{{ $tahun }}</option>
                             @endforeach
                         </select>
-                        <button type="submit" class="btn btn-sm" style="background:rgba(255,255,255,0.2); color:#fff; border-color:rgba(255,255,255,0.3); font-size:0.78rem;">
-                            <i class="bi bi-search me-1"></i>Cari
+                    </div>
+                    <div class="col-9 col-md-3">
+                        <select name="pemeriksaan_id" class="form-select form-select-sm border-0"
+                                style="background:rgba(255,255,255,0.08); color:#fff; font-size:0.78rem; box-shadow:none;"
+                                onchange="this.form.submit()">
+                            <option value="" style="color:#000;">Semua Pemeriksaan</option>
+                            <option value="null" style="color:#000;" {{ request('pemeriksaan_id') === 'null' ? 'selected' : '' }}>Belum Dipetakan</option>
+                            @foreach($pemeriksaanList as $p)
+                            <option value="{{ $p->id }}" style="color:#000;" {{ request('pemeriksaan_id') == $p->id ? 'selected' : '' }}>{{ Str::limit($p->nama, 25) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-3 col-md-1 d-flex gap-1 justify-content-end">
+                        <button type="submit" class="btn btn-sm flex-grow-1" style="background:rgba(255,255,255,0.15); color:#fff; font-size:0.78rem; border:1px solid rgba(255,255,255,0.1);">
+                            Cari
                         </button>
-                        @if(request('search') || request('status') || request('tahun'))
-                        <a href="{{ route('surat.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.1); color:#fff; border-color:rgba(255,255,255,0.3); font-size:0.78rem;">
+                        @if(request('search') || request('status') || request('tahun') || request('pemeriksaan_id'))
+                        <a href="{{ route('surat.index') }}" class="btn btn-sm" style="background:rgba(239,68,68,0.2); color:#fca5a5; font-size:0.78rem; border:1px solid rgba(239,68,68,0.3);" title="Reset Filter">
                             <i class="bi bi-x-lg"></i>
                         </a>
                         @endif
-                    </form>
-                </div>
-                <div class="col-auto d-flex align-items-center gap-2">
-                    @php
-                        $totalSurat  = $suratList->total();
-                        $aktifCount  = \App\Models\Surat::where('status','aktif')->count();
-                        $selesaiCount= \App\Models\Surat::where('status','selesai')->count();
-                    @endphp
-                    <div class="d-flex align-items-center gap-1 px-3 py-1 rounded-pill" style="background:rgba(255,255,255,0.15); font-size:0.78rem; color:#fff;">
-                        <i class="bi bi-envelope me-1"></i>{{ $totalSurat }} surat
                     </div>
-                    <div class="d-flex align-items-center gap-1 px-3 py-1 rounded-pill" style="background:rgba(99,102,241,0.4); font-size:0.78rem; color:#c7d2fe;">
-                        <i class="bi bi-lightning me-1"></i>{{ $aktifCount }} aktif
-                    </div>
-                    <div class="d-flex align-items-center gap-1 px-3 py-1 rounded-pill" style="background:rgba(52,211,153,0.25); font-size:0.78rem; color:#a7f3d0;">
-                        <i class="bi bi-check-circle me-1"></i>{{ $selesaiCount }} selesai
-                    </div>
-                    @if(auth()->user()->isAdmin())
-                    <a href="{{ route('surat.create') }}" class="btn btn-sm fw-semibold"
-                       style="background:#fff; color:#1e40af; font-size:0.78rem;">
-                        <i class="bi bi-plus-lg me-1"></i>Tambah
-                    </a>
-                    @endif
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -135,8 +158,21 @@
                         </div>
 
                         {{-- Perihal --}}
-                        <div class="text-muted mb-3 lh-sm" style="font-size:0.77rem;">
-                            {{ Str::limit($surat->perihal, 80) }}
+                        <div class="text-muted mb-2 lh-sm" style="font-size:0.77rem; min-height:2.4rem;">
+                            {{ Str::limit($surat->perihal, 75) }}
+                        </div>
+
+                        {{-- Pemeriksaan --}}
+                        <div class="mb-3">
+                            @if($surat->pemeriksaan)
+                                <a href="{{ route('pemeriksaan.show', $surat->pemeriksaan->id) }}" class="text-decoration-none text-truncate d-inline-block w-100" style="font-size:0.68rem; background:#f3f4f6; color:#4b5563; padding:2px 8px; border-radius:4px; border:1px solid #e5e7eb;">
+                                    <i class="bi bi-folder2-open me-1"></i>{{ $surat->pemeriksaan->nama }}
+                                </a>
+                            @else
+                                <span class="text-truncate d-inline-block w-100" style="font-size:0.68rem; background:#fffbeb; color:#d97706; padding:2px 8px; border-radius:4px; border:1px solid #fde68a;">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Belum Dipetakan
+                                </span>
+                            @endif
                         </div>
 
                         {{-- Meta --}}
@@ -167,7 +203,10 @@
                                style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:0.78rem;">
                                 <i class="bi bi-eye me-1"></i>Detail
                             </a>
-                            @if(auth()->user()->isAdmin())
+                            @php
+                                $canEdit = auth()->user()->isAdmin() || ($surat->pemeriksaan && $surat->pemeriksaan->users->contains('id', auth()->id()));
+                            @endphp
+                            @if($canEdit)
                             <a href="{{ route('surat.edit', $surat) }}"
                                class="btn btn-sm"
                                style="background:#f9fafb; color:#6b7280; border:1px solid #e5e7eb; font-size:0.78rem;"
@@ -234,7 +273,18 @@
                                 {{ $statusColor['label'] }}
                             </span>
                         </div>
-                        <div class="text-muted text-truncate" style="font-size:0.75rem; max-width:420px;">{{ $surat->perihal }}</div>
+                        <div class="text-muted text-truncate mb-1" style="font-size:0.75rem; max-width:420px;">{{ $surat->perihal }}</div>
+                        <div class="d-flex align-items-center mt-1">
+                            @if($surat->pemeriksaan)
+                                <a href="{{ route('pemeriksaan.show', $surat->pemeriksaan->id) }}" class="text-decoration-none text-truncate" style="font-size:0.65rem; background:#f3f4f6; color:#4b5563; padding:1px 6px; border-radius:4px; max-width:250px;">
+                                    <i class="bi bi-folder2-open me-1"></i>{{ $surat->pemeriksaan->nama }}
+                                </a>
+                            @else
+                                <span class="text-truncate" style="font-size:0.65rem; background:#fffbeb; color:#d97706; padding:1px 6px; border-radius:4px;">
+                                    <i class="bi bi-exclamation-circle me-1"></i>Belum Dipetakan
+                                </span>
+                            @endif
+                        </div>
                     </div>
 
                     {{-- Tahun & tanggal --}}
@@ -261,7 +311,10 @@
                            style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:0.72rem; padding:2px 10px;">
                             <i class="bi bi-eye me-1"></i>Detail
                         </a>
-                        @if(auth()->user()->isAdmin())
+                        @php
+                            $canEdit = auth()->user()->isAdmin() || ($surat->pemeriksaan && $surat->pemeriksaan->users->contains('id', auth()->id()));
+                        @endphp
+                        @if($canEdit)
                         <a href="{{ route('surat.edit', $surat) }}"
                            class="btn btn-sm"
                            style="background:#f9fafb; color:#6b7280; border:1px solid #e5e7eb; font-size:0.72rem; padding:2px 8px;"

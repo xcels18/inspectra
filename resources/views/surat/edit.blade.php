@@ -15,16 +15,21 @@
 <div class="container-fluid py-3" style="max-width:960px;">
 
     {{-- Header --}}
-    <div class="card border-0 shadow-sm mb-4" style="background:linear-gradient(135deg,#1e40af 0%,#1e3a8a 100%); border-radius:10px;">
-        <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between">
+    <div class="card border-0 shadow-sm mb-4 overflow-hidden" style="background:linear-gradient(135deg,#0b192c 0%,#1a365d 100%); border-radius:10px; position:relative;">
+        <div style="position:absolute; top:0; right:0; bottom:0; left:0; background:radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 60%); pointer-events:none;"></div>
+        <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2 position-relative z-1">
             <div>
-                <h5 class="mb-0 fw-bold text-white"><i class="bi bi-pencil-square me-2"></i>Edit Surat Permintaan</h5>
-                <div style="font-size:0.75rem; color:rgba(255,255,255,0.65); margin-top:2px;">{{ $surat->nomor_surat }}</div>
+                <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-pencil-square"></i> Edit Surat Permintaan
+                </h5>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">{{ $surat->nomor_surat }}</div>
             </div>
-            <a href="{{ route('surat.show', $surat) }}" class="btn btn-sm"
-               style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); font-size:0.78rem;">
-                <i class="bi bi-arrow-left me-1"></i>Kembali
-            </a>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a href="{{ route('surat.show', $surat) }}" class="btn btn-sm"
+                   style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); font-size:0.78rem;">
+                    <i class="bi bi-arrow-left me-1"></i>Kembali
+                </a>
+            </div>
         </div>
     </div>
 
@@ -37,6 +42,18 @@
             </div>
             <div class="card-body pt-3 pb-3">
                 <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Pemeriksaan Induk <span class="text-danger">*</span></label>
+                        <select name="pemeriksaan_id" class="form-select @error('pemeriksaan_id') is-invalid @enderror" required>
+                            <option value="">-- Pilih Pemeriksaan --</option>
+                            @foreach($pemeriksaans as $p)
+                                <option value="{{ $p->id }}" {{ old('pemeriksaan_id', $surat->pemeriksaan_id) == $p->id ? 'selected' : '' }}>
+                                    {{ $p->nama }} (Tahun: {{ $p->tahun }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('pemeriksaan_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
                     <div class="col-md-6">
                         <label class="form-label">Nomor Surat <span class="text-danger">*</span></label>
                         <input type="text" name="nomor_surat"
@@ -120,7 +137,7 @@
                 Batal
             </a>
             <button type="submit" class="btn btn-sm px-4 fw-semibold"
-                    style="background:#1e40af; color:#fff; border:0; font-size:0.82rem;">
+                    style="background:#0b192c; color:#fff; border:0; font-size:0.82rem;">
                 <i class="bi bi-save me-1"></i>Simpan Perubahan
             </button>
         </div>

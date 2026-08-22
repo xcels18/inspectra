@@ -71,4 +71,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Dokumen::class, 'uploaded_by');
     }
+
+    public function pemeriksaan()
+    {
+        return $this->belongsToMany(Pemeriksaan::class, 'pemeriksaan_user');
+    }
 }

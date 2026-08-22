@@ -17,30 +17,20 @@ class BackupDokumenController extends Controller
 
     public function index()
     {
-        $suratList = Surat::with([
+        $pemeriksaans = \App\Models\Pemeriksaan::with([
+            'surat.judulPermintaan.permintaanData.permintaanOpd.dokumen'
+        ])->orderByDesc('created_at')->get();
+
+        $unmappedSurats = Surat::whereNull('pemeriksaan_id')->with([
             'judulPermintaan.permintaanData.permintaanOpd.dokumen',
         ])->orderByDesc('tanggal_surat')->get();
 
-        $suratStats = $suratList->map(function ($surat) {
-            $dokumenCount = 0;
-            foreach ($surat->judulPermintaan as $judul) {
-                foreach ($judul->permintaanData as $permintaan) {
-                    foreach ($permintaan->permintaanOpd as $opd) {
-                        $dokumenCount += $opd->dokumen->count();
-                    }
-                }
-            }
-
-            return [
-                'surat' => $surat,
-                'dokumen_count' => $dokumenCount,
-            ];
-        });
-
         return view('backup-dokumen.index', [
-            'suratStats' => $suratStats,
-            'defaultStructure' => ['nomor_surat', 'opd', 'judul_permintaan'],
+            'pemeriksaans' => $pemeriksaans,
+            'unmappedSurats' => $unmappedSurats,
+            'defaultStructure' => ['pemeriksaan', 'nomor_surat', 'opd', 'judul_permintaan'],
             'structureOptions' => [
+                'pemeriksaan' => 'Pemeriksaan',
                 'nomor_surat' => 'Nomor Surat',
                 'opd' => 'OPD',
                 'judul_permintaan' => 'Judul Permintaan',
@@ -54,15 +44,16 @@ class BackupDokumenController extends Controller
             'surat_ids' => 'required|array|min:1',
             'surat_ids.*' => 'integer|exists:surat,id',
             'structure' => 'required|array|min:1',
-            'structure.*' => 'in:nomor_surat,opd,judul_permintaan',
+            'structure.*' => 'in:pemeriksaan,nomor_surat,opd,judul_permintaan',
         ]);
 
         $structure = array_values(array_unique($validated['structure']));
         if (!in_array('nomor_surat', $structure, true)) {
-            array_unshift($structure, 'nomor_surat');
+            $structure[] = 'nomor_surat';
         }
 
         $suratList = Surat::with([
+            'pemeriksaan',
             'judulPermintaan.permintaanData.permintaanOpd.dokumen',
         ])->whereIn('id', $validated['surat_ids'])->get();
 
@@ -102,7 +93,9 @@ class BackupDokumenController extends Controller
 
                             $pathSegments = [];
                             foreach ($structure as $level) {
-                                if ($level === 'nomor_surat') {
+                                if ($level === 'pemeriksaan') {
+                                    $pathSegments[] = $this->sanitizeSegment($surat->pemeriksaan ? $surat->pemeriksaan->nama : 'Belum Dipetakan');
+                                } elseif ($level === 'nomor_surat') {
                                     $pathSegments[] = $this->sanitizeSegment($surat->nomor_surat ?: ('Surat-' . $surat->id));
                                 } elseif ($level === 'opd') {
                                     $pathSegments[] = $this->sanitizeSegment($opd->opd ?: 'OPD');

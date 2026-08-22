@@ -1,7 +1,10 @@
 @extends('layouts.app')
 @section('title', 'Tambah Surat')
 
-@php $daftarOpd = App\Models\PermintaanData::opsiOpd(); @endphp
+@php 
+    $daftarOpd = App\Models\MasterOpd::orderBy('kategori')->orderBy('nama')->get();
+    $opdOptions = $daftarOpd->map(fn($o) => ['value' => $o->nama, 'kategori' => $o->kategori]);
+@endphp
 
 @section('styles')
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
@@ -15,6 +18,14 @@
 .form-label { font-size:0.8rem; font-weight:600; margin-bottom:0.3rem; color:#374151; }
 .form-control, .form-select { font-size:0.82rem; }
 .form-text { font-size:0.72rem; }
+.quick-select-bar { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:5px; }
+.btn-qs { font-size:0.68rem; padding:2px 8px; border-radius:4px; cursor:pointer; border:1px solid; font-weight:600; white-space:nowrap; transition:all 0.15s; }
+.btn-qs:hover { opacity:0.8; }
+.btn-qs-all  { background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe; }
+.btn-qs-opd  { background:#f0fdf4; color:#16a34a; border-color:#bbf7d0; }
+.btn-qs-sek  { background:#fefce8; color:#854d0e; border-color:#fde68a; }
+.btn-qs-vert { background:#faf5ff; color:#7c3aed; border-color:#ddd6fe; }
+.btn-qs-pol  { background:#fff1f2; color:#be123c; border-color:#fecdd3; }
 </style>
 @endsection
 
@@ -22,15 +33,20 @@
 <div class="container-fluid py-3" style="max-width:960px;">
 
     {{-- Header --}}
-    <div class="card border-0 shadow-sm mb-4" style="background:linear-gradient(135deg,#1e40af 0%,#1e3a8a 100%); border-radius:10px;">
-        <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between">
+    <div class="card border-0 shadow-sm mb-4 overflow-hidden" style="background:linear-gradient(135deg,#0b192c 0%,#1a365d 100%); border-radius:10px; position:relative;">
+        <div style="position:absolute; top:0; right:0; bottom:0; left:0; background:radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 60%); pointer-events:none;"></div>
+        <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2 position-relative z-1">
             <div>
-                <h5 class="mb-0 fw-bold text-white"><i class="bi bi-envelope-plus me-2"></i>Tambah Surat Permintaan</h5>
-                <div style="font-size:0.75rem; color:rgba(255,255,255,0.65); margin-top:2px;">Isi informasi surat dan daftar permintaan data</div>
+                <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+                    <i class="bi bi-envelope-plus"></i> Tambah Surat Permintaan
+                </h5>
+                <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Isi informasi surat dan daftar permintaan data</div>
             </div>
-            <a href="{{ route('surat.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); font-size:0.78rem;">
-                <i class="bi bi-arrow-left me-1"></i>Kembali
-            </a>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a href="{{ route('surat.index') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); font-size:0.78rem;">
+                    <i class="bi bi-arrow-left me-1"></i>Kembali
+                </a>
+            </div>
         </div>
     </div>
 
@@ -45,6 +61,18 @@
             </div>
             <div class="card-body pt-3 pb-3">
                 <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Pemeriksaan Induk <span class="text-danger">*</span></label>
+                        <select name="pemeriksaan_id" class="form-select @error('pemeriksaan_id') is-invalid @enderror" required>
+                            <option value="">-- Pilih Pemeriksaan --</option>
+                            @foreach($pemeriksaans as $p)
+                                <option value="{{ $p->id }}" {{ old('pemeriksaan_id') == $p->id ? 'selected' : '' }}>
+                                    {{ $p->nama }} (Tahun: {{ $p->tahun }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('pemeriksaan_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
                     <div class="col-md-6">
                         <label class="form-label">Nomor Surat <span class="text-danger">*</span></label>
                         <input type="text" name="nomor_surat"
@@ -172,10 +200,17 @@
                                         </button>
                                     </div>
                                     <div class="ps-4">
+                                        <div class="quick-select-bar">
+                                            <button type="button" class="btn-qs btn-qs-all" onclick="selectKategori(this, null)">&#9646; Semua Instansi</button>
+                                            <button type="button" class="btn-qs btn-qs-opd" onclick="selectKategori(this, 'OPD')">&#127963; Semua OPD</button>
+                                            <button type="button" class="btn-qs btn-qs-sek" onclick="selectKategori(this, 'Sekolah')">&#127979; Semua Sekolah</button>
+                                            <button type="button" class="btn-qs btn-qs-vert" onclick="selectKategori(this, 'Instansi Vertikal')">&#127970; Semua Vertikal</button>
+                                            <button type="button" class="btn-qs btn-qs-pol" onclick="selectKategori(this, 'Partai Politik')">&#128499; Semua Parpol</button>
+                                        </div>
                                         <select name="judul_permintaan[0][list_opd][0][]"
                                                 class="form-select form-select-sm opd-select" multiple>
                                             @foreach($daftarOpd as $opd)
-                                            <option value="{{ $opd }}">{{ $opd }}</option>
+                                            <option value="{{ $opd->nama }}" data-kategori="{{ $opd->kategori }}">{{ $opd->nama }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -194,7 +229,7 @@
                 Batal
             </a>
             <button type="submit" class="btn btn-sm px-4 fw-semibold"
-                    style="background:#1e40af; color:#fff; border:0; font-size:0.82rem;">
+                    style="background:#0b192c; color:#fff; border:0; font-size:0.82rem;">
                 <i class="bi bi-save me-1"></i>Simpan Surat
             </button>
         </div>
@@ -206,7 +241,7 @@
 <div class="modal fade" id="modalImportExcel" tabindex="-1" aria-labelledby="modalImportExcelLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:10px;">
-            <div class="modal-header" style="background:linear-gradient(135deg,#1e40af 0%,#1e3a8a 100%); border-radius:10px 10px 0 0;">
+            <div class="modal-header" style="background:linear-gradient(135deg,#0b192c 0%,#1a365d 100%); border-radius:10px 10px 0 0;">
                 <h6 class="modal-title text-white fw-bold mb-0">
                     <i class="bi bi-file-earmark-excel me-2"></i>Import dari Excel
                 </h6>
@@ -224,7 +259,7 @@
             <div class="modal-footer" style="gap:0.5rem;">
                 <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-sm fw-semibold" id="btnProseImport"
-                        style="background:#1e40af; color:#fff; border:0; font-size:0.82rem;"
+                        style="background:#0b192c; color:#fff; border:0; font-size:0.82rem;"
                         onclick="prosesImportExcel()">
                     <i class="bi bi-upload me-1"></i>Proses Import
                 </button>
@@ -237,6 +272,8 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
+// OPD data with category info for quick-select
+const opdData = @json($opdOptions);
 const tsOpts = { plugins: ['remove_button'], maxOptions: null, placeholder: 'Pilih OPD...' };
 
 function initTomSelect(el) {
@@ -245,7 +282,31 @@ function initTomSelect(el) {
 
 document.querySelectorAll('.opd-select').forEach(initTomSelect);
 
-const opdOptions = `@foreach($daftarOpd as $opd)<option value="{{ $opd }}">{{ $opd }}</option>@endforeach`;
+// Build HTML options string (for dynamically added rows)
+function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+const opdOptionsHtml = opdData.map(o => `<option value="${escHtml(o.value)}" data-kategori="${escHtml(o.kategori)}">${escHtml(o.value)}</option>`).join('');
+
+/**
+ * Quick-select OPDs by category in the nearest TomSelect.
+ * Clicking again when all are selected will deselect them (toggle).
+ */
+function selectKategori(btn, kategori) {
+    const selectEl = btn.closest('.ps-4').querySelector('.opd-select');
+    if (!selectEl || !selectEl.tomselect) return;
+    const ts = selectEl.tomselect;
+    const targetValues = opdData
+        .filter(o => kategori === null || o.kategori === kategori)
+        .map(o => o.value);
+    const currentItems = Object.keys(ts.items);
+    const allSelected = targetValues.every(v => currentItems.includes(v));
+    if (allSelected) {
+        targetValues.forEach(v => ts.removeItem(v));
+    } else {
+        targetValues.forEach(v => ts.addItem(v));
+    }
+}
 
 const btnStyle = {
     hapusJudul: 'background:#fff5f5; color:#dc2626; border:1px solid #fecaca; font-size:0.72rem;',
@@ -288,7 +349,14 @@ function tambahJudul() {
                         <button type="button" class="btn btn-sm hapus-list-btn" style="${btnStyle.hapusList} display:none;" onclick="hapusListData(this)"><i class="bi bi-x"></i></button>
                     </div>
                     <div class="ps-4">
-                        <select name="judul_permintaan[${judulIdx}][list_opd][0][]" class="form-select form-select-sm opd-select" multiple>${opdOptions}</select>
+                        <div class="quick-select-bar">
+                            <button type="button" class="btn-qs btn-qs-all" onclick="selectKategori(this, null)">&#9646; Semua Instansi</button>
+                            <button type="button" class="btn-qs btn-qs-opd" onclick="selectKategori(this, 'OPD')">&#127963; Semua OPD</button>
+                            <button type="button" class="btn-qs btn-qs-sek" onclick="selectKategori(this, 'Sekolah')">&#127979; Semua Sekolah</button>
+                            <button type="button" class="btn-qs btn-qs-vert" onclick="selectKategori(this, 'Instansi Vertikal')">&#127970; Semua Vertikal</button>
+                            <button type="button" class="btn-qs btn-qs-pol" onclick="selectKategori(this, 'Partai Politik')">&#128499; Semua Parpol</button>
+                        </div>
+                        <select name="judul_permintaan[${judulIdx}][list_opd][0][]" class="form-select form-select-sm opd-select" multiple>${opdOptionsHtml}</select>
                     </div>
                 </div>
             </div>
@@ -326,7 +394,14 @@ function tambahListData(btn, judulIndex) {
             <button type="button" class="btn btn-sm hapus-list-btn" style="${btnStyle.hapusList}" onclick="hapusListData(this)"><i class="bi bi-x"></i></button>
         </div>
         <div class="ps-4">
-            <select name="judul_permintaan[${judulIndex}][list_opd][${newNum - 1}][]" class="form-select form-select-sm opd-select" multiple>${opdOptions}</select>
+            <div class="quick-select-bar">
+                <button type="button" class="btn-qs btn-qs-all" onclick="selectKategori(this, null)">&#9646; Semua Instansi</button>
+                <button type="button" class="btn-qs btn-qs-opd" onclick="selectKategori(this, 'OPD')">&#127963; Semua OPD</button>
+                <button type="button" class="btn-qs btn-qs-sek" onclick="selectKategori(this, 'Sekolah')">&#127979; Semua Sekolah</button>
+                <button type="button" class="btn-qs btn-qs-vert" onclick="selectKategori(this, 'Instansi Vertikal')">&#127970; Semua Vertikal</button>
+                <button type="button" class="btn-qs btn-qs-pol" onclick="selectKategori(this, 'Partai Politik')">&#128499; Semua Parpol</button>
+            </div>
+            <select name="judul_permintaan[${judulIndex}][list_opd][${newNum - 1}][]" class="form-select form-select-sm opd-select" multiple>${opdOptionsHtml}</select>
         </div>`;
     container.appendChild(div);
     div.querySelectorAll('.opd-select').forEach(initTomSelect);
@@ -448,8 +523,6 @@ document.querySelector('form[action="{{ route('surat.store') }}"]').addEventList
     }
 });
 
-function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+
 </script>
 @endsection

@@ -6,6 +6,7 @@ use App\Models\Surat;
 use App\Models\User;
 use App\Models\JudulPermintaan;
 use App\Models\PermintaanData;
+use App\Models\Pemeriksaan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -19,12 +20,19 @@ class SuratController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('admin')->except(['index', 'show']);
     }
 
     public function index(Request $request)
     {
-        $query = Surat::with(['pembuat', 'judulPermintaan.permintaanData.permintaanOpd']);
+        $query = Surat::with(['pembuat', 'pemeriksaan', 'pemeriksaan.users', 'judulPermintaan.permintaanData.permintaanOpd']);
+
+        $user = auth()->user();
+        if (!$user->isAdmin()) {
+            $query->where(function ($q) use ($user) {
+                $q->whereNull('pemeriksaan_id')
+                  ->orWhereHas('pemeriksaan.users', fn($uq) => $uq->where('user_id', $user->id));
+            });
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -34,23 +42,49 @@ class SuratController extends Controller
             });
         }
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
+        $status = $request->input('status');
+        if ($status === null) {
+            $status = 'aktif';
+        }
+        
+        if ($status !== 'semua') {
+            $query->where('status', $status);
+            // Replace status in request so that the view receives the updated default
+            $request->merge(['status' => $status]);
         }
 
         if ($request->filled('tahun')) {
             $query->where('tahun_anggaran', $request->tahun);
         }
 
+        if ($request->filled('pemeriksaan_id')) {
+            if ($request->pemeriksaan_id === 'null') {
+                $query->whereNull('pemeriksaan_id');
+            } else {
+                $query->where('pemeriksaan_id', $request->pemeriksaan_id);
+            }
+        }
+
         $suratList = $query->orderByDesc('nomor_surat')->paginate(15)->withQueryString();
         $tahunList = Surat::select('tahun_anggaran')->distinct()->orderByDesc('tahun_anggaran')->pluck('tahun_anggaran');
+        $pemeriksaanQuery = Pemeriksaan::orderBy('created_at', 'desc');
+        if (!$user->isAdmin()) {
+            $pemeriksaanQuery->whereHas('users', fn($q) => $q->where('user_id', $user->id));
+        }
+        $pemeriksaanList = $pemeriksaanQuery->get();
 
-        return view('surat.index', compact('suratList', 'tahunList'));
+        return view('surat.index', compact('suratList', 'tahunList', 'pemeriksaanList'));
     }
 
     public function create()
     {
-        return view('surat.create');
+        $user = auth()->user();
+        $pemeriksaanQuery = Pemeriksaan::orderBy('created_at', 'desc');
+        if (!$user->isAdmin()) {
+            $pemeriksaanQuery->whereHas('users', fn($q) => $q->where('user_id', $user->id));
+        }
+        $pemeriksaans = $pemeriksaanQuery->get();
+        return view('surat.create', compact('pemeriksaans'));
     }
 
     public function store(Request $request)
@@ -76,8 +110,26 @@ class SuratController extends Controller
             'judul_permintaan.*.list_opd' => 'nullable|array',
             'judul_permintaan.*.list_opd.*' => 'nullable|array',
             'judul_permintaan.*.list_opd.*.*' => 'nullable|string',
+            'pemeriksaan_id' => 'nullable|exists:pemeriksaan,id',
         ]);
 
+
+        $pemeriksaanId = $validated['pemeriksaan_id'] ?? null;
+        if ($pemeriksaanId) {
+            if (!auth()->user()->isAdmin()) {
+                $hasAccess = \App\Models\Pemeriksaan::where('id', $pemeriksaanId)
+                    ->whereHas('users', fn($q) => $q->where('user_id', auth()->id()))
+                    ->exists();
+                if (!$hasAccess) {
+                    abort(403, 'Anda tidak memiliki akses ke pemeriksaan ini.');
+                }
+            }
+        } else {
+             if (!auth()->user()->isAdmin()) {
+                 abort(403, 'Anda harus memilih pemeriksaan induk.');
+             }
+        }
+        
         $filePath = null;
         if ($request->hasFile('file_surat')) {
             $filePath = $request->file('file_surat')->store('surat', 'local');
@@ -95,6 +147,7 @@ class SuratController extends Controller
                 'file_surat' => $filePath,
                 'status' => 'aktif',
                 'created_by' => auth()->id(),
+                'pemeriksaan_id' => $validated['pemeriksaan_id'] ?? null,
             ]);
         } catch (\Illuminate\Database\QueryException $e) {
             if ((string) $e->getCode() === '23000') {
@@ -195,6 +248,13 @@ class SuratController extends Controller
 
     public function show(Surat $surat)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && $surat->pemeriksaan_id) {
+            if (!$surat->pemeriksaan->users()->where('user_id', $user->id)->exists()) {
+                abort(403, 'Anda tidak memiliki akses ke surat ini.');
+            }
+        }
+
         $surat->load([
             'pembuat',
             'judulPermintaan',
@@ -235,11 +295,30 @@ class SuratController extends Controller
 
     public function edit(Surat $surat)
     {
-        return view('surat.edit', compact('surat'));
+        $user = auth()->user();
+        if (!$user->isAdmin() && $surat->pemeriksaan_id) {
+            if (!$surat->pemeriksaan->users()->where('user_id', $user->id)->exists()) {
+                abort(403, 'Anda tidak memiliki akses ke surat ini.');
+            }
+        }
+
+        $pemeriksaanQuery = Pemeriksaan::orderBy('created_at', 'desc');
+        if (!$user->isAdmin()) {
+            $pemeriksaanQuery->whereHas('users', fn($q) => $q->where('user_id', $user->id));
+        }
+        $pemeriksaans = $pemeriksaanQuery->get();
+        return view('surat.edit', compact('surat', 'pemeriksaans'));
     }
 
     public function update(Request $request, Surat $surat)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && $surat->pemeriksaan_id) {
+            if (!$surat->pemeriksaan->users()->where('user_id', $user->id)->exists()) {
+                abort(403, 'Anda tidak memiliki akses ke surat ini.');
+            }
+        }
+
         $validated = $request->validate([
             'nomor_surat' => [
                 'required',
@@ -255,6 +334,7 @@ class SuratController extends Controller
             'tahun_anggaran' => 'required|string|max:10',
             'status' => 'required|in:aktif,selesai,arsip',
             'file_surat' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'pemeriksaan_id' => 'nullable|exists:pemeriksaan,id',
         ]);
 
         if ($request->hasFile('file_surat')) {
@@ -394,6 +474,12 @@ class SuratController extends Controller
 
     public function exportExcelReport(Surat $surat)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && $surat->pemeriksaan_id) {
+            if (!$surat->pemeriksaan->users()->where('user_id', $user->id)->exists()) {
+                abort(403, 'Anda tidak memiliki akses ke surat ini.');
+            }
+        }
         $surat->load(['judulPermintaan.permintaanData']);
 
         $spreadsheet = new Spreadsheet();
@@ -467,6 +553,12 @@ class SuratController extends Controller
 
     public function downloadFile(Surat $surat)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin() && $surat->pemeriksaan_id) {
+            if (!$surat->pemeriksaan->users()->where('user_id', $user->id)->exists()) {
+                abort(403, 'Anda tidak memiliki akses ke surat ini.');
+            }
+        }
         if (!$surat->file_surat || !Storage::disk('local')->exists($surat->file_surat)) {
             abort(404, 'File surat tidak ditemukan.');
         }
@@ -479,6 +571,18 @@ class SuratController extends Controller
 
     public function destroy(Surat $surat)
     {
+        $user = auth()->user();
+        if (!$user->isAdmin()) {
+            if ($surat->pemeriksaan_id) {
+                $hasAccess = $surat->pemeriksaan->users()->where('user_id', $user->id)->exists();
+                if (!$hasAccess) {
+                    abort(403, 'Anda tidak memiliki akses untuk menghapus surat ini.');
+                }
+            } else {
+                abort(403, 'Anda tidak memiliki akses untuk menghapus surat tanpa pemeriksaan induk.');
+            }
+        }
+
         if ($surat->file_surat) {
             Storage::disk('local')->delete($surat->file_surat);
         }

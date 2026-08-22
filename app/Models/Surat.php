@@ -25,6 +25,7 @@ class Surat extends Model
         'created_by',
         'gdrive_folder_id',
         'gdrive_folder_structure',
+        'pemeriksaan_id',
     ];
 
     protected $casts = [
@@ -37,6 +38,11 @@ class Surat extends Model
     public function pembuat()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function pemeriksaan()
+    {
+        return $this->belongsTo(Pemeriksaan::class, 'pemeriksaan_id');
     }
 
     public function judulPermintaan()

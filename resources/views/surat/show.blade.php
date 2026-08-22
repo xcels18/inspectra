@@ -34,16 +34,17 @@
     $deadlineDays = $surat->deadline ? now()->startOfDay()->diffInDays($surat->deadline->startOfDay(), false) : null;
 @endphp
 
-<div class="card mb-3" style="border:none; box-shadow: 0 1px 6px rgba(0,0,0,0.07); border-radius: 0.875rem; overflow:hidden;">
-    <div style="background: linear-gradient(135deg, #1a3a6b 0%, #2563eb 100%); padding: 1.1rem 1.5rem;">
-        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+<div class="card mb-3" style="border:none; box-shadow: 0 1px 6px rgba(0,0,0,0.07); border-radius: 10px; overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#0b192c 0%,#1a365d 100%); padding: 1.1rem 1.5rem; position:relative;">
+        <div style="position:absolute; top:0; right:0; bottom:0; left:0; background:radial-gradient(circle at top right, rgba(255,255,255,0.06), transparent 60%); pointer-events:none;"></div>
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap position-relative z-1">
             <div>
-                <div style="font-size:0.72rem; color:rgba(255,255,255,0.65); letter-spacing:0.06em; text-transform:uppercase; margin-bottom:2px;">Nomor Surat</div>
+                <div style="font-size:0.72rem; color:#94a3b8; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:2px;">Nomor Surat</div>
                 <div style="font-size:1.15rem; font-weight:700; color:#fff;">{{ $surat->nomor_surat }}</div>
-                <div style="font-size:0.82rem; color:rgba(255,255,255,0.8); margin-top:3px;">{{ $surat->perihal }}</div>
+                <div style="font-size:0.82rem; color:#e2e8f0; margin-top:3px;">{{ $surat->perihal }}</div>
             </div>
             <div class="d-flex gap-2 align-items-center flex-wrap">
-                <span class="badge bg-white" style="color:#1a3a6b; font-size:0.75rem; padding:5px 12px;">{{ $surat->tahun_anggaran }}</span>
+                <span class="badge bg-white" style="color:#0b192c; font-size:0.75rem; padding:5px 12px;">{{ $surat->tahun_anggaran }}</span>
                 <span class="badge bg-{{ $surat->status_badge }}" style="font-size:0.75rem; padding:5px 12px;">{{ $surat->status_label }}</span>
             </div>
         </div>
