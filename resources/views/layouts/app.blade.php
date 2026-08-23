@@ -62,33 +62,33 @@
         <nav class="mt-2">
             <div class="nav-label">Menu Utama</div>
             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                <i class="bi bi-speedometer2"></i> Dashboard
+                <i class="bi bi-grid-1x2"></i> Dashboard
             </a>
             <a href="{{ route('pemeriksaan.index') }}" class="nav-link {{ request()->routeIs('pemeriksaan.*') ? 'active' : '' }}">
-                <i class="bi bi-folder2-open"></i> Daftar Pemeriksaan
+                <i class="bi bi-card-checklist"></i> Daftar Pemeriksaan
             </a>
             <a href="{{ route('surat.index') }}" class="nav-link {{ request()->routeIs('surat.*') ? 'active' : '' }}">
                 <i class="bi bi-envelope-paper"></i> Surat Permintaan
             </a>
             <a href="{{ route('opd.index') }}" class="nav-link {{ request()->routeIs('opd.*') ? 'active' : '' }}">
-                <i class="bi bi-building"></i> Monitoring OPD
+                <i class="bi bi-activity"></i> Monitoring OPD
             </a>
             <a href="{{ route('laporan.index') }}" class="nav-link {{ request()->routeIs('laporan.*') ? 'active' : '' }}">
-                <i class="bi bi-file-earmark-pdf"></i> Cetak Laporan
+                <i class="bi bi-printer"></i> Cetak Laporan
             </a>
             @if(auth()->user()->isAdmin())
             <div class="nav-label mt-3">Pengaturan</div>
             <a href="{{ route('master-opd.index') }}" class="nav-link {{ request()->routeIs('master-opd.*') ? 'active' : '' }}">
-                <i class="bi bi-building-add"></i> Master OPD
+                <i class="bi bi-buildings"></i> Master OPD
             </a>
             <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
-                <i class="bi bi-people"></i> Pengguna
+                <i class="bi bi-person-badge"></i> Pengguna
             </a>
             <a href="{{ route('google-drive.index') }}" class="nav-link {{ request()->routeIs('google-drive.*') ? 'active' : '' }}">
-                <i class="bi bi-cloud-arrow-up"></i> Google Drive Sync
+                <i class="bi bi-google"></i> Google Drive Sync
             </a>
             <a href="{{ route('backup-dokumen.index') }}" class="nav-link {{ request()->routeIs('backup-dokumen.*') ? 'active' : '' }}">
-                <i class="bi bi-file-earmark-zip"></i> Backup Dokumen
+                <i class="bi bi-archive"></i> Backup Dokumen
             </a>
             <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">
                 <i class="bi bi-gear"></i> Pengaturan
