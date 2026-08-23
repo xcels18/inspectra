@@ -11,7 +11,7 @@
         <div class="card-body py-3 px-4 position-relative" style="z-index:1;">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                 <div>
-                    <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="font-size:0.95rem;">
+                    <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="font-size:0.85rem;">
                         <i class="bi bi-folder2-open"></i> Daftar Pemeriksaan BPK
                     </h5>
                     <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">Kelola semua pemeriksaan dan surat permintaan data</div>
