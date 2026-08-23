@@ -103,8 +103,8 @@
     <div class="card border-0 shadow-sm mb-2" style="border-radius:10px; transition:box-shadow 0.2s;"
          onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.1)'" 
          onmouseout="this.style.boxShadow='0 1px 4px rgba(0,0,0,0.06)'">
-        <div class="card-body py-3 px-4">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="card-body py-2 px-3">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
                 {{-- Left: name + meta --}}
                 <div class="d-flex align-items-center gap-3 flex-grow-1" style="min-width:0;">
                     {{-- Index badge --}}
@@ -150,19 +150,19 @@
                 </div>
 
                 {{-- Right: status + actions --}}
-                <div class="d-flex flex-column align-items-end flex-shrink-0" style="min-width:80px;">
-                    <span class="badge rounded-pill mb-2 fw-medium" style="background:{{ $sc['bg'] }}; color:{{ $sc['txt'] }}; border:1px solid {{ $sc['bd'] }}; font-size:0.62rem;">
+                <div class="d-flex flex-column align-items-end justify-content-center flex-shrink-0 gap-2" style="min-width:80px;">
+                    <span class="badge rounded-pill fw-medium" style="background:{{ $sc['bg'] }}; color:{{ $sc['txt'] }}; border:1px solid {{ $sc['bd'] }}; font-size:0.62rem;">
                         <span class="rounded-circle d-inline-block me-1" style="width:6px; height:6px; background:{{ $sc['dot'] }};"></span>
                         {{ $sc['lbl'] }}
                     </span>
-                    <a href="{{ route('pemeriksaan.show', $item->id) }}" class="btn btn-sm"
-                       style="background:#f8f9fa; color:#374151; border:1px solid #e5e7eb; font-size:0.72rem; padding:3px 10px;">
-                        <i class="bi bi-eye me-1"></i>Detail
-                    </a>
-                    @if(auth()->user()->isAdmin())
-                    <div class="d-flex gap-1 mt-2">
+                    <div class="d-flex gap-1">
+                        <a href="{{ route('pemeriksaan.show', $item->id) }}" class="btn btn-sm"
+                           style="background:#f8f9fa; color:#374151; border:1px solid #e5e7eb; font-size:0.65rem; padding:2px 8px;" title="Detail">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        @if(auth()->user()->isAdmin())
                         <a href="{{ route('pemeriksaan.edit', $item->id) }}" class="btn btn-sm"
-                           style="background:#f8f9fa; color:#374151; border:1px solid #e5e7eb; font-size:0.65rem; padding:2px 8px;">
+                           style="background:#f8f9fa; color:#374151; border:1px solid #e5e7eb; font-size:0.65rem; padding:2px 8px;" title="Edit">
                             <i class="bi bi-pencil"></i>
                         </a>
                         <form action="{{ route('pemeriksaan.destroy', $item->id) }}" method="POST" class="d-inline-block m-0"
@@ -170,12 +170,12 @@
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-sm"
-                                    style="background:#fff5f5; color:#dc2626; border:1px solid #fecaca; font-size:0.65rem; padding:2px 8px;">
+                                    style="background:#fff5f5; color:#dc2626; border:1px solid #fecaca; font-size:0.65rem; padding:2px 8px;" title="Hapus">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
+                        @endif
                     </div>
-                    @endif
                 </div>
             </div>
         </div>
