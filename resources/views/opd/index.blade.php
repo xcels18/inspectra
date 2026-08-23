@@ -239,57 +239,79 @@
 
     {{-- List View --}}
     <div id="viewList" style="display:none;">
-        <div class="card shadow-sm border-0" style="border-radius:10px;">
-            <div class="card-body p-0">
-                @forelse($stats as $stat)
-                @php $pct = $stat['total']>0 ? round(($stat['selesai']+$stat['proses'])/$stat['total']*100) : 0; @endphp
-                <div class="opd-item d-flex align-items-center gap-3 px-3 py-2 border-bottom"
-                     data-opd="{{ strtolower($stat['opd']) }}"
-                     style="transition:background 0.1s;{{ $stat['total']==0?'opacity:0.6;':'' }}"
-                     onmouseenter="this.style.background='#f8fafc'"
-                     onmouseleave="this.style.background=''">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                         style="width:28px;height:28px;background:{{ $stat['total']==0?'#f3f4f6':'#eff6ff' }};">
-                        <i class="bi bi-building {{ $stat['total']==0?'text-secondary':'text-primary' }}" style="font-size:0.72rem;"></i>
-                    </div>
-                    <div class="fw-semibold flex-grow-1" style="font-size:0.8rem;min-width:0;">{{ $stat['opd'] }}</div>
-                    <div class="d-none d-sm-flex gap-1 flex-shrink-0" style="font-size:0.65rem;">
-                        @if($stat['total']>0)
-                        <span style="background:#fee2e2;color:#dc2626;padding:1px 7px;border-radius:999px;">{{ $stat['belum'] }} Belum</span>
-                        <span style="background:#fef9c3;color:#ca8a04;padding:1px 7px;border-radius:999px;">{{ $stat['proses'] }} Proses</span>
-                        <span style="background:#dcfce7;color:#16a34a;padding:1px 7px;border-radius:999px;">{{ $stat['selesai'] }} Selesai</span>
-                        @else
-                        <span style="background:#f3f4f6;color:#9ca3af;padding:1px 7px;border-radius:999px;">Belum ada data</span>
-                        @endif
-                    </div>
-                    <div class="d-none d-md-block flex-shrink-0" style="width:90px;">
-                        <div class="d-flex justify-content-between mb-1" style="font-size:0.62rem;">
-                            <span class="text-muted"></span>
-                            <span class="fw-bold {{ $pct==100?'text-success':($stat['total']==0?'text-secondary':'text-primary') }}">{{ $pct }}%</span>
-                        </div>
-                        <div style="height:3px;background:#e9ecef;border-radius:4px;overflow:hidden;">
-                            <div style="height:100%;width:{{ $pct }}%;background:{{ $pct==100?'#22c55e':'#3b82f6' }};border-radius:4px;"></div>
-                        </div>
-                    </div>
-                    <span class="badge flex-shrink-0 bg-secondary" style="font-size:0.65rem;">{{ $stat['total'] }}</span>
-                    @if($stat['total']>0)
-                    <a href="{{ route('opd.show', urlencode($stat['opd'])) }}{{ !empty($filterSuratIds)?'?surat_id='.($filterSuratIds[0]??''):'' }}"
-                       class="btn btn-sm flex-shrink-0"
-                       style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:0.7rem;padding:2px 10px;">
-                        <i class="bi bi-eye me-1"></i>Detail
-                    </a>
-                    @else
-                    <span class="btn btn-sm flex-shrink-0 disabled" style="background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb;font-size:0.7rem;padding:2px 10px;">
-                        <i class="bi bi-dash"></i>
-                    </span>
-                    @endif
-                </div>
-                @empty
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-building d-block mb-2" style="font-size:2.5rem;opacity:0.3;"></i>
-                    <div style="font-size:0.85rem;">Belum ada data permintaan</div>
-                </div>
-                @endforelse
+        <div class="card shadow-sm border-0 overflow-hidden" style="border-radius:10px;">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="font-size:0.78rem;">
+                    <thead style="background:#f8fafc; border-bottom:2px solid #e2e8f0; color:#475569;">
+                        <tr>
+                            <th class="ps-3 py-2 fw-semibold" style="width:40px;">No</th>
+                            <th class="py-2 fw-semibold">Nama Instansi / OPD</th>
+                            <th class="py-2 fw-semibold text-center" style="width:200px;">Status Permintaan</th>
+                            <th class="py-2 fw-semibold text-center" style="width:120px;">Progress</th>
+                            <th class="py-2 fw-semibold text-center" style="width:80px;">Total</th>
+                            <th class="pe-3 py-2 fw-semibold text-end" style="width:100px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($stats as $index => $stat)
+                        @php $pct = $stat['total']>0 ? round(($stat['selesai']+$stat['proses'])/$stat['total']*100) : 0; @endphp
+                        <tr class="opd-item {{ $stat['total']==0 ? 'opacity-75' : '' }}" data-opd="{{ strtolower($stat['opd']) }}">
+                            <td class="ps-3 text-muted">{{ $loop->iteration }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                                         style="width:28px;height:28px;background:{{ $stat['total']==0?'#f3f4f6':'#eff6ff' }};">
+                                        <i class="bi bi-building {{ $stat['total']==0?'text-secondary':'text-primary' }}" style="font-size:0.72rem;"></i>
+                                    </div>
+                                    <span class="fw-semibold text-dark">{{ $stat['opd'] }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                @if($stat['total']>0)
+                                <div class="d-flex justify-content-center gap-1" style="font-size:0.65rem;">
+                                    <span style="background:#fee2e2;color:#dc2626;padding:2px 6px;border-radius:4px;" title="Belum"><b>{{ $stat['belum'] }}</b> B</span>
+                                    <span style="background:#fef9c3;color:#ca8a04;padding:2px 6px;border-radius:4px;" title="Proses"><b>{{ $stat['proses'] }}</b> P</span>
+                                    <span style="background:#dcfce7;color:#16a34a;padding:2px 6px;border-radius:4px;" title="Selesai"><b>{{ $stat['selesai'] }}</b> S</span>
+                                </div>
+                                @else
+                                <span class="badge bg-light text-secondary">Kosong</span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <div style="flex-grow:1;height:4px;background:#e9ecef;border-radius:4px;overflow:hidden;max-width:60px;">
+                                        <div style="height:100%;width:{{ $pct }}%;background:{{ $pct==100?'#22c55e':'#3b82f6' }};border-radius:4px;"></div>
+                                    </div>
+                                    <span class="fw-bold {{ $pct==100?'text-success':($stat['total']==0?'text-secondary':'text-primary') }}" style="font-size:0.68rem;">{{ $pct }}%</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-secondary" style="font-size:0.7rem;">{{ $stat['total'] }}</span>
+                            </td>
+                            <td class="pe-3 text-end">
+                                @if($stat['total']>0)
+                                <a href="{{ route('opd.show', urlencode($stat['opd'])) }}{{ !empty($filterSuratIds)?'?surat_id='.($filterSuratIds[0]??''):'' }}"
+                                   class="btn btn-sm"
+                                   style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:0.7rem;padding:3px 8px;">
+                                    <i class="bi bi-eye"></i> Detail
+                                </a>
+                                @else
+                                <span class="btn btn-sm disabled" style="background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb;font-size:0.7rem;padding:3px 8px;">
+                                    <i class="bi bi-dash"></i> Kosong
+                                </span>
+                                @endif
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="bi bi-building d-block mb-2" style="font-size:2.5rem;opacity:0.3;"></i>
+                                <div style="font-size:0.85rem;">Belum ada data permintaan</div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
         <div id="listEmpty" style="display:none;" class="text-center text-muted py-5 card shadow-sm border-0 mt-2">
