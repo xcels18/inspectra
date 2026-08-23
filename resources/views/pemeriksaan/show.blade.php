@@ -56,14 +56,14 @@
                     <div style="font-size:0.65rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Total Surat</div>
                 </div>
                 <div class="px-3 py-2 rounded-3 text-center" style="background:rgba(255,255,255,0.07); min-width:90px;">
-                    <div class="fw-bold text-white" style="font-size:1.1rem;">{{ $surats->getCollection()->where('status','aktif')->count() }}</div>
+                    <div class="fw-bold text-white" style="font-size:1.1rem;">{{ $pemeriksaan->surat->where('status','aktif')->count() }}</div>
                     <div style="font-size:0.65rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Aktif</div>
                 </div>
                 <div class="px-3 py-2 rounded-3 text-center" style="background:rgba(255,255,255,0.07); min-width:90px;">
-                    <div class="fw-bold text-white" style="font-size:1.1rem;">{{ $surats->getCollection()->where('status','selesai')->count() }}</div>
+                    <div class="fw-bold text-white" style="font-size:1.1rem;">{{ $pemeriksaan->surat->where('status','selesai')->count() }}</div>
                     <div style="font-size:0.65rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Selesai</div>
                 </div>
-                @php $avgProg = $surats->total() > 0 ? round($surats->getCollection()->avg('opd_progress')) : 0; @endphp
+                @php $avgProg = $surats->total() > 0 ? round($pemeriksaan->surat->avg('opd_progress')) : 0; @endphp
                 <div class="px-3 py-2 rounded-3 text-center" style="background:rgba(255,255,255,0.07); min-width:90px;">
                     <div class="fw-bold" style="font-size:1.1rem; color:{{ $avgProg == 100 ? '#4ade80' : '#60a5fa' }};">{{ $avgProg }}%</div>
                     <div style="font-size:0.65rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Avg Progress</div>
