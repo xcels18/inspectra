@@ -109,14 +109,14 @@
                 <div class="d-flex align-items-center gap-3 flex-grow-1" style="min-width:0;">
                     {{-- Index badge --}}
                     <div class="d-flex align-items-center justify-content-center flex-shrink-0 rounded-3"
-                         style="width:36px; height:36px; background:#f1f5f9; color:#64748b; font-size:0.8rem; font-weight:700;">
+                         style="width:30px; height:30px; background:#f1f5f9; color:#64748b; font-size:0.75rem; font-weight:700;">
                         {{ $pemeriksaans->firstItem() + $index }}
                     </div>
                     <div style="min-width:0;">
                         <a href="{{ route('pemeriksaan.show', $item->id) }}" class="text-decoration-none">
-                            <div class="fw-bold text-dark" style="font-size:0.82rem; line-height:1.3;">{{ $item->nama }}</div>
+                            <div class="fw-bold text-dark" style="font-size:0.78rem; line-height:1.3;">{{ $item->nama }}</div>
                         </a>
-                        <div class="d-flex align-items-center flex-wrap gap-2 mt-1" style="font-size:0.72rem; color:#94a3b8;">
+                        <div class="d-flex align-items-center flex-wrap gap-2 mt-1" style="font-size:0.68rem; color:#94a3b8;">
                             <span><i class="bi bi-calendar3 me-1"></i>{{ $item->tahun }}</span>
                             @if($item->tanggal_mulai)
                             <span><i class="bi bi-play-circle me-1"></i>{{ $item->tanggal_mulai->format('d/m/Y') }}</span>
@@ -133,25 +133,25 @@
 
                 {{-- Middle: stats --}}
                 <div class="d-flex align-items-center gap-3 flex-shrink-0">
-                    <div class="text-center" style="min-width:60px;">
-                        <div class="fw-bold text-dark" style="font-size:1rem;">{{ $suratCount }}</div>
-                        <div style="font-size:0.62rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Surat</div>
+                    <div class="text-center" style="min-width:50px;">
+                        <div class="fw-bold text-dark" style="font-size:0.85rem;">{{ $suratCount }}</div>
+                        <div style="font-size:0.58rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Surat</div>
                     </div>
-                    <div class="text-center" style="min-width:60px;">
-                        <div class="fw-bold" style="font-size:1rem; color:#3b82f6;">{{ $suratAktif }}</div>
-                        <div style="font-size:0.62rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Aktif</div>
+                    <div class="text-center" style="min-width:50px;">
+                        <div class="fw-bold" style="font-size:0.85rem; color:#3b82f6;">{{ $suratAktif }}</div>
+                        <div style="font-size:0.58rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Aktif</div>
                     </div>
                     @if($item->users->count() > 0)
-                    <div class="d-flex align-items-center gap-1 px-2 py-1 rounded-2" style="background:#f8fafc; border:1px solid #e2e8f0; max-width:160px;">
-                        <i class="bi bi-people text-muted flex-shrink-0" style="font-size:0.8rem;"></i>
-                        <span class="text-truncate" style="font-size:0.68rem; color:#64748b;">{{ $item->users->pluck('name')->join(', ') }}</span>
+                    <div class="d-flex align-items-center gap-1 px-2 py-1 rounded-2" style="background:#f8fafc; border:1px solid #e2e8f0; max-width:140px;">
+                        <i class="bi bi-people text-muted flex-shrink-0" style="font-size:0.7rem;"></i>
+                        <span class="text-truncate" style="font-size:0.62rem; color:#64748b;">{{ $item->users->pluck('name')->join(', ') }}</span>
                     </div>
                     @endif
                 </div>
 
                 {{-- Right: status + actions --}}
-                <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                    <span class="px-2 py-1 rounded-pill" style="font-size:0.68rem; font-weight:700; background:{{ $sc['bg'] }}; border:1px solid {{ $sc['bd'] }}; color:{{ $sc['txt'] }};">
+                <div class="d-flex flex-column align-items-end flex-shrink-0" style="min-width:80px;">
+                    <span class="badge rounded-pill mb-2 fw-medium" style="background:{{ $sc['bg'] }}; color:{{ $sc['txt'] }}; border:1px solid {{ $sc['bd'] }}; font-size:0.62rem;">
                         <span class="rounded-circle d-inline-block me-1" style="width:6px; height:6px; background:{{ $sc['dot'] }};"></span>
                         {{ $sc['lbl'] }}
                     </span>
@@ -160,19 +160,21 @@
                         <i class="bi bi-eye me-1"></i>Detail
                     </a>
                     @if(auth()->user()->isAdmin())
-                    <a href="{{ route('pemeriksaan.edit', $item->id) }}" class="btn btn-sm"
-                       style="background:#f8f9fa; color:#374151; border:1px solid #e5e7eb; font-size:0.72rem; padding:3px 10px;">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                    <form action="{{ route('pemeriksaan.destroy', $item->id) }}" method="POST" class="d-inline-block m-0"
-                          onsubmit="return confirm('Hapus pemeriksaan ini?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-sm"
-                                style="background:#fff5f5; color:#dc2626; border:1px solid #fecaca; font-size:0.72rem; padding:3px 8px;">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
+                    <div class="d-flex gap-1 mt-2">
+                        <a href="{{ route('pemeriksaan.edit', $item->id) }}" class="btn btn-sm"
+                           style="background:#f8f9fa; color:#374151; border:1px solid #e5e7eb; font-size:0.65rem; padding:2px 8px;">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form action="{{ route('pemeriksaan.destroy', $item->id) }}" method="POST" class="d-inline-block m-0"
+                              onsubmit="return confirm('Hapus pemeriksaan ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm"
+                                    style="background:#fff5f5; color:#dc2626; border:1px solid #fecaca; font-size:0.65rem; padding:2px 8px;">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
                     @endif
                 </div>
             </div>
