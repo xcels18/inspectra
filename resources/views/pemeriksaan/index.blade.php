@@ -114,7 +114,7 @@
                     </div>
                     <div style="min-width:0;">
                         <a href="{{ route('pemeriksaan.show', $item->id) }}" class="text-decoration-none">
-                            <div class="fw-bold text-dark" style="font-size:0.88rem; line-height:1.3;">{{ $item->nama }}</div>
+                            <div class="fw-bold text-dark" style="font-size:0.82rem; line-height:1.3;">{{ $item->nama }}</div>
                         </a>
                         <div class="d-flex align-items-center flex-wrap gap-2 mt-1" style="font-size:0.72rem; color:#94a3b8;">
                             <span><i class="bi bi-calendar3 me-1"></i>{{ $item->tahun }}</span>
