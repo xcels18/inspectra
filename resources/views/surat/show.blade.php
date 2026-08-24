@@ -664,15 +664,20 @@ function toggleJudulByHeader(headerEl) {
     if (!wrap) return;
 
     const isOpen  = wrap.style.display !== 'none';
+    let openAccordions = JSON.parse(sessionStorage.getItem('openAccordions_surat_{{ $surat->id }}') || '[]');
 
     if (isOpen) {
         wrap.style.display = 'none';
         if (chevron) chevron.style.transform = 'rotate(0deg)';
         headerEl.setAttribute('aria-expanded', 'false');
+        openAccordions = openAccordions.filter(id => id !== judulId);
     } else {
         wrap.style.display = '';
         if (chevron) chevron.style.transform = 'rotate(90deg)';
         headerEl.setAttribute('aria-expanded', 'true');
+        if (!openAccordions.includes(judulId)) {
+            openAccordions.push(judulId);
+        }
 
         const listEl = wrap.querySelector('.items-list-container');
         const hasRenderedItem = !!(listEl && listEl.querySelector('[data-item-id]'));
@@ -683,6 +688,7 @@ function toggleJudulByHeader(headerEl) {
             loadJudulItems(judulId, 1);
         }
     }
+    sessionStorage.setItem('openAccordions_surat_{{ $surat->id }}', JSON.stringify(openAccordions));
 }
 
 document.querySelectorAll('.judul-header').forEach(function(header) {
@@ -701,7 +707,23 @@ document.querySelectorAll('.judul-header').forEach(function(header) {
     });
 });
 
+// Restore accordion state
+window.addEventListener('load', function() {
+    let openAccordions = JSON.parse(sessionStorage.getItem('openAccordions_surat_{{ $surat->id }}') || '[]');
+    openAccordions.forEach(judulId => {
+        const headerEl = document.querySelector(`.judul-header[data-judul-id="${judulId}"]`);
+        if (headerEl) {
+            const block   = headerEl.closest('.judul-block');
+            const wrap    = block ? block.querySelector('.judul-items-wrap') : null;
+            if (wrap && wrap.style.display === 'none') {
+                toggleJudulByHeader(headerEl);
+            }
+        }
+    });
+});
+
 function toggleSemuaJudul(buka) {
+    let openAccordions = [];
     document.querySelectorAll('.judul-block').forEach(function(block) {
         const judulId = block.dataset.judulId;
         const wrap    = block.querySelector('.judul-items-wrap');
@@ -709,6 +731,7 @@ function toggleSemuaJudul(buka) {
         if (buka) {
             wrap.style.display = '';
             chevron.style.transform = 'rotate(90deg)';
+            openAccordions.push(judulId);
             if (!@json($isTimBpk) && !judulState[judulId]?.loaded) {
                 loadJudulItems(judulId, 1);
             }
@@ -717,6 +740,7 @@ function toggleSemuaJudul(buka) {
             chevron.style.transform = 'rotate(0deg)';
         }
     });
+    sessionStorage.setItem('openAccordions_surat_{{ $surat->id }}', JSON.stringify(openAccordions));
     document.getElementById('btnBukaSemuaJudul').style.display = buka ? 'none' : '';
     document.getElementById('btnTutupSemuaJudul').style.display = buka ? '' : 'none';
 }
