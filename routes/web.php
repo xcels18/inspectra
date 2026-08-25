@@ -57,6 +57,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('master-opd', \App\Http\Controllers\MasterOpdController::class);
     Route::get('/dokumen/{dokumen}/download', [DokumenController::class, 'download'])->name('dokumen.download');
 
+    Route::get('/validasi', function (\Illuminate\Http\Request $request) {
+        return view('validasi', ['kode' => $request->get('kode')]);
+    })->name('validasi');
+
     Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
     Route::post('/notifikasi/mark-read', [NotifikasiController::class, 'markRead'])->name('notifikasi.mark-read');
 

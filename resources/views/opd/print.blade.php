@@ -238,9 +238,15 @@
             <td style="width: 40%; text-align: left;">
                 Mulia, {{ $generatedAt->setTimezone('Asia/Jayapura')->format('d M Y') }}<br>
                 <strong>Inspektur Kabupaten Puncak Jaya</strong>
-                <br><br><br><br><br>
-                <strong><u>(....................................................)</u></strong><br>
-                NIP. ................................................
+                <br>
+                @php
+                    $qrCodeUrl = route('validasi', ['kode' => 'DOC-'.$generatedAt->format('YmdHis')]);
+                    $qrCodeSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(90)->margin(0)->generate($qrCodeUrl);
+                    $qrCodeBase64 = base64_encode($qrCodeSvg);
+                @endphp
+                <img src="data:image/svg+xml;base64,{{ $qrCodeBase64 }}" alt="QR Code Validasi" style="margin-top: 10px; margin-bottom: 5px;">
+                <br>
+                <i>(Ditandatangani secara elektronik)</i>
             </td>
         </tr>
     </table>
