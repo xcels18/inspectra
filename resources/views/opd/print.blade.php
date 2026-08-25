@@ -284,11 +284,11 @@
                                             @if(empty($sg['items']))
                                                 <p class="empty-note">- Tidak ada rincian -</p>
                                             @else
-                                                <ul class="detail-list">
+                                                <ol class="detail-list">
                                                     @foreach($sg['items'] as $item)
                                                         <li>{{ \Illuminate\Support\Str::limit($item, 240) }}</li>
                                                     @endforeach
-                                                </ul>
+                                                </ol>
                                             @endif
                                         </div>
                                     @endforeach
