@@ -544,7 +544,7 @@ if (modalArsipOpd) {
                 container.innerHTML = `
                     <div class="text-center text-danger py-5">
                         <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
-                        <div class="mt-2" style="font-size: 0.85rem;">Gagal memuat daftar arsip.</div>
+                        <div class="mt-2" style="font-size: 0.85rem;">Gagal memuat daftar arsip. <br><small>${err.message}</small></div>
                     </div>`;
             });
     });

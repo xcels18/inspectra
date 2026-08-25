@@ -449,7 +449,7 @@ class OpdController extends Controller
             ->get();
             
         $data = $dokumens->map(function($doc) {
-            $ext = pathinfo($doc->nama_file, PATHINFO_EXTENSION);
+            $ext = pathinfo((string)$doc->nama_file, PATHINFO_EXTENSION);
             if (!$ext) $ext = 'unknown';
 
             return [
@@ -458,7 +458,7 @@ class OpdController extends Controller
                 'ext' => strtolower($ext),
                 'opd' => $doc->permintaanOpd ? $doc->permintaanOpd->opd : '-',
                 'ukuran' => $doc->ukuran_format,
-                'tanggal' => $doc->created_at->format('d M Y, H:i'),
+                'tanggal' => $doc->created_at ? $doc->created_at->format('d M Y, H:i') : '-',
                 'surat' => ($doc->permintaan && $doc->permintaan->surat) ? $doc->permintaan->surat->nomor_surat : '-',
                 'pemeriksaan' => ($doc->permintaan && $doc->permintaan->surat && $doc->permintaan->surat->pemeriksaan) ? $doc->permintaan->surat->pemeriksaan->nama . ' ' . $doc->permintaan->surat->pemeriksaan->tahun : '-',
                 'judul_permintaan' => ($doc->permintaan && $doc->permintaan->judul_permintaan) ? $doc->permintaan->judul_permintaan : '-',
