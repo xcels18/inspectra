@@ -271,7 +271,19 @@
                     <div class="opd-card-body">
                         @foreach(($opdGroup['statuses'] ?? []) as $st)
                             <div class="status-block">
-                                <div class="status-title">Status: {{ $st['status_label'] }}</div>
+                                @php
+                                    $bgLabel = '#f8fafc'; $colLabel = '#475569';
+                                    if ($st['status_label'] === 'Belum') {
+                                        $bgLabel = '#fef2f2'; $colLabel = '#991b1b';
+                                    } elseif ($st['status_label'] === 'Proses') {
+                                        $bgLabel = '#fefce8'; $colLabel = '#854d0e';
+                                    } elseif ($st['status_label'] === 'Selesai') {
+                                        $bgLabel = '#f0fdf4'; $colLabel = '#166534';
+                                    }
+                                @endphp
+                                <div class="status-title" style="background-color: {{ $bgLabel }}; color: {{ $colLabel }}; padding: 4px 8px; border-radius: 4px; display: inline-block; text-decoration: none; border: 1px solid {{ $bgLabel }};">
+                                    Status: {{ $st['status_label'] }}
+                                </div>
 
                                 @if(empty($st['surat_groups']))
                                     <p class="empty-note">- Nihil -</p>
