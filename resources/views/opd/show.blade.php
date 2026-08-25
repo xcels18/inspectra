@@ -549,10 +549,25 @@ if (modalArsipOpd) {
             </div>`;
         
         const opdName = encodeURIComponent('{{ $opdNama }}');
-        fetch(`/opd/${opdName}/arsip`)
+        fetch(`/opd/${opdName}/arsip`, {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
             .then(res => {
                 if (!res.ok) {
-                    return res.json().then(err => { throw new Error(err.error || err.message || 'Server error ' + res.status); });
+                    return res.text().then(text => {
+                        let errMsg = 'Server error ' + res.status;
+                        try {
+                            const json = JSON.parse(text);
+                            errMsg = json.error || json.message || errMsg;
+                        } catch (e) {
+                            errMsg += ' (HTML Error Returned)';
+                            console.error('Server returned HTML:', text);
+                        }
+                        throw new Error(errMsg);
+                    });
                 }
                 return res.json();
             })
