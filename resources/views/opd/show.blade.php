@@ -624,23 +624,23 @@ function renderArsipCards(search = '') {
     }
     
     container.innerHTML = filtered.map(d => `
-        <div class="arsip-card d-flex align-items-center gap-3 p-3 mb-3 border rounded bg-white" 
-             style="cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02);" 
+        <div class="arsip-card d-flex align-items-center gap-2 p-2 mb-2 border rounded bg-white" 
+             style="cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.02);" 
              onclick="toggleArsipCard('${d.id}')" id="card-arsip-${d.id}">
             
-            <div class="form-check m-0 flex-shrink-0">
-                <input class="form-check-input arsip-checkbox" type="checkbox" name="dokumen_ids[]" value="${d.id}" id="chk-arsip-${d.id}" onclick="event.stopPropagation(); checkArsipSelection(); syncCardStyle('${d.id}')">
+            <div class="form-check m-0 flex-shrink-0 ms-1">
+                <input class="form-check-input arsip-checkbox" type="checkbox" name="dokumen_ids[]" value="${d.id}" id="chk-arsip-${d.id}" onclick="event.stopPropagation(); checkArsipSelection(); syncCardStyle('${d.id}')" style="transform: scale(0.9);">
             </div>
             
-            <div style="width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" class="${getIconClass(d.ext).split(' ')[0]}">
-                <i class="bi ${getIconClass(d.ext).split(' ')[1]}" style="font-size: 1.4rem;"></i>
+            <div style="width: 34px; height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" class="${getIconClass(d.ext).split(' ')[0]}">
+                <i class="bi ${getIconClass(d.ext).split(' ')[1]}" style="font-size: 1.1rem;"></i>
             </div>
             
-            <div class="flex-grow-1 min-w-0" style="min-width: 0;">
-                <div class="fw-semibold text-dark text-truncate mb-1" style="font-size: 0.95rem;" title="${d.nama_file}">${d.nama_file}</div>
+            <div class="flex-grow-1 min-w-0 ms-1" style="min-width: 0;">
+                <div class="fw-semibold text-dark text-truncate mb-1" style="font-size: 0.8rem;" title="${d.nama_file}">${d.nama_file}</div>
                 
-                <div class="d-flex flex-wrap text-muted mb-2" style="font-size: 0.75rem; row-gap: 6px; column-gap: 16px;">
-                    <span class="text-truncate" style="max-width: 180px;" title="${d.opd}">
+                <div class="d-flex flex-wrap text-muted" style="font-size: 0.7rem; row-gap: 2px; column-gap: 12px; margin-bottom: 4px;">
+                    <span class="text-truncate" style="max-width: 140px;" title="${d.opd}">
                         <i class="bi bi-building me-1"></i>${d.opd}
                     </span>
                     <span class="text-nowrap">
@@ -651,8 +651,8 @@ function renderArsipCards(search = '') {
                     </span>
                 </div>
                 
-                <div class="d-flex flex-wrap align-items-center" style="gap: 8px; font-size: 0.72rem;">
-                    <span class="badge" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-weight: 500; white-space: normal; text-align: left; line-height: 1.3; padding: 4px 8px;">
+                <div class="d-flex flex-wrap align-items-center" style="gap: 6px; font-size: 0.65rem;">
+                    <span class="badge" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-weight: 500; white-space: normal; text-align: left; line-height: 1.2; padding: 3px 6px;">
                         <i class="bi bi-shield-check me-1"></i>${d.pemeriksaan}
                     </span>
                     <span class="text-muted text-truncate" style="max-width: 100%;" title="${d.judul_permintaan}">
