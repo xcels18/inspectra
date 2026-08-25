@@ -563,10 +563,10 @@ function renderArsipCards(search = '') {
     const searchLower = search.toLowerCase();
     
     const filtered = arsipData.filter(d => 
-        d.nama_file.toLowerCase().includes(searchLower) || 
-        (d.opd && d.opd.toLowerCase().includes(searchLower)) ||
-        d.judul_permintaan.toLowerCase().includes(searchLower) ||
-        d.pemeriksaan.toLowerCase().includes(searchLower)
+        (d.nama_file || '').toLowerCase().includes(searchLower) || 
+        (d.opd || '').toLowerCase().includes(searchLower) ||
+        (d.judul_permintaan || '').toLowerCase().includes(searchLower) ||
+        (d.pemeriksaan || '').toLowerCase().includes(searchLower)
     );
     
     if (filtered.length === 0) {

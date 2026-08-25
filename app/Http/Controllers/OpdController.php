@@ -459,9 +459,9 @@ class OpdController extends Controller
                 'opd' => $doc->permintaanOpd ? $doc->permintaanOpd->opd : '-',
                 'ukuran' => $doc->ukuran_format,
                 'tanggal' => $doc->created_at->format('d M Y, H:i'),
-                'surat' => $doc->permintaan->surat ? $doc->permintaan->surat->nomor_surat : '-',
-                'pemeriksaan' => ($doc->permintaan->surat && $doc->permintaan->surat->pemeriksaan) ? $doc->permintaan->surat->pemeriksaan->nama . ' ' . $doc->permintaan->surat->pemeriksaan->tahun : '-',
-                'judul_permintaan' => $doc->permintaan ? $doc->permintaan->judul_permintaan : '-',
+                'surat' => ($doc->permintaan && $doc->permintaan->surat) ? $doc->permintaan->surat->nomor_surat : '-',
+                'pemeriksaan' => ($doc->permintaan && $doc->permintaan->surat && $doc->permintaan->surat->pemeriksaan) ? $doc->permintaan->surat->pemeriksaan->nama . ' ' . $doc->permintaan->surat->pemeriksaan->tahun : '-',
+                'judul_permintaan' => ($doc->permintaan && $doc->permintaan->judul_permintaan) ? $doc->permintaan->judul_permintaan : '-',
             ];
         });
         
