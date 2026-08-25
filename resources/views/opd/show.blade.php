@@ -399,7 +399,7 @@
                 @csrf
                 <input type="hidden" name="permintaan_opd_id" id="arsip-opd-id">
                 
-                <div class="modal-body p-0" style="background: #f8fafc;">
+                <div class="modal-body p-0" style="background: #f8fafc; overflow-y: auto; max-height: 65vh;">
                     
                     <!-- Search & Filter Header -->
                     <div class="bg-white px-4 py-3 border-bottom" style="position: sticky; top: 0; z-index: 5;">
