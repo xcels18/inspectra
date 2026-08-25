@@ -533,8 +533,16 @@ if (modalArsipOpd) {
         
         const opdName = encodeURIComponent('{{ $opdNama }}');
         fetch(`/opd/${opdName}/arsip`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || err.message || 'Server error ' + res.status); });
+                }
+                return res.json();
+            })
             .then(data => {
+                if (!Array.isArray(data)) {
+                    throw new Error('Format data arsip tidak valid.');
+                }
                 arsipData = data;
                 document.getElementById('arsip-search').value = '';
                 document.getElementById('arsip-select-all').checked = false;

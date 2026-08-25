@@ -444,27 +444,32 @@ class OpdController extends Controller
 
     public function arsip(string $opd)
     {
-        $dokumens = \App\Models\Dokumen::with(['permintaan.surat.pemeriksaan', 'permintaanOpd'])
-            ->orderByDesc('created_at')
-            ->get();
-            
-        $data = $dokumens->map(function($doc) {
-            $ext = pathinfo((string)$doc->nama_file, PATHINFO_EXTENSION);
-            if (!$ext) $ext = 'unknown';
+        try {
+            $dokumens = \App\Models\Dokumen::with(['permintaan.surat.pemeriksaan', 'permintaanOpd'])
+                ->orderByDesc('created_at')
+                ->get();
+                
+            $data = $dokumens->map(function($doc) {
+                $ext = pathinfo((string)$doc->nama_file, PATHINFO_EXTENSION);
+                if (!$ext) $ext = 'unknown';
 
-            return [
-                'id' => $doc->id,
-                'nama_file' => $doc->nama_file,
-                'ext' => strtolower($ext),
-                'opd' => $doc->permintaanOpd ? $doc->permintaanOpd->opd : '-',
-                'ukuran' => $doc->ukuran_format,
-                'tanggal' => $doc->created_at ? $doc->created_at->format('d M Y, H:i') : '-',
-                'surat' => ($doc->permintaan && $doc->permintaan->surat) ? $doc->permintaan->surat->nomor_surat : '-',
-                'pemeriksaan' => ($doc->permintaan && $doc->permintaan->surat && $doc->permintaan->surat->pemeriksaan) ? $doc->permintaan->surat->pemeriksaan->nama . ' ' . $doc->permintaan->surat->pemeriksaan->tahun : '-',
-                'judul_permintaan' => ($doc->permintaan && $doc->permintaan->judul_permintaan) ? $doc->permintaan->judul_permintaan : '-',
-            ];
-        });
-        
-        return response()->json($data);
+                return [
+                    'id' => $doc->id,
+                    'nama_file' => $doc->nama_file,
+                    'ext' => strtolower($ext),
+                    'opd' => $doc->permintaanOpd ? $doc->permintaanOpd->opd : '-',
+                    'ukuran' => $doc->ukuran_format,
+                    'tanggal' => $doc->created_at ? $doc->created_at->format('d M Y, H:i') : '-',
+                    'surat' => ($doc->permintaan && $doc->permintaan->surat) ? $doc->permintaan->surat->nomor_surat : '-',
+                    'pemeriksaan' => ($doc->permintaan && $doc->permintaan->surat && $doc->permintaan->surat->pemeriksaan) ? $doc->permintaan->surat->pemeriksaan->nama . ' ' . $doc->permintaan->surat->pemeriksaan->tahun : '-',
+                    'judul_permintaan' => ($doc->permintaan && $doc->permintaan->judul_permintaan) ? $doc->permintaan->judul_permintaan : '-',
+                ];
+            });
+            
+            return response()->json($data);
+        } catch (\Exception $e) {
+            \Log::error('Arsip Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }
