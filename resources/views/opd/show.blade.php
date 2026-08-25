@@ -385,45 +385,62 @@
 </div>
 
 <div class="modal fade" id="modalArsipOpd" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title"><i class="bi bi-archive me-2"></i>Pilih Dokumen dari Arsip</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden; background: #f8fafc;">
+            <div class="modal-header border-0 bg-white px-4 py-3" style="box-shadow: 0 4px 12px rgba(0,0,0,0.03); z-index: 10;">
+                <div>
+                    <h5 class="modal-title fw-bold text-dark mb-1" style="font-size: 1.1rem;"><i class="bi bi-collection me-2" style="color: #3b82f6;"></i>Pilih Dokumen dari Arsip</h5>
+                    <div style="font-size: 0.8rem; color: #64748b;">Gunakan kembali dokumen yang pernah diunggah sebelumnya.</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" style="background-size: 0.8em;"></button>
             </div>
-            <form action="{{ route('dokumen.reuse') }}" method="POST">
+            
+            <form action="{{ route('dokumen.reuse') }}" method="POST" class="d-flex flex-column" style="height: 100%;">
                 @csrf
                 <input type="hidden" name="permintaan_opd_id" id="arsip-opd-id">
-                <div class="modal-body">
-                    <div class="mb-3 small text-muted">Data: <span id="arsip-opd-judul" class="fw-semibold text-dark"></span></div>
+                
+                <div class="modal-body p-0" style="background: #f8fafc;">
                     
-                    <div class="mb-3">
-                        <input type="text" id="arsip-search" class="form-control form-control-sm" placeholder="Cari nama dokumen, OPD, atau pemeriksaan...">
+                    <!-- Search & Filter Header -->
+                    <div class="bg-white px-4 py-3 border-bottom" style="position: sticky; top: 0; z-index: 5;">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="fw-semibold text-dark" style="font-size: 0.85rem;">
+                                Target OPD: <span id="arsip-opd-judul" class="text-primary"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Search Bar -->
+                        <div class="position-relative">
+                            <i class="bi bi-search position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%);"></i>
+                            <input type="text" id="arsip-search" class="form-control bg-light border-0 shadow-none" 
+                                   placeholder="Cari nama dokumen, OPD, atau pemeriksaan..." 
+                                   style="padding-left: 38px; border-radius: 10px; font-size: 0.85rem;">
+                        </div>
                     </div>
-
-                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                        <table class="table table-sm table-hover" style="font-size: 0.8rem;">
-                            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
-                                <tr>
-                                    <th style="width: 30px;">
-                                        <input type="checkbox" class="form-check-input" id="arsip-select-all">
-                                    </th>
-                                    <th>Nama File</th>
-                                    <th>OPD</th>
-                                    <th>Pemeriksaan</th>
-                                    <th>Tanggal</th>
-                                    <th>Ukuran</th>
-                                </tr>
-                            </thead>
-                            <tbody id="arsip-table-body">
-                                <tr><td colspan="6" class="text-center text-muted">Memuat arsip...</td></tr>
-                            </tbody>
-                        </table>
+                    
+                    <!-- Cards Container -->
+                    <div class="p-4" id="arsip-cards-container" style="min-height: 300px;">
+                        <div class="text-center text-muted py-5">
+                            <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+                            <div style="font-size: 0.85rem;">Memuat arsip...</div>
+                        </div>
                     </div>
+                    
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary btn-sm" id="btn-submit-arsip" disabled><i class="bi bi-link-45deg"></i> Tautkan Terpilih</button>
+                
+                <div class="modal-footer border-top-0 bg-white shadow-sm px-4 py-3 d-flex justify-content-between align-items-center">
+                    <div class="form-check m-0">
+                        <input class="form-check-input" type="checkbox" id="arsip-select-all">
+                        <label class="form-check-label text-muted" for="arsip-select-all" style="font-size: 0.8rem; cursor: pointer;">
+                            Pilih Semua (<span id="arsip-selected-count">0</span>)
+                        </label>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal" style="font-size: 0.85rem; border-radius: 8px;">Batal</button>
+                        <button type="submit" class="btn btn-primary fw-semibold shadow-sm" id="btn-submit-arsip" disabled style="font-size: 0.85rem; border-radius: 8px;">
+                            <i class="bi bi-link-45deg me-1"></i> Tautkan Terpilih
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

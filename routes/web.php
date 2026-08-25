@@ -55,7 +55,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan', [OpdController::class, 'laporanIndex'])->name('laporan.index');
     Route::get('/opd/print', [OpdController::class, 'print'])->name('opd.print');
     Route::get('/opd/{opd}', [OpdController::class, 'show'])->name('opd.show');
-    Route::get('/opd/{opd}/arsip', [OpdController::class, 'arsip'])->name('opd.arsip');
     Route::resource('master-opd', \App\Http\Controllers\MasterOpdController::class);
     Route::get('/dokumen/{dokumen}/download', [DokumenController::class, 'download'])->name('dokumen.download');
 
