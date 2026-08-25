@@ -13,10 +13,21 @@
             color: #1f2937;
             font-size: 12px;
         }
-        .header {
+        .kop-surat { width: 100%; border: none; margin-bottom: 0; margin-top: -10px; }
+        .kop-surat td { border: none; padding: 0; vertical-align: middle; }
+        .kop-logo-left { width: 90px; text-align: left; }
+        .kop-logo-right { width: 90px; text-align: right; }
+        .kop-logo-left img, .kop-logo-right img { width: 75px; }
+        .kop-text { text-align: center; }
+        .kop-title-1 { font-size: 16px; font-weight: normal; margin-bottom: 2px; }
+        .kop-title-2 { font-size: 24px; font-weight: bold; margin-bottom: 2px; letter-spacing: 1px; }
+        .kop-address { font-size: 11px; }
+        .kop-line-1 { border-top: 3px solid #000; margin-top: 8px; }
+        .kop-line-2 { border-top: 1px solid #000; margin-top: 2px; margin-bottom: 15px; }
+
+        .report-header {
             margin-bottom: 14px;
-            border-bottom: 2px solid #1e40af;
-            padding-bottom: 8px;
+            text-align: center;
         }
         .title {
             font-size: 18px;
@@ -193,7 +204,25 @@
     </style>
 </head>
 <body>
-    <div class="header">
+    <table class="kop-surat">
+        <tr>
+            <td class="kop-logo-left">
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo-puncak-jaya.png'))) }}" alt="Logo Puncak Jaya">
+            </td>
+            <td class="kop-text">
+                <div class="kop-title-1">PEMERINTAH KABUPATEN PUNCAK JAYA</div>
+                <div class="kop-title-2">INSPEKTORAT</div>
+                <div class="kop-address">Mulia, Puncak Jaya, Papua Tengah</div>
+            </td>
+            <td class="kop-logo-right">
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo-inspektorat.png'))) }}" alt="Logo Inspektorat">
+            </td>
+        </tr>
+    </table>
+    <div class="kop-line-1"></div>
+    <div class="kop-line-2"></div>
+
+    <div class="report-header">
         <div class="title">{{ $judulLaporan }}</div>
         @if(isset($pemeriksaan) && $pemeriksaan)
             <div class="meta" style="font-weight:bold;color:#1e40af;">Pemeriksaan: {{ $pemeriksaan->nama }} ({{ $pemeriksaan->tahun }})</div>
