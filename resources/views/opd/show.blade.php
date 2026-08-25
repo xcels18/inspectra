@@ -524,66 +524,139 @@ if (modalArsipOpd) {
         document.getElementById('arsip-opd-id').value = e.relatedTarget.dataset.opdId;
         document.getElementById('arsip-opd-judul').textContent = e.relatedTarget.dataset.opdJudul;
         
-        const tbody = document.getElementById('arsip-table-body');
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Memuat arsip...</td></tr>';
+        const container = document.getElementById('arsip-cards-container');
+        container.innerHTML = `
+            <div class="text-center text-muted py-5">
+                <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+                <div style="font-size: 0.85rem;">Memuat arsip...</div>
+            </div>`;
         
         const opdName = encodeURIComponent('{{ $opdNama }}');
         fetch(`/opd/${opdName}/arsip`)
             .then(res => res.json())
             .then(data => {
                 arsipData = data;
-                renderArsipTable();
+                document.getElementById('arsip-search').value = '';
+                document.getElementById('arsip-select-all').checked = false;
+                renderArsipCards();
             })
             .catch(err => {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Gagal memuat arsip.</td></tr>';
+                container.innerHTML = `
+                    <div class="text-center text-danger py-5">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                        <div class="mt-2" style="font-size: 0.85rem;">Gagal memuat daftar arsip.</div>
+                    </div>`;
             });
     });
 }
 
-function renderArsipTable(search = '') {
-    const tbody = document.getElementById('arsip-table-body');
+function getIconClass(ext) {
+    if(ext === 'pdf') return 'icon-pdf bi-file-earmark-pdf-fill';
+    if(ext === 'doc' || ext === 'docx') return 'icon-doc bi-file-earmark-word-fill';
+    if(ext === 'xls' || ext === 'xlsx') return 'icon-xls bi-file-earmark-excel-fill';
+    if(['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'icon-img bi-image-fill';
+    return 'icon-default bi-file-earmark-fill';
+}
+
+function renderArsipCards(search = '') {
+    const container = document.getElementById('arsip-cards-container');
+    const searchLower = search.toLowerCase();
+    
     const filtered = arsipData.filter(d => 
-        d.nama_file.toLowerCase().includes(search.toLowerCase()) || 
-        (d.opd && d.opd.toLowerCase().includes(search.toLowerCase())) ||
-        d.pemeriksaan.toLowerCase().includes(search.toLowerCase())
+        d.nama_file.toLowerCase().includes(searchLower) || 
+        (d.opd && d.opd.toLowerCase().includes(searchLower)) ||
+        d.judul_permintaan.toLowerCase().includes(searchLower) ||
+        d.pemeriksaan.toLowerCase().includes(searchLower)
     );
     
     if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Tidak ada dokumen arsip yang cocok.</td></tr>';
+        container.innerHTML = `
+            <div class="text-center text-muted py-5">
+                <div class="mb-3">
+                    <div style="background: #e2e8f0; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                        <i class="bi bi-search" style="font-size: 1.5rem; color: #94a3b8;"></i>
+                    </div>
+                </div>
+                <h6 class="fw-semibold text-dark mb-1">Pencarian Tidak Ditemukan</h6>
+                <div style="font-size: 0.8rem;">Coba gunakan kata kunci lain untuk mencari dokumen.</div>
+            </div>`;
         return;
     }
     
-    tbody.innerHTML = filtered.map(d => `
-        <tr>
-            <td>
-                <input type="checkbox" class="form-check-input arsip-checkbox" name="dokumen_ids[]" value="${d.id}" onchange="checkArsipSelection()">
-            </td>
-            <td style="word-break: break-all;">${d.nama_file}</td>
-            <td>${d.opd}</td>
-            <td>${d.pemeriksaan}</td>
-            <td>${d.tanggal}</td>
-            <td>${d.ukuran}</td>
-        </tr>
+    container.innerHTML = filtered.map(d => `
+        <div class="arsip-card d-flex align-items-center gap-3" onclick="toggleArsipCard('${d.id}')" id="card-arsip-${d.id}">
+            
+            <div class="form-check m-0">
+                <input class="form-check-input arsip-checkbox" type="checkbox" name="dokumen_ids[]" value="${d.id}" id="chk-arsip-${d.id}" onclick="event.stopPropagation(); checkArsipSelection(); syncCardStyle('${d.id}')">
+            </div>
+            
+            <div style="width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" class="${getIconClass(d.ext).split(' ')[0]}">
+                <i class="bi ${getIconClass(d.ext).split(' ')[1]}" style="font-size: 1.25rem;"></i>
+            </div>
+            
+            <div class="flex-grow-1 overflow-hidden">
+                <div class="fw-semibold text-dark text-truncate mb-1" style="font-size: 0.85rem;" title="${d.nama_file}">${d.nama_file}</div>
+                <div class="d-flex gap-2 text-muted text-truncate" style="font-size: 0.72rem;">
+                    <span><i class="bi bi-building me-1"></i>${d.opd}</span> &bull; 
+                    <span><i class="bi bi-clock me-1"></i>${d.tanggal}</span> &bull; 
+                    <span><i class="bi bi-hdd me-1"></i>${d.ukuran}</span>
+                </div>
+                <div class="mt-1" style="font-size: 0.7rem;">
+                    <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 500;">${d.pemeriksaan}</span>
+                    <span class="text-muted ms-1">Asal: <span class="fst-italic">${d.judul_permintaan}</span></span>
+                </div>
+            </div>
+        </div>
     `).join('');
     
     checkArsipSelection();
 }
 
+function toggleArsipCard(id) {
+    const chk = document.getElementById('chk-arsip-' + id);
+    if(chk) {
+        chk.checked = !chk.checked;
+        syncCardStyle(id);
+        checkArsipSelection();
+    }
+}
+
+function syncCardStyle(id) {
+    const chk = document.getElementById('chk-arsip-' + id);
+    const card = document.getElementById('card-arsip-' + id);
+    if(chk && card) {
+        if(chk.checked) card.classList.add('selected');
+        else card.classList.remove('selected');
+    }
+}
+
 document.getElementById('arsip-search')?.addEventListener('input', function(e) {
-    renderArsipTable(e.target.value);
+    renderArsipCards(e.target.value);
 });
 
 document.getElementById('arsip-select-all')?.addEventListener('change', function(e) {
     document.querySelectorAll('.arsip-checkbox').forEach(cb => {
         cb.checked = e.target.checked;
+        syncCardStyle(cb.value);
     });
     checkArsipSelection();
 });
 
 function checkArsipSelection() {
-    const checked = document.querySelectorAll('.arsip-checkbox:checked').length;
+    const checkboxes = document.querySelectorAll('.arsip-checkbox');
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    
     const btn = document.getElementById('btn-submit-arsip');
-    if(btn) btn.disabled = checked === 0;
+    if(btn) btn.disabled = checkedCount === 0;
+    
+    const countEl = document.getElementById('arsip-selected-count');
+    if(countEl) countEl.textContent = checkedCount;
+    
+    const selectAll = document.getElementById('arsip-select-all');
+    if(selectAll) {
+        selectAll.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
+        selectAll.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+    }
 }
 
 </script>
