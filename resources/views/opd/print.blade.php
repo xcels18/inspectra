@@ -176,7 +176,7 @@
     <div class="report-header">
         <div class="title">{{ strtoupper($judulLaporan) }}</div>
         @if(isset($pemeriksaan) && $pemeriksaan)
-            <div class="meta" style="font-weight:bold;">Pemeriksaan: {{ $pemeriksaan->nama }} ({{ $pemeriksaan->tahun }})</div>
+            <div class="meta" style="font-weight:bold; font-size:11pt; margin-top:2px;">{{ $pemeriksaan->nama }} ({{ $pemeriksaan->tahun }})</div>
         @endif
     </div>
 
@@ -200,13 +200,13 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 40px;">No.</th>
-                <th>Nama OPD</th>
-                <th style="width: 60px;">Total</th>
-                <th style="width: 60px;">Belum</th>
-                <th style="width: 60px;">Proses</th>
-                <th style="width: 60px;">Selesai</th>
-                <th style="width: 80px;">Capaian (%)</th>
+                <th style="width: 40px; background-color: #f8fafc;">No.</th>
+                <th style="background-color: #f8fafc;">Nama OPD</th>
+                <th style="width: 60px; background-color: #f8fafc;">Total</th>
+                <th style="width: 60px; background-color: #fef2f2;">Belum</th>
+                <th style="width: 60px; background-color: #fefce8;">Proses</th>
+                <th style="width: 60px; background-color: #f0fdf4;">Selesai</th>
+                <th style="width: 80px; background-color: #f8fafc;">Capaian (%)</th>
             </tr>
         </thead>
         <tbody>
@@ -215,9 +215,9 @@
                     <td class="text-center">{{ $i + 1 }}</td>
                     <td>{{ $row['opd'] }}</td>
                     <td class="text-center">{{ $row['total'] }}</td>
-                    <td class="text-center">{{ $row['belum'] }}</td>
-                    <td class="text-center">{{ $row['proses'] }}</td>
-                    <td class="text-center">{{ $row['selesai'] }}</td>
+                    <td class="text-center" style="background-color: #fef2f2; color: #991b1b; font-weight: bold;">{{ $row['belum'] }}</td>
+                    <td class="text-center" style="background-color: #fefce8; color: #854d0e; font-weight: bold;">{{ $row['proses'] }}</td>
+                    <td class="text-center" style="background-color: #f0fdf4; color: #166534; font-weight: bold;">{{ $row['selesai'] }}</td>
                     <td class="text-right">{{ number_format((float) $row['progress'], 2, ',', '.') }}%</td>
                 </tr>
             @empty
