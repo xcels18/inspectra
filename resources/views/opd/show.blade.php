@@ -624,26 +624,40 @@ function renderArsipCards(search = '') {
     }
     
     container.innerHTML = filtered.map(d => `
-        <div class="arsip-card d-flex align-items-center gap-3" onclick="toggleArsipCard('${d.id}')" id="card-arsip-${d.id}">
+        <div class="arsip-card d-flex align-items-center gap-3 p-3 mb-3 border rounded bg-white" 
+             style="cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.02);" 
+             onclick="toggleArsipCard('${d.id}')" id="card-arsip-${d.id}">
             
-            <div class="form-check m-0">
+            <div class="form-check m-0 flex-shrink-0">
                 <input class="form-check-input arsip-checkbox" type="checkbox" name="dokumen_ids[]" value="${d.id}" id="chk-arsip-${d.id}" onclick="event.stopPropagation(); checkArsipSelection(); syncCardStyle('${d.id}')">
             </div>
             
-            <div style="width: 42px; height: 42px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" class="${getIconClass(d.ext).split(' ')[0]}">
-                <i class="bi ${getIconClass(d.ext).split(' ')[1]}" style="font-size: 1.25rem;"></i>
+            <div style="width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" class="${getIconClass(d.ext).split(' ')[0]}">
+                <i class="bi ${getIconClass(d.ext).split(' ')[1]}" style="font-size: 1.4rem;"></i>
             </div>
             
-            <div class="flex-grow-1 overflow-hidden">
-                <div class="fw-semibold text-dark text-truncate mb-1" style="font-size: 0.85rem;" title="${d.nama_file}">${d.nama_file}</div>
-                <div class="d-flex gap-2 text-muted text-truncate" style="font-size: 0.72rem;">
-                    <span><i class="bi bi-building me-1"></i>${d.opd}</span> &bull; 
-                    <span><i class="bi bi-clock me-1"></i>${d.tanggal}</span> &bull; 
-                    <span><i class="bi bi-hdd me-1"></i>${d.ukuran}</span>
+            <div class="flex-grow-1 min-w-0" style="min-width: 0;">
+                <div class="fw-semibold text-dark text-truncate mb-1" style="font-size: 0.95rem;" title="${d.nama_file}">${d.nama_file}</div>
+                
+                <div class="d-flex flex-wrap text-muted mb-2" style="font-size: 0.75rem; row-gap: 6px; column-gap: 16px;">
+                    <span class="text-truncate" style="max-width: 180px;" title="${d.opd}">
+                        <i class="bi bi-building me-1"></i>${d.opd}
+                    </span>
+                    <span class="text-nowrap">
+                        <i class="bi bi-clock me-1"></i>${d.tanggal}
+                    </span>
+                    <span class="text-nowrap">
+                        <i class="bi bi-hdd me-1"></i>${d.ukuran}
+                    </span>
                 </div>
-                <div class="mt-1" style="font-size: 0.7rem;">
-                    <span class="badge" style="background: #e0f2fe; color: #0369a1; font-weight: 500;">${d.pemeriksaan}</span>
-                    <span class="text-muted ms-1">Asal: <span class="fst-italic">${d.judul_permintaan}</span></span>
+                
+                <div class="d-flex flex-wrap align-items-center" style="gap: 8px; font-size: 0.72rem;">
+                    <span class="badge" style="background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; font-weight: 500; white-space: normal; text-align: left; line-height: 1.3; padding: 4px 8px;">
+                        <i class="bi bi-shield-check me-1"></i>${d.pemeriksaan}
+                    </span>
+                    <span class="text-muted text-truncate" style="max-width: 100%;" title="${d.judul_permintaan}">
+                        Asal: <span class="fst-italic">${d.judul_permintaan}</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -665,8 +679,15 @@ function syncCardStyle(id) {
     const chk = document.getElementById('chk-arsip-' + id);
     const card = document.getElementById('card-arsip-' + id);
     if(chk && card) {
-        if(chk.checked) card.classList.add('selected');
-        else card.classList.remove('selected');
+        if(chk.checked) {
+            card.style.borderColor = '#3b82f6';
+            card.style.backgroundColor = '#eff6ff';
+            card.style.boxShadow = '0 0 0 2px rgba(59,130,246,0.2)';
+        } else {
+            card.style.borderColor = '#dee2e6';
+            card.style.backgroundColor = '#fff';
+            card.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)';
+        }
     }
 }
 
