@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/permintaan/bulk-assign-opd', [PermintaanDataController::class, 'bulkAssignOpd'])->name('permintaan.bulk-assign-opd');
     Route::resource('permintaan', PermintaanDataController::class);
     Route::resource('judul-permintaan', JudulPermintaanController::class);
+    Route::post('/dokumen/reuse', [DokumenController::class, 'reuse'])->name('dokumen.reuse');
     Route::resource('dokumen', DokumenController::class);
     Route::put('/permintaan-opd/bulk-update', [PermintaanOpdController::class, 'bulkUpdate'])->name('permintaan-opd.bulk-update');
     Route::post('/permintaan-opd/bulk-update', [PermintaanOpdController::class, 'bulkUpdate'])->name('permintaan-opd.bulk-update.post');
@@ -54,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan', [OpdController::class, 'laporanIndex'])->name('laporan.index');
     Route::get('/opd/print', [OpdController::class, 'print'])->name('opd.print');
     Route::get('/opd/{opd}', [OpdController::class, 'show'])->name('opd.show');
+    Route::get('/opd/{opd}/arsip', [OpdController::class, 'arsip'])->name('opd.arsip');
     Route::resource('master-opd', \App\Http\Controllers\MasterOpdController::class);
     Route::get('/dokumen/{dokumen}/download', [DokumenController::class, 'download'])->name('dokumen.download');
 

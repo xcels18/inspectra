@@ -13,7 +13,15 @@
             <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Monitoring dokumen dan status permintaan OPD</div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <form method="GET" action="{{ route('opd.show', urlencode($opdNama)) }}" class="d-flex align-items-center gap-2">
+            <form method="GET" action="{{ route('opd.show', urlencode($opdNama)) }}" class="d-flex align-items-center gap-2 flex-wrap">
+                <select name="pemeriksaan_id" class="form-select form-select-sm border-0 shadow-sm" style="background:rgba(255,255,255,0.9); font-size:0.78rem; width:220px;" onchange="this.form.submit()">
+                    <option value="">Semua Pemeriksaan</option>
+                    @foreach($pemeriksaanList as $p)
+                    <option value="{{ $p->id }}" {{ $filterPemeriksaan == $p->id ? 'selected' : '' }}>
+                        {{ $p->nama }} ({{ $p->tahun }})
+                    </option>
+                    @endforeach
+                </select>
                 <select name="surat_id" class="form-select form-select-sm border-0 shadow-sm" style="background:rgba(255,255,255,0.9); font-size:0.78rem; width:220px;" onchange="this.form.submit()">
                     <option value="">Semua Surat</option>
                     @foreach($suratList as $s)
@@ -22,11 +30,17 @@
                     </option>
                     @endforeach
                 </select>
-                @if($filterSurat)
+                @if($filterSurat || $filterPemeriksaan)
                 <a href="{{ route('opd.show', urlencode($opdNama)) }}" class="btn btn-sm btn-light" style="font-size:0.78rem;"><i class="bi bi-x-lg"></i></a>
                 @endif
             </form>
-            <a href="{{ route('opd.index') }}{{ $filterSurat ? '?surat_id='.$filterSurat : '' }}" class="btn btn-sm" style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); font-size:0.78rem;">
+            @php
+                $backQuery = [];
+                if ($filterSurat) $backQuery['surat_id'] = $filterSurat;
+                if ($filterPemeriksaan) $backQuery['pemeriksaan_id'] = $filterPemeriksaan;
+                $backUrl = route('opd.index') . (count($backQuery) > 0 ? '?' . http_build_query($backQuery) : '');
+            @endphp
+            <a href="{{ $backUrl }}" class="btn btn-sm" style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); font-size:0.78rem;">
                 <i class="bi bi-arrow-left me-1"></i>Kembali
             </a>
         </div>
@@ -265,6 +279,17 @@
                                 title="Upload Bukti">
                                 <i class="bi bi-upload"></i>
                             </button>
+                            <button class="btn btn-xs py-0 px-1"
+                                style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; font-size:0.68rem;"
+                                data-bs-toggle="modal" data-bs-target="#modalArsipOpd"
+                                data-opd-id="{{ $row->id }}"
+                                data-opd-judul="{{ $row->permintaan->judul_permintaan }}"
+                                title="Pilih dari Arsip">
+                                <i class="bi bi-archive"></i>
+                            </button>
+                            
+                                <i class="bi bi-upload"></i>
+                            </button>
                         </div>
                     </td>
                     @endif
@@ -358,6 +383,52 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalArsipOpd" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title"><i class="bi bi-archive me-2"></i>Pilih Dokumen dari Arsip</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('dokumen.reuse') }}" method="POST">
+                @csrf
+                <input type="hidden" name="permintaan_opd_id" id="arsip-opd-id">
+                <div class="modal-body">
+                    <div class="mb-3 small text-muted">Data: <span id="arsip-opd-judul" class="fw-semibold text-dark"></span></div>
+                    
+                    <div class="mb-3">
+                        <input type="text" id="arsip-search" class="form-control form-control-sm" placeholder="Cari nama dokumen atau pemeriksaan...">
+                    </div>
+
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table table-sm table-hover" style="font-size: 0.8rem;">
+                            <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                                <tr>
+                                    <th style="width: 30px;">
+                                        <input type="checkbox" class="form-check-input" id="arsip-select-all">
+                                    </th>
+                                    <th>Nama File</th>
+                                    <th>Pemeriksaan</th>
+                                    <th>Tanggal</th>
+                                    <th>Ukuran</th>
+                                </tr>
+                            </thead>
+                            <tbody id="arsip-table-body">
+                                <tr><td colspan="5" class="text-center text-muted">Memuat arsip...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary btn-sm" id="btn-submit-arsip" disabled><i class="bi bi-link-45deg"></i> Tautkan Terpilih</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endif
 @endsection
 
@@ -443,5 +514,74 @@ document.querySelectorAll('.surat-select-all').forEach(function(selectAllEl) {
 
     refreshState();
 });
+
+const modalArsipOpd = document.getElementById('modalArsipOpd');
+let arsipData = [];
+
+if (modalArsipOpd) {
+    modalArsipOpd.addEventListener('show.bs.modal', function(e) {
+        document.getElementById('arsip-opd-id').value = e.relatedTarget.dataset.opdId;
+        document.getElementById('arsip-opd-judul').textContent = e.relatedTarget.dataset.opdJudul;
+        
+        const tbody = document.getElementById('arsip-table-body');
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Memuat arsip...</td></tr>';
+        
+        const opdName = encodeURIComponent('{{ $opdNama }}');
+        fetch(`/opd/${opdName}/arsip`)
+            .then(res => res.json())
+            .then(data => {
+                arsipData = data;
+                renderArsipTable();
+            })
+            .catch(err => {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Gagal memuat arsip.</td></tr>';
+            });
+    });
+}
+
+function renderArsipTable(search = '') {
+    const tbody = document.getElementById('arsip-table-body');
+    const filtered = arsipData.filter(d => 
+        d.nama_file.toLowerCase().includes(search.toLowerCase()) || 
+        d.pemeriksaan.toLowerCase().includes(search.toLowerCase())
+    );
+    
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Tidak ada dokumen arsip yang cocok.</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = filtered.map(d => `
+        <tr>
+            <td>
+                <input type="checkbox" class="form-check-input arsip-checkbox" name="dokumen_ids[]" value="${d.id}" onchange="checkArsipSelection()">
+            </td>
+            <td style="word-break: break-all;">${d.nama_file}</td>
+            <td>${d.pemeriksaan}</td>
+            <td>${d.tanggal}</td>
+            <td>${d.ukuran}</td>
+        </tr>
+    `).join('');
+    
+    checkArsipSelection();
+}
+
+document.getElementById('arsip-search')?.addEventListener('input', function(e) {
+    renderArsipTable(e.target.value);
+});
+
+document.getElementById('arsip-select-all')?.addEventListener('change', function(e) {
+    document.querySelectorAll('.arsip-checkbox').forEach(cb => {
+        cb.checked = e.target.checked;
+    });
+    checkArsipSelection();
+});
+
+function checkArsipSelection() {
+    const checked = document.querySelectorAll('.arsip-checkbox:checked').length;
+    const btn = document.getElementById('btn-submit-arsip');
+    if(btn) btn.disabled = checked === 0;
+}
+
 </script>
 @endsection

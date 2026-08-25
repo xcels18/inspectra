@@ -388,8 +388,16 @@ class OpdController extends Controller
     {
         $opdNama = urldecode($opd);
         $filterSurat = $request->get('surat_id');
+        $filterPemeriksaan = $request->get('pemeriksaan_id');
 
         $user = auth()->user();
+        
+        $pemeriksaanQuery = \App\Models\Pemeriksaan::query();
+        if (!$user->isAdmin()) {
+            $pemeriksaanQuery->whereHas('users', fn($uq) => $uq->where('user_id', $user->id));
+        }
+        $pemeriksaanList = $pemeriksaanQuery->orderByDesc('tahun')->orderByDesc('id')->get();
+
         $query = PermintaanOpd::with(['permintaan.surat', 'permintaan.judulPermintaan', 'dokumen'])
             ->where('opd', $opdNama)
             ->whereHas('permintaan.surat', function($q) use ($user) {
@@ -401,6 +409,11 @@ class OpdController extends Controller
                     });
                 }
             });
+            
+        if ($filterPemeriksaan) {
+            $query->whereHas('permintaan.surat', fn($q) => $q->where('pemeriksaan_id', $filterPemeriksaan));
+        }
+
         if ($filterSurat) {
             $query->whereHas('permintaan', fn($q) => $q->where('surat_id', $filterSurat));
         }
@@ -413,7 +426,6 @@ class OpdController extends Controller
 
         $groupedBySurat = $rows->groupBy(fn($r) => $r->permintaan->surat_id)->sortKeys();
         
-        $user = auth()->user();
         $suratQuery = \App\Models\Surat::orderByDesc('tanggal_terima');
         if (!$user->isAdmin()) {
             $suratQuery->where(function ($q) use ($user) {
@@ -421,8 +433,37 @@ class OpdController extends Controller
                   ->orWhereHas('pemeriksaan.users', fn($uq) => $uq->where('user_id', $user->id));
             });
         }
+        
+        if ($filterPemeriksaan) {
+            $suratQuery->where('pemeriksaan_id', $filterPemeriksaan);
+        }
         $suratList = $suratQuery->get();
 
-        return view('opd.show', compact('opdNama', 'rows', 'groupedBySurat', 'suratList', 'filterSurat'));
+        return view('opd.show', compact('opdNama', 'rows', 'groupedBySurat', 'suratList', 'filterSurat', 'pemeriksaanList', 'filterPemeriksaan'));
+    }
+
+    public function arsip(string $opd)
+    {
+        $opdNama = urldecode($opd);
+        
+        $dokumens = \App\Models\Dokumen::with(['permintaan.surat.pemeriksaan'])
+            ->whereHas('permintaanOpd', function($q) use ($opdNama) {
+                $q->where('opd', $opdNama);
+            })
+            ->orderByDesc('created_at')
+            ->get();
+            
+        $data = $dokumens->map(function($doc) {
+            return [
+                'id' => $doc->id,
+                'nama_file' => $doc->nama_file,
+                'ukuran' => $doc->ukuran_format,
+                'tanggal' => $doc->created_at->format('d/m/Y'),
+                'surat' => $doc->permintaan->surat ? $doc->permintaan->surat->nomor_surat : '-',
+                'pemeriksaan' => ($doc->permintaan->surat && $doc->permintaan->surat->pemeriksaan) ? $doc->permintaan->surat->pemeriksaan->nama . ' ' . $doc->permintaan->surat->pemeriksaan->tahun : '-',
+            ];
+        });
+        
+        return response()->json($data);
     }
 }

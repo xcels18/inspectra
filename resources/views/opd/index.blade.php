@@ -2,6 +2,16 @@
 @section('title', 'Monitoring OPD')
 
 @section('content')
+@php
+    $detailQuery = [];
+    if (!empty($filterSuratIds) && isset($filterSuratIds[0])) {
+        $detailQuery['surat_id'] = $filterSuratIds[0];
+    }
+    if (request('pemeriksaan_id')) {
+        $detailQuery['pemeriksaan_id'] = request('pemeriksaan_id');
+    }
+    $detailQueryStr = count($detailQuery) > 0 ? '?' . http_build_query($detailQuery) : '';
+@endphp
 <div class="container-fluid py-3" style="max-width:1200px;">
 
     @php
@@ -211,7 +221,7 @@
                     </div>
                     <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 px-3">
                         @if($stat['total']>0)
-                        <a href="{{ route('opd.show', urlencode($stat['opd'])) }}{{ !empty($filterSuratIds)?'?surat_id='.($filterSuratIds[0]??''):'' }}"
+                        <a href="{{ route('opd.show', urlencode($stat['opd'])) }}{{ $detailQueryStr }}"
                            class="btn btn-sm w-100"
                            style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:0.75rem;">
                             <i class="bi bi-eye me-1"></i>Lihat Detail
@@ -290,7 +300,7 @@
                             </td>
                             <td class="pe-3 text-end">
                                 @if($stat['total']>0)
-                                <a href="{{ route('opd.show', urlencode($stat['opd'])) }}{{ !empty($filterSuratIds)?'?surat_id='.($filterSuratIds[0]??''):'' }}"
+                                <a href="{{ route('opd.show', urlencode($stat['opd'])) }}{{ $detailQueryStr }}"
                                    class="btn btn-sm"
                                    style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;font-size:0.7rem;padding:3px 8px;">
                                     <i class="bi bi-eye"></i> Detail

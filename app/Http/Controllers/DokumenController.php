@@ -120,6 +120,45 @@ class DokumenController extends Controller
         return redirect()->route('surat.show', $dokuman->permintaan->surat_id);
     }
 
+    public function reuse(Request $request)
+    {
+        if (!auth()->user()->isAdmin()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'permintaan_opd_id' => 'required|exists:permintaan_opd,id',
+            'dokumen_ids'       => 'required|array',
+            'dokumen_ids.*'     => 'required|exists:dokumen,id',
+        ]);
+
+        $permintaanOpd = PermintaanOpd::with('permintaan')->findOrFail($request->permintaan_opd_id);
+        $permintaan = $permintaanOpd->permintaan;
+
+        $dokumensToReuse = Dokumen::whereIn('id', $request->dokumen_ids)->get();
+
+        $count = 0;
+        foreach ($dokumensToReuse as $oldDoc) {
+            Dokumen::create([
+                'permintaan_id'     => $permintaan->id,
+                'permintaan_opd_id' => $permintaanOpd->id,
+                'nama_file'         => $oldDoc->nama_file,
+                'path_file'         => $oldDoc->path_file,
+                'mime_type'         => $oldDoc->mime_type,
+                'ukuran_file'       => $oldDoc->ukuran_file,
+                'keterangan'        => $oldDoc->keterangan,
+                'uploaded_by'       => auth()->id(),
+            ]);
+            $count++;
+        }
+
+        if ($permintaanOpd->status === 'belum' && $count > 0) {
+            $permintaanOpd->update(['status' => 'proses']);
+        }
+
+        return redirect()->back()->with('success', $count . ' dokumen berhasil ditautkan dari arsip.');
+    }
+
     public function destroy(Dokumen $dokuman)
     {
         if (!auth()->user()->isAdmin()) {
@@ -127,9 +166,14 @@ class DokumenController extends Controller
         }
 
         $permintaanOpd = $dokuman->permintaanOpd;
+        $pathFile = $dokuman->path_file;
 
-        Storage::disk('local')->delete($dokuman->path_file);
         $dokuman->delete();
+
+        $stillUsed = Dokumen::where('path_file', $pathFile)->exists();
+        if (!$stillUsed) {
+            Storage::disk('local')->delete($pathFile);
+        }
 
         if ($permintaanOpd && $permintaanOpd->dokumen()->count() === 0) {
             if ($permintaanOpd->status !== 'selesai') {
