@@ -444,12 +444,7 @@ class OpdController extends Controller
 
     public function arsip(string $opd)
     {
-        $opdNama = urldecode($opd);
-        
-        $dokumens = \App\Models\Dokumen::with(['permintaan.surat.pemeriksaan'])
-            ->whereHas('permintaanOpd', function($q) use ($opdNama) {
-                $q->where('opd', $opdNama);
-            })
+        $dokumens = \App\Models\Dokumen::with(['permintaan.surat.pemeriksaan', 'permintaanOpd'])
             ->orderByDesc('created_at')
             ->get();
             
@@ -457,6 +452,7 @@ class OpdController extends Controller
             return [
                 'id' => $doc->id,
                 'nama_file' => $doc->nama_file,
+                'opd' => $doc->permintaanOpd ? $doc->permintaanOpd->opd : '-',
                 'ukuran' => $doc->ukuran_format,
                 'tanggal' => $doc->created_at->format('d/m/Y'),
                 'surat' => $doc->permintaan->surat ? $doc->permintaan->surat->nomor_surat : '-',

@@ -398,7 +398,7 @@
                     <div class="mb-3 small text-muted">Data: <span id="arsip-opd-judul" class="fw-semibold text-dark"></span></div>
                     
                     <div class="mb-3">
-                        <input type="text" id="arsip-search" class="form-control form-control-sm" placeholder="Cari nama dokumen atau pemeriksaan...">
+                        <input type="text" id="arsip-search" class="form-control form-control-sm" placeholder="Cari nama dokumen, OPD, atau pemeriksaan...">
                     </div>
 
                     <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
@@ -409,13 +409,14 @@
                                         <input type="checkbox" class="form-check-input" id="arsip-select-all">
                                     </th>
                                     <th>Nama File</th>
+                                    <th>OPD</th>
                                     <th>Pemeriksaan</th>
                                     <th>Tanggal</th>
                                     <th>Ukuran</th>
                                 </tr>
                             </thead>
                             <tbody id="arsip-table-body">
-                                <tr><td colspan="5" class="text-center text-muted">Memuat arsip...</td></tr>
+                                <tr><td colspan="6" class="text-center text-muted">Memuat arsip...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -524,7 +525,7 @@ if (modalArsipOpd) {
         document.getElementById('arsip-opd-judul').textContent = e.relatedTarget.dataset.opdJudul;
         
         const tbody = document.getElementById('arsip-table-body');
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Memuat arsip...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Memuat arsip...</td></tr>';
         
         const opdName = encodeURIComponent('{{ $opdNama }}');
         fetch(`/opd/${opdName}/arsip`)
@@ -534,7 +535,7 @@ if (modalArsipOpd) {
                 renderArsipTable();
             })
             .catch(err => {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Gagal memuat arsip.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Gagal memuat arsip.</td></tr>';
             });
     });
 }
@@ -543,11 +544,12 @@ function renderArsipTable(search = '') {
     const tbody = document.getElementById('arsip-table-body');
     const filtered = arsipData.filter(d => 
         d.nama_file.toLowerCase().includes(search.toLowerCase()) || 
+        (d.opd && d.opd.toLowerCase().includes(search.toLowerCase())) ||
         d.pemeriksaan.toLowerCase().includes(search.toLowerCase())
     );
     
     if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Tidak ada dokumen arsip yang cocok.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Tidak ada dokumen arsip yang cocok.</td></tr>';
         return;
     }
     
@@ -557,6 +559,7 @@ function renderArsipTable(search = '') {
                 <input type="checkbox" class="form-check-input arsip-checkbox" name="dokumen_ids[]" value="${d.id}" onchange="checkArsipSelection()">
             </td>
             <td style="word-break: break-all;">${d.nama_file}</td>
+            <td>${d.opd}</td>
             <td>${d.pemeriksaan}</td>
             <td>${d.tanggal}</td>
             <td>${d.ukuran}</td>
