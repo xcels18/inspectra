@@ -55,12 +55,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan', [OpdController::class, 'laporanIndex'])->name('laporan.index');
     Route::get('/opd/print', [OpdController::class, 'print'])->name('opd.print');
     Route::get('/opd/{opd}', [OpdController::class, 'show'])->name('opd.show');
+    Route::get('/master-opd/export', [\App\Http\Controllers\MasterOpdController::class, 'exportExcel'])->name('master-opd.export');
     Route::resource('master-opd', \App\Http\Controllers\MasterOpdController::class);
     Route::get('/dokumen/{dokumen}/download', [DokumenController::class, 'download'])->name('dokumen.download');
 
+    Route::get('/opd/{opd}/arsip', [App\Http\Controllers\OpdController::class, 'arsip'])->name('opd.arsip');
+    
     Route::get('/validasi', function (\Illuminate\Http\Request $request) {
-        return view('validasi', ['kode' => $request->get('kode')]);
-    })->name('validasi');
+        $kode = $request->query('kode');
+        $surat = \App\Models\Surat::where('kode_validasi', $kode)->first();
+        return view('validasi.index', compact('surat'));
+    })->name('validasi.index');
 
     Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
     Route::post('/notifikasi/mark-read', [NotifikasiController::class, 'markRead'])->name('notifikasi.mark-read');

@@ -12,6 +12,9 @@
             <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">Kelola daftar Organisasi Perangkat Daerah</div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a href="{{ route('master-opd.export', ['search' => request('search')]) }}" class="btn btn-sm" style="background:rgba(16, 185, 129, 0.15); color:#10b981; border:1px solid rgba(16, 185, 129, 0.3); font-size:0.78rem;">
+                <i class="bi bi-file-earmark-excel me-1"></i>Export Excel
+            </a>
             <a href="{{ route('master-opd.create') }}" class="btn btn-sm" style="background:rgba(255,255,255,0.15); color:#fff; border:1px solid rgba(255,255,255,0.3); font-size:0.78rem;">
                 <i class="bi bi-plus-lg me-1"></i>Tambah OPD
             </a>

@@ -61,4 +61,49 @@ class MasterOpdController extends Controller
         $masterOpd->delete();
         return redirect()->route('master-opd.index')->with('success', 'OPD berhasil dihapus.');
     }
+
+    public function exportExcel(Request $request)
+    {
+        $search = $request->get('search');
+        $opds = MasterOpd::when($search, function ($query, $search) {
+            return $query->where('nama', 'like', "%{$search}%");
+        })->orderBy('nama')->get();
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Data Master OPD');
+
+        $headers = ['NO', 'NAMA OPD', 'KATEGORI'];
+        $cols = ['A', 'B', 'C'];
+
+        foreach ($cols as $i => $col) {
+            $cell = $col . '1';
+            $sheet->setCellValue($cell, $headers[$i]);
+            $sheet->getStyle($cell)->getFont()->setBold(true)->getColor()->setRGB('FFFFFF');
+            $sheet->getStyle($cell)->getFill()
+                ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
+                ->getStartColor()->setRGB('1e40af');
+        }
+
+        $row = 2;
+        foreach ($opds as $idx => $opd) {
+            $sheet->setCellValue('A' . $row, $idx + 1);
+            $sheet->setCellValue('B' . $row, $opd->nama);
+            $sheet->setCellValue('C' . $row, $opd->kategori ?? 'OPD');
+            $row++;
+        }
+
+        foreach ($cols as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $filename = 'Data_Master_OPD_Sekolah.xlsx';
+        
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
 }
