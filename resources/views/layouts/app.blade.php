@@ -7,11 +7,10 @@
     <title>@yield('title', 'INSPECTRA') - Sistem Pengelolaan Dokumen Pemeriksaan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,800,700,600,500,400&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bs-font-sans-serif: 'Satoshi', 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            --bs-font-sans-serif: 'Inter', 'Poppins', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
             --bs-body-font-family: var(--bs-font-sans-serif);
             --bg-canvas: #f6f7f9;
             --sidebar-bg: #ffffff;
@@ -21,7 +20,7 @@
         }
 
         body, input, button, select, textarea, .btn, .form-control, .form-select, h1, h2, h3, h4, h5, h6 { 
-            font-family: 'Satoshi', 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important; 
+            font-family: 'Inter', 'Poppins', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif !important; 
         }
 
         body { 
