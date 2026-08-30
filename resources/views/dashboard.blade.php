@@ -10,21 +10,77 @@ body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
 
 /* ── Hero Greeting Card ── */
 .magnific-hero {
-    background: #ffffff;
-    border-radius: 20px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
-    padding: 2.2rem 2rem 1.8rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 40%, #f1f5f9 100%);
+    border-radius: 22px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    padding: 2.6rem 2rem 2.2rem;
     text-align: center;
     position: relative;
     overflow: hidden;
 }
 
+/* Subtle Geometric Grid & Soft Glow Orbs */
+.magnific-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(148, 163, 184, 0.22) 1.2px, transparent 1.2px);
+    background-size: 24px 24px;
+    opacity: 0.65;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.magnific-hero-shape-1 {
+    position: absolute;
+    top: -60px;
+    left: -60px;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.18) 0%, rgba(59, 130, 246, 0) 70%);
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(24px);
+}
+
+.magnific-hero-shape-2 {
+    position: absolute;
+    bottom: -80px;
+    right: -40px;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0) 70%);
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(28px);
+}
+
+.magnific-hero-shape-3 {
+    position: absolute;
+    top: 15%;
+    right: 20%;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 70%);
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(20px);
+}
+
+.magnific-hero-content {
+    position: relative;
+    z-index: 1;
+}
+
 .magnific-hero-title {
-    font-size: 1.8rem;
-    font-weight: 800;
+    font-size: 1.85rem;
+    font-weight: 900;
     color: #0f172a;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.035em;
     margin-bottom: 0.35rem;
 }
 
@@ -36,29 +92,30 @@ body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
 }
 
 .magnific-search-wrap {
-    max-width: 540px;
-    margin: 0 auto 2rem;
+    max-width: 560px;
+    margin: 0 auto 2.2rem;
     position: relative;
 }
 
 .magnific-search-input {
     width: 100%;
-    height: 48px;
+    height: 50px;
     border-radius: 99px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-    padding-left: 3.1rem;
+    border: 1px solid #cbd5e1;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    padding-left: 3.2rem;
     padding-right: 4.5rem;
     font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.2s ease;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
 .magnific-search-input:focus {
     background: #ffffff;
     border-color: #2563eb;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
     outline: none;
 }
 
@@ -275,61 +332,67 @@ body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
 
     {{-- ══ HERO GREETING BANNER (Magnific AI Style) ══ --}}
     <div class="magnific-hero mb-4">
-        <h1 class="magnific-hero-title">Selamat datang, kelola dokumen pemeriksaan!</h1>
-        <p class="magnific-hero-sub">Sistem Pusat Pemantauan & Pemenuhan Dokumen Pemeriksaan Pemerintah Daerah</p>
+        <div class="magnific-hero-shape-1"></div>
+        <div class="magnific-hero-shape-2"></div>
+        <div class="magnific-hero-shape-3"></div>
 
-        {{-- Interactive Search Bar --}}
-        <div class="magnific-search-wrap">
-            <i class="bi bi-search magnific-search-icon"></i>
-            <input type="text" class="magnific-search-input" id="dashboardSearch" placeholder="Cari data dokumen, surat permintaan, atau OPD..." onkeyup="filterDashboardItems(this.value)">
-            <span class="magnific-search-badge">⌘ K</span>
-        </div>
+        <div class="magnific-hero-content">
+            <h1 class="magnific-hero-title">Selamat datang, kelola dokumen pemeriksaan!</h1>
+            <p class="magnific-hero-sub">Sistem Pusat Pemantauan & Pemenuhan Dokumen Pemeriksaan Pemerintah Daerah</p>
 
-        {{-- Quick Action Tiles Grid (Spaces Icons) --}}
-        <div class="magnific-tools-grid">
-            <a href="{{ route('pemeriksaan.index') }}" class="tool-tile">
-                <div class="tool-tile-icon" style="background:#eff6ff; color:#2563eb;">
-                    <i class="bi bi-card-checklist"></i>
-                </div>
-                <span class="tool-tile-label">Pemeriksaan</span>
-            </a>
+            {{-- Interactive Search Bar --}}
+            <div class="magnific-search-wrap">
+                <i class="bi bi-search magnific-search-icon"></i>
+                <input type="text" class="magnific-search-input" id="dashboardSearch" placeholder="Cari data dokumen, surat permintaan, atau OPD..." onkeyup="filterDashboardItems(this.value)">
+                <span class="magnific-search-badge">⌘ K</span>
+            </div>
 
-            <a href="{{ route('surat.index') }}" class="tool-tile">
-                <div class="tool-tile-icon" style="background:#fffbeb; color:#d97706;">
-                    <i class="bi bi-envelope-paper-fill"></i>
-                </div>
-                <span class="tool-tile-label">Surat</span>
-            </a>
+            {{-- Quick Action Tiles Grid (Spaces Icons) --}}
+            <div class="magnific-tools-grid">
+                <a href="{{ route('pemeriksaan.index') }}" class="tool-tile">
+                    <div class="tool-tile-icon" style="background:#eff6ff; color:#2563eb;">
+                        <i class="bi bi-card-checklist"></i>
+                    </div>
+                    <span class="tool-tile-label">Pemeriksaan</span>
+                </a>
 
-            <a href="{{ route('opd.index') }}" class="tool-tile">
-                <div class="tool-tile-icon" style="background:#ecfdf5; color:#059669;">
-                    <i class="bi bi-building-fill-check"></i>
-                </div>
-                <span class="tool-tile-label">OPD</span>
-            </a>
+                <a href="{{ route('surat.index') }}" class="tool-tile">
+                    <div class="tool-tile-icon" style="background:#fffbeb; color:#d97706;">
+                        <i class="bi bi-envelope-paper-fill"></i>
+                    </div>
+                    <span class="tool-tile-label">Surat</span>
+                </a>
 
-            <a href="{{ route('laporan.index') }}" class="tool-tile">
-                <div class="tool-tile-icon" style="background:#f5f3ff; color:#7c3aed;">
-                    <i class="bi bi-printer-fill"></i>
-                </div>
-                <span class="tool-tile-label">Cetak Laporan</span>
-            </a>
+                <a href="{{ route('opd.index') }}" class="tool-tile">
+                    <div class="tool-tile-icon" style="background:#ecfdf5; color:#059669;">
+                        <i class="bi bi-building-fill-check"></i>
+                    </div>
+                    <span class="tool-tile-label">OPD</span>
+                </a>
 
-            @if(auth()->user()->isAdmin())
-            <a href="{{ route('google-drive.index') }}" class="tool-tile">
-                <div class="tool-tile-icon" style="background:#e0f2fe; color:#0284c7;">
-                    <i class="bi bi-google"></i>
-                </div>
-                <span class="tool-tile-label">Drive Sync</span>
-            </a>
+                <a href="{{ route('laporan.index') }}" class="tool-tile">
+                    <div class="tool-tile-icon" style="background:#f5f3ff; color:#7c3aed;">
+                        <i class="bi bi-printer-fill"></i>
+                    </div>
+                    <span class="tool-tile-label">Cetak Laporan</span>
+                </a>
 
-            <a href="{{ route('backup-dokumen.index') }}" class="tool-tile">
-                <div class="tool-tile-icon" style="background:#ffe4e6; color:#e11d48;">
-                    <i class="bi bi-archive-fill"></i>
-                </div>
-                <span class="tool-tile-label">Backup</span>
-            </a>
-            @endif
+                @if(auth()->user()->isAdmin())
+                <a href="{{ route('google-drive.index') }}" class="tool-tile">
+                    <div class="tool-tile-icon" style="background:#e0f2fe; color:#0284c7;">
+                        <i class="bi bi-google"></i>
+                    </div>
+                    <span class="tool-tile-label">Drive Sync</span>
+                </a>
+
+                <a href="{{ route('backup-dokumen.index') }}" class="tool-tile">
+                    <div class="tool-tile-icon" style="background:#ffe4e6; color:#e11d48;">
+                        <i class="bi bi-archive-fill"></i>
+                    </div>
+                    <span class="tool-tile-label">Backup</span>
+                </a>
+                @endif
+            </div>
         </div>
     </div>
 
