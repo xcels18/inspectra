@@ -5,7 +5,7 @@
 <style>
 /* ── Magnific AI Inspired Aesthetic ── */
 body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', 'Poppins', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-family: 'Poppins', 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
 /* ── Hero Greeting Card ── */

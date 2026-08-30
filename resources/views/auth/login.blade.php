@@ -12,13 +12,13 @@
 
         body {
             min-height: 100vh;
-            font-family: 'Inter', 'Poppins', 'Roboto', sans-serif !important;
+            font-family: 'Poppins', 'Inter', 'Roboto', sans-serif !important;
             display: flex;
             overflow: hidden;
         }
 
         input, button, select, textarea {
-            font-family: 'Inter', 'Poppins', 'Roboto', sans-serif !important;
+            font-family: 'Poppins', 'Inter', 'Roboto', sans-serif !important;
         }
 
         .bg-panel {
