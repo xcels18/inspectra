@@ -190,13 +190,13 @@
 <body>
     {{-- Sidebar Kiri --}}
     <div class="sidebar">
-        <div class="sidebar-brand">
-            <div class="brand-icon" style="width: 42px; height: 42px; background: transparent; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px;">
+        <div class="sidebar-brand text-center d-flex flex-column align-items-center justify-content-center py-3 border-bottom">
+            <div class="brand-icon mb-2" style="width: 52px; height: 52px; background: transparent; border-radius: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 2px;">
                 <img src="/images/logo-inspektorat.png" alt="Logo Inspektorat" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
             <div>
-                <h5 class="fw-bold" style="font-size: 1.1rem; letter-spacing: -0.02em; margin: 0; color: #0f172a;">INSPECTRA</h5>
-                <div class="sub-brand" style="font-size: 0.7rem; color: #64748b; font-weight: 600;">Inspektorat Kab. Puncak Jaya</div>
+                <h5 class="fw-extrabold text-dark" style="font-size: 1.15rem; letter-spacing: -0.02em; margin: 0; line-height: 1.2;">INSPECTRA</h5>
+                <div class="sub-brand mt-1" style="font-size: 0.72rem; color: #64748b; font-weight: 600;">Inspektorat Kab. Puncak Jaya</div>
             </div>
         </div>
 
