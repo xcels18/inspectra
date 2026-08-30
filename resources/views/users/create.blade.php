@@ -53,7 +53,7 @@
                         <select name="role" class="form-select @error('role') is-invalid @enderror" required>
                             <option value="">- Pilih Role -</option>
                             <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin Pengelola</option>
-                            <option value="tim_bpk" {{ old('role') === 'tim_bpk' ? 'selected' : '' }}>Tim BPK</option>
+                            <option value="tim_bpk" {{ old('role') === 'tim_bpk' ? 'selected' : '' }}>Tim Pemeriksa</option>
                         </select>
                         @error('role')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>

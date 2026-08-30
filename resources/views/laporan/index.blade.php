@@ -9,7 +9,7 @@
         <div style="position:absolute;top:0;right:0;bottom:0;left:0;background:radial-gradient(circle at top right,rgba(255,255,255,0.07),transparent 60%);pointer-events:none;"></div>
         <div class="card-body py-3 px-4 position-relative" style="z-index:1;">
             <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="font-size:0.95rem;">
-                <i class="bi bi-printer-fill text-info"></i> Cetak & Export Laporan Monitoring BPK
+                <i class="bi bi-printer-fill text-info"></i> Cetak & Export Laporan Monitoring Pemeriksaan
             </h5>
             <div style="font-size:0.72rem;color:#94a3b8;margin-top:2px;">Generate laporan PDF resmi formal & export data matriks kepatuhan dokumen OPD ke format Excel</div>
         </div>
@@ -30,7 +30,7 @@
                 <div class="mb-3">
                     <label class="form-label fw-bold" style="font-size:0.82rem;">Judul Laporan <span class="text-danger">*</span></label>
                     <input type="text" name="judul_laporan" class="form-control form-control-sm"
-                           value="Laporan Monitoring Pemenuhan Dokumen Pemeriksaan BPK RI" required
+                           value="Laporan Monitoring Pemenuhan Dokumen Pemeriksaan" required
                            style="font-size:0.82rem;">
                 </div>
 

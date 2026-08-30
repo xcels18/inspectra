@@ -12,7 +12,7 @@
         <div class="card-body py-3 px-4 position-relative z-1">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                 <h5 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
-                    <i class="bi bi-envelope-paper"></i> Surat Permintaan Data BPK
+                    <i class="bi bi-envelope-paper"></i> Surat Permintaan Data Pemeriksaan
                 </h5>
                 <div class="d-flex align-items-center flex-wrap gap-2">
                     @php

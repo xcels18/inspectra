@@ -344,7 +344,7 @@
             BAGIAN II: RINCIAN PEMENUHAN DOKUMEN PER ENTITAS / OPD
         </h4>
         <p style="margin: 2px 0 0 0; font-size: 8pt; color: #64748b;">
-            Rincian detail item permintaan data BPK untuk setiap OPD dengan pengelompokan status: <strong>Selesai</strong>, <strong>Proses</strong>, dan <strong>Belum Ada</strong>
+            Rincian detail item permintaan data pemeriksaan untuk setiap OPD dengan pengelompokan status: <strong>Selesai</strong>, <strong>Proses</strong>, dan <strong>Belum Ada</strong>
         </p>
     </div>
 

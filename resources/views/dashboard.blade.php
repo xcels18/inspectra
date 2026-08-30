@@ -3,25 +3,136 @@
 
 @section('styles')
 <style>
-/* ── Typography & Base Styles ── */
-body, button, input, select, textarea {
-    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+/* ── Magnific AI Inspired Aesthetic ── */
+body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
+    font-family: 'Satoshi', 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
 }
 
-:root {
-    --navy-main: #0b192c;
-    --navy-light: #1a365d;
-    --accent-blue: #3b82f6;
-    --card-border: rgba(226, 232, 240, 0.8);
+/* ── Hero Greeting Card ── */
+.magnific-hero {
+    background: #ffffff;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+    padding: 2.2rem 2rem 1.8rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.magnific-hero-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.35rem;
+}
+
+.magnific-hero-sub {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 1.75rem;
+}
+
+.magnific-search-wrap {
+    max-width: 540px;
+    margin: 0 auto 2rem;
+    position: relative;
+}
+
+.magnific-search-input {
+    width: 100%;
+    height: 48px;
+    border-radius: 99px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    padding-left: 3.1rem;
+    padding-right: 4.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.magnific-search-input:focus {
+    background: #ffffff;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    outline: none;
+}
+
+.magnific-search-icon {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.1rem;
+}
+
+.magnific-search-badge {
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #e2e8f0;
+    color: #64748b;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+/* ── Quick Action Category Tiles Grid ── */
+.magnific-tools-grid {
+    display: flex;
+    justify-content: center;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+}
+
+.tool-tile {
+    width: 98px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.tool-tile:hover {
+    transform: translateY(-4px);
+}
+
+.tool-tile-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.tool-tile-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #334155;
+    text-align: center;
+    line-height: 1.2;
 }
 
 /* ── KPI Stat Cards ── */
 .kpi-card {
     background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
-    padding: 1.2rem 1.25rem;
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.03);
+    padding: 1.35rem 1.4rem;
     position: relative;
     overflow: hidden;
     transition: all 0.2s ease;
@@ -30,7 +141,7 @@ body, button, input, select, textarea {
     justify-content: space-between;
 }
 .kpi-card:hover {
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.07);
     transform: translateY(-2px);
     border-color: #cbd5e1;
 }
@@ -38,7 +149,7 @@ body, button, input, select, textarea {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.6rem;
 }
 .kpi-label {
     font-size: 0.75rem;
@@ -48,17 +159,17 @@ body, button, input, select, textarea {
     letter-spacing: 0.04em;
 }
 .kpi-icon-wrap {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     flex-shrink: 0;
 }
 .kpi-value {
-    font-size: 2.1rem;
+    font-size: 2.15rem;
     font-weight: 800;
     line-height: 1;
     letter-spacing: -0.03em;
@@ -75,23 +186,11 @@ body, button, input, select, textarea {
     flex-wrap: wrap;
 }
 
-/* ── Alert Banners ── */
-.alert-banner {
-    border-radius: 14px;
-    border: 1px solid transparent;
-    padding: 0.85rem 1.15rem;
-    display: flex;
-    align-items: center;
-    gap: 0.85rem;
-    font-size: 0.8rem;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-}
-
 /* ── Section Cards ── */
 .sec-card {
     background: #ffffff;
-    border-radius: 16px;
-    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
     box-shadow: 0 4px 18px rgba(15, 23, 42, 0.03);
     overflow: hidden;
     display: flex;
@@ -99,15 +198,15 @@ body, button, input, select, textarea {
     height: 100%;
 }
 .sec-header {
-    padding: 0.85rem 1.2rem;
+    padding: 1rem 1.35rem;
     border-bottom: 1px solid #f1f5f9;
     font-weight: 700;
-    font-size: 0.82rem;
+    font-size: 0.84rem;
     color: #0f172a;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    background: #ffffff;
 }
 .sec-body {
     overflow-y: auto;
@@ -116,7 +215,7 @@ body, button, input, select, textarea {
 
 /* ── List Row Items ── */
 .row-item {
-    padding: 0.75rem 1.15rem;
+    padding: 0.85rem 1.35rem;
     border-bottom: 1px solid #f8fafc;
     font-size: 0.8rem;
     transition: background 0.15s ease;
@@ -130,34 +229,21 @@ body, button, input, select, textarea {
 
 /* ── Ranking Badges ── */
 .rank-num {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 800;
     flex-shrink: 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.06);
 }
-.rank-gold {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    color: #ffffff;
-}
-.rank-silver {
-    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
-    color: #ffffff;
-}
-.rank-bronze {
-    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-    color: #ffffff;
-}
-.rank-default {
-    background: #f1f5f9;
-    color: #64748b;
-    box-shadow: none;
-}
+.rank-gold { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; }
+.rank-silver { background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%); color: #ffffff; }
+.rank-bronze { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: #ffffff; }
+.rank-default { background: #f1f5f9; color: #64748b; box-shadow: none; }
 
 /* ── Progress Bars ── */
 .prog-bar {
@@ -173,7 +259,6 @@ body, button, input, select, textarea {
     transition: width 0.4s ease;
 }
 
-/* ── Status Pills ── */
 .dl-pill {
     font-size: 0.7rem;
     padding: 3px 10px;
@@ -181,46 +266,75 @@ body, button, input, select, textarea {
     font-weight: 700;
     white-space: nowrap;
     flex-shrink: 0;
-    letter-spacing: 0.01em;
 }
 </style>
 @endsection
 
 @section('content')
-<div class="container-fluid py-3" style="max-width:1300px;">
+<div class="container-fluid py-2" style="max-width:1320px;">
 
-    {{-- ══ HEADER BANNER ══ --}}
-    <div class="card border-0 mb-3 overflow-hidden" style="background:linear-gradient(135deg,#0b192c 0%,#1a365d 100%); border-radius:16px; position:relative; box-shadow:0 6px 20px rgba(11,25,44,0.15);">
-        <div style="position:absolute;top:0;right:0;bottom:0;left:0;background:radial-gradient(circle at top right,rgba(255,255,255,0.08),transparent 60%);pointer-events:none;"></div>
-        <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-3 position-relative" style="z-index:1;">
-            <div>
-                <h5 class="mb-0 fw-extrabold text-white d-flex align-items-center gap-2" style="font-size:1.05rem; letter-spacing:-0.02em;">
-                    <i class="bi bi-speedometer2 text-info"></i> Dashboard Monitoring BPK
-                </h5>
-                <div style="font-size:0.75rem;color:#94a3b8;margin-top:3px;font-weight:500;">
-                    Pemantauan Pemenuhan Dokumen Pemeriksaan BPK RI &mdash; {{ now()->isoFormat('dddd, D MMMM Y') }}
+    {{-- ══ HERO GREETING BANNER (Magnific AI Style) ══ --}}
+    <div class="magnific-hero mb-4">
+        <h1 class="magnific-hero-title">Selamat datang, kelola dokumen pemeriksaan!</h1>
+        <p class="magnific-hero-sub">Sistem Pusat Pemantauan & Pemenuhan Dokumen Pemeriksaan Pemerintah Daerah</p>
+
+        {{-- Interactive Search Bar --}}
+        <div class="magnific-search-wrap">
+            <i class="bi bi-search magnific-search-icon"></i>
+            <input type="text" class="magnific-search-input" id="dashboardSearch" placeholder="Cari data dokumen, surat permintaan, atau OPD..." onkeyup="filterDashboardItems(this.value)">
+            <span class="magnific-search-badge">⌘ K</span>
+        </div>
+
+        {{-- Quick Action Tiles Grid (Spaces Icons) --}}
+        <div class="magnific-tools-grid">
+            <a href="{{ route('pemeriksaan.index') }}" class="tool-tile">
+                <div class="tool-tile-icon" style="background:#eff6ff; color:#2563eb;">
+                    <i class="bi bi-card-checklist"></i>
                 </div>
-            </div>
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a href="{{ route('pemeriksaan.index') }}" class="btn btn-sm fw-semibold shadow-sm" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.22);font-size:0.78rem;border-radius:10px;">
-                    <i class="bi bi-folder2-open me-1 text-info"></i>Pemeriksaan
-                </a>
-                <a href="{{ route('surat.index') }}" class="btn btn-sm fw-semibold shadow-sm" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.22);font-size:0.78rem;border-radius:10px;">
-                    <i class="bi bi-envelope me-1 text-warning"></i>Surat BPK
-                </a>
-                <a href="{{ route('opd.index') }}" class="btn btn-sm fw-semibold shadow-sm" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.22);font-size:0.78rem;border-radius:10px;">
-                    <i class="bi bi-building me-1 text-success"></i>Monitoring OPD
-                </a>
-                <a href="{{ route('laporan.index') }}" class="btn btn-sm fw-bold shadow-sm" style="background:#2563eb;color:#fff;border:0;font-size:0.78rem;border-radius:10px;">
-                    <i class="bi bi-printer me-1"></i>Cetak Laporan
-                </a>
-            </div>
+                <span class="tool-tile-label">Pemeriksaan</span>
+            </a>
+
+            <a href="{{ route('surat.index') }}" class="tool-tile">
+                <div class="tool-tile-icon" style="background:#fffbeb; color:#d97706;">
+                    <i class="bi bi-envelope-paper-fill"></i>
+                </div>
+                <span class="tool-tile-label">Surat</span>
+            </a>
+
+            <a href="{{ route('opd.index') }}" class="tool-tile">
+                <div class="tool-tile-icon" style="background:#ecfdf5; color:#059669;">
+                    <i class="bi bi-building-fill-check"></i>
+                </div>
+                <span class="tool-tile-label">OPD</span>
+            </a>
+
+            <a href="{{ route('laporan.index') }}" class="tool-tile">
+                <div class="tool-tile-icon" style="background:#f5f3ff; color:#7c3aed;">
+                    <i class="bi bi-printer-fill"></i>
+                </div>
+                <span class="tool-tile-label">Cetak Laporan</span>
+            </a>
+
+            @if(auth()->user()->isAdmin())
+            <a href="{{ route('google-drive.index') }}" class="tool-tile">
+                <div class="tool-tile-icon" style="background:#e0f2fe; color:#0284c7;">
+                    <i class="bi bi-google"></i>
+                </div>
+                <span class="tool-tile-label">Drive Sync</span>
+            </a>
+
+            <a href="{{ route('backup-dokumen.index') }}" class="tool-tile">
+                <div class="tool-tile-icon" style="background:#ffe4e6; color:#e11d48;">
+                    <i class="bi bi-archive-fill"></i>
+                </div>
+                <span class="tool-tile-label">Backup</span>
+            </a>
+            @endif
         </div>
     </div>
 
     {{-- ══ KPI CARDS ══ --}}
-    <div class="row g-3 mb-3">
-
+    <div class="row g-3 mb-4">
         {{-- KPI 1: Pemeriksaan --}}
         <div class="col-6 col-md-3">
             <div class="kpi-card h-100">
@@ -238,11 +352,11 @@ body, button, input, select, textarea {
             </div>
         </div>
 
-        {{-- KPI 2: Surat BPK --}}
+        {{-- KPI 2: Surat Permintaan --}}
         <div class="col-6 col-md-3">
             <div class="kpi-card h-100">
                 <div class="kpi-header">
-                    <span class="kpi-label">Total Surat</span>
+                    <span class="kpi-label">Surat Permintaan</span>
                     <div class="kpi-icon-wrap" style="background:#fffbeb; color:#d97706;">
                         <i class="bi bi-envelope-paper"></i>
                     </div>
@@ -291,36 +405,36 @@ body, button, input, select, textarea {
                 </div>
             </div>
         </div>
-
     </div>
 
     {{-- ══ ALERT BANNERS ══ --}}
     @if($suratDeadlineDekat > 0 || $suratOverdue > 0 || $opdBelum > 0)
-    <div class="row g-2 mb-3">
+    <div class="row g-3 mb-4">
         @if($suratDeadlineDekat > 0 || $suratOverdue > 0)
         <div class="col-12 col-md-6">
-            <div class="alert-banner" style="background:#fef2f2; border-color:#fecaca;">
-                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;background:#fee2e2;color:#dc2626;">
-                    <i class="bi bi-exclamation-triangle-fill" style="font-size:1.1rem;"></i>
+            <div class="p-3 rounded-4 border d-flex align-items-center gap-3" style="background:#fef2f2; border-color:#fecaca;">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;background:#fee2e2;color:#dc2626;">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size:1.15rem;"></i>
                 </div>
                 <div>
-                    <div class="fw-bold text-danger" style="font-size:0.82rem;">Peringatan Deadline Surat</div>
-                    <div style="color:#991b1b;font-size:0.75rem;">
-                        <strong>{{ $suratOverdue }}</strong> surat lewat deadline &bull; <strong>{{ $suratDeadlineDekat }}</strong> mendekati batas waktu (H‑14)
+                    <div class="fw-bold text-danger" style="font-size:0.84rem;">Peringatan Batas Waktu Surat</div>
+                    <div style="color:#991b1b;font-size:0.76rem;">
+                        <strong>{{ $suratOverdue }}</strong> surat lewat deadline &bull; <strong>{{ $suratDeadlineDekat }}</strong> mendekati deadline (H‑14)
                     </div>
                 </div>
             </div>
         </div>
         @endif
+
         @if($opdBelum > 0)
         <div class="col-12 col-md-6">
-            <div class="alert-banner" style="background:#fffbeb; border-color:#fde68a;">
-                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:36px;height:36px;background:#fef3c7;color:#d97706;">
-                    <i class="bi bi-info-circle-fill" style="font-size:1.1rem;"></i>
+            <div class="p-3 rounded-4 border d-flex align-items-center gap-3" style="background:#fffbeb; border-color:#fde68a;">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:40px;height:40px;background:#fef3c7;color:#d97706;">
+                    <i class="bi bi-info-circle-fill" style="font-size:1.15rem;"></i>
                 </div>
                 <div>
-                    <div class="fw-bold" style="color:#92400e;font-size:0.82rem;">Status Kepatuhan Penugasan</div>
-                    <div style="color:#b45309;font-size:0.75rem;">
+                    <div class="fw-bold" style="color:#92400e;font-size:0.84rem;">Status Pemenuhan Penugasan</div>
+                    <div style="color:#b45309;font-size:0.76rem;">
                         <strong>{{ $opdBelum }}</strong> penugasan OPD belum ditindaklanjuti sama sekali
                     </div>
                 </div>
@@ -331,17 +445,16 @@ body, button, input, select, textarea {
     @endif
 
     {{-- ══ ROW: RANKING OPD + PROGRESS ══ --}}
-    <div class="row g-3 mb-3">
-
+    <div class="row g-3 mb-4">
         {{-- Ranking OPD --}}
         <div class="col-12 col-lg-7">
             <div class="sec-card">
                 <div class="sec-header">
                     <span class="d-flex align-items-center gap-2">
-                        <i class="bi bi-trophy-fill text-warning" style="font-size:0.95rem;"></i>
+                        <i class="bi bi-trophy-fill text-warning" style="font-size:1rem;"></i>
                         <span>Ranking Kepatuhan OPD <span class="text-muted fw-normal">(Pemeriksaan Aktif)</span></span>
                     </span>
-                    <a href="{{ route('opd.index') }}" class="text-decoration-none fw-semibold" style="font-size:0.75rem;color:#2563eb;">Lihat Semua OPD &rarr;</a>
+                    <a href="{{ route('opd.index') }}" class="text-decoration-none fw-semibold" style="font-size:0.78rem;color:#2563eb;">Lihat Semua OPD &rarr;</a>
                 </div>
                 <div class="sec-body p-0">
                     <div class="row g-0 h-100">
@@ -408,7 +521,7 @@ body, button, input, select, textarea {
                         <i class="bi bi-bar-chart-fill text-primary" style="font-size:0.95rem;"></i>
                         <span>Progres Pemeriksaan Aktif</span>
                     </span>
-                    <a href="{{ route('pemeriksaan.index') }}" class="text-decoration-none fw-semibold" style="font-size:0.75rem;color:#2563eb;">Lihat Semua &rarr;</a>
+                    <a href="{{ route('pemeriksaan.index') }}" class="text-decoration-none fw-semibold" style="font-size:0.78rem;color:#2563eb;">Lihat Semua &rarr;</a>
                 </div>
                 <div class="sec-body p-0">
                     @forelse($pemeriksaanProgress as $p)
@@ -435,7 +548,6 @@ body, button, input, select, textarea {
 
     {{-- ══ ROW: AKTIVITAS + DEADLINE ══ --}}
     <div class="row g-3">
-
         {{-- Aktivitas Upload Terbaru --}}
         <div class="col-12 col-lg-7">
             <div class="sec-card" style="min-height:280px;">
@@ -444,7 +556,7 @@ body, button, input, select, textarea {
                         <i class="bi bi-clock-history text-indigo" style="color:#6366f1;font-size:0.95rem;"></i>
                         <span>Aktivitas Upload Dokumen Terbaru</span>
                     </span>
-                    <a href="{{ route('dokumen.index') }}" class="text-decoration-none fw-semibold" style="font-size:0.75rem;color:#2563eb;">Lihat Dokumen &rarr;</a>
+                    <a href="{{ route('dokumen.index') }}" class="text-decoration-none fw-semibold" style="font-size:0.78rem;color:#2563eb;">Lihat Dokumen &rarr;</a>
                 </div>
                 <div class="sec-body p-0">
                     @forelse($aktivitasTerbaru as $dok)
@@ -454,7 +566,7 @@ body, button, input, select, textarea {
                             : ($dok->permintaan ? $dok->permintaan->surat : null);
                         $pemeriksaan = $surat?->pemeriksaan;
                     @endphp
-                    <div class="row-item d-flex gap-3 align-items-start">
+                    <div class="row-item d-flex gap-3 align-items-start search-target">
                         <div class="flex-shrink-0 rounded-3 d-flex align-items-center justify-content-center shadow-sm"
                              style="width:38px;height:38px;background:#eff6ff;color:#2563eb;border:1px solid #dbeafe;">
                             <i class="bi bi-file-earmark-arrow-up-fill" style="font-size:1.05rem;"></i>
@@ -491,7 +603,7 @@ body, button, input, select, textarea {
                         <i class="bi bi-calendar-event text-danger" style="font-size:0.95rem;"></i>
                         <span>Surat Menunggu Deadline</span>
                     </span>
-                    <a href="{{ route('surat.index') }}" class="text-decoration-none fw-semibold" style="font-size:0.75rem;color:#2563eb;">Semua Surat &rarr;</a>
+                    <a href="{{ route('surat.index') }}" class="text-decoration-none fw-semibold" style="font-size:0.78rem;color:#2563eb;">Semua Surat &rarr;</a>
                 </div>
                 <div class="sec-body p-0">
                     @forelse($suratDeadline as $surat)
@@ -499,7 +611,7 @@ body, button, input, select, textarea {
                         $isOverdue = $surat->deadline < now();
                         $daysLeft  = (int) now()->diffInDays($surat->deadline, false);
                     @endphp
-                    <a href="{{ route('surat.show', $surat->id) }}" class="text-decoration-none text-dark row-item d-block">
+                    <a href="{{ route('surat.show', $surat->id) }}" class="text-decoration-none text-dark row-item d-block search-target">
                         <div class="d-flex justify-content-between align-items-center gap-2">
                             <div class="fw-bold text-dark text-truncate" style="font-size:0.8rem;max-width:220px;">{{ $surat->nomor_surat }}</div>
                             @if($isOverdue)
@@ -525,7 +637,23 @@ body, button, input, select, textarea {
                 </div>
             </div>
         </div>
-
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+function filterDashboardItems(query) {
+    const q = query.toLowerCase().trim();
+    const items = document.querySelectorAll('.search-target');
+    items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(q)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+</script>
 @endsection

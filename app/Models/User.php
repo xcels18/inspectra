@@ -52,7 +52,7 @@ class User extends Authenticatable
     {
         return match($this->role) {
             'admin' => 'Admin Pengelola',
-            'tim_bpk' => 'Tim BPK',
+            'tim_bpk' => 'Tim Pemeriksa',
             default => $this->role,
         };
     }

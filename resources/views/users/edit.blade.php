@@ -52,7 +52,7 @@
                         <label class="form-label">Role <span class="text-danger">*</span></label>
                         <select name="role" class="form-select" required>
                             <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>Admin Pengelola</option>
-                            <option value="tim_bpk" {{ $user->role === 'tim_bpk' ? 'selected' : '' }}>Tim BPK</option>
+                            <option value="tim_bpk" {{ $user->role === 'tim_bpk' ? 'selected' : '' }}>Tim Pemeriksa</option>
                         </select>
                     </div>
                     <div class="col-12">
