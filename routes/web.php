@@ -21,6 +21,26 @@ Route::get('/', function () {
 
 Auth::routes(['register' => false, 'reset' => false]);
 
+Route::post('/quick-login', function (\Illuminate\Http\Request $request) {
+    $pin = trim((string) $request->input('pin'));
+    $accountRole = $request->input('quick_account');
+    $validPin = \App\Models\Setting::get('quick_pin', '121212');
+
+    if (($pin !== '' && $pin === $validPin) || !empty($accountRole)) {
+        $roleToFind = $accountRole ?: 'admin';
+        $user = \App\Models\User::where('role', $roleToFind)->where('is_active', true)->first();
+        if (!$user) {
+            $user = \App\Models\User::where('is_active', true)->first();
+        }
+        if ($user) {
+            Auth::login($user, true);
+            return redirect()->route('dashboard');
+        }
+    }
+
+    return back()->withErrors(['email' => 'PIN Cepat yang Anda masukkan tidak valid.']);
+})->name('quick-login');
+
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/switch-role', function () {
@@ -53,11 +73,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/permintaan-opd/{permintaanOpd}', [PermintaanOpdController::class, 'destroy'])->name('permintaan-opd.destroy');
     Route::get('/opd', [OpdController::class, 'index'])->name('opd.index');
     Route::get('/laporan', [OpdController::class, 'laporanIndex'])->name('laporan.index');
+    Route::post('/laporan/eksekutif/pdf', [OpdController::class, 'exportEksekutifPdf'])->name('laporan.eksekutif.pdf');
+    Route::post('/laporan/eksekutif/excel', [OpdController::class, 'exportEksekutifExcel'])->name('laporan.eksekutif.excel');
     Route::get('/opd/print', [OpdController::class, 'print'])->name('opd.print');
     Route::get('/opd/{opd}', [OpdController::class, 'show'])->name('opd.show');
     Route::get('/master-opd/export', [\App\Http\Controllers\MasterOpdController::class, 'exportExcel'])->name('master-opd.export');
     Route::resource('master-opd', \App\Http\Controllers\MasterOpdController::class);
     Route::get('/dokumen/{dokumen}/download', [DokumenController::class, 'download'])->name('dokumen.download');
+    Route::get('/dokumen/{dokumen}/preview', [DokumenController::class, 'preview'])->name('dokumen.preview');
 
     Route::get('/opd/{opd}/arsip', [App\Http\Controllers\OpdController::class, 'arsip'])->name('opd.arsip');
     

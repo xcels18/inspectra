@@ -232,17 +232,36 @@
                         @endif
                     </td>
                     <td>
+                        @if(auth()->user()->isAdmin())
+                        <select class="form-select form-select-sm js-quick-status-select border-0 text-white fw-bold shadow-sm"
+                                data-opd-id="{{ $row->id }}"
+                                style="font-size:0.68rem; padding: 2px 24px 2px 8px; border-radius: 12px; cursor: pointer;
+                                       background-color: {{ $row->status === 'selesai' ? '#16a34a' : ($row->status === 'proses' ? '#d97706' : '#dc2626') }};"
+                                onchange="quickUpdateStatus(this)">
+                            <option value="belum" class="text-dark bg-white" {{ $row->status === 'belum' ? 'selected' : '' }}>🔴 Belum Ada</option>
+                            <option value="proses" class="text-dark bg-white" {{ $row->status === 'proses' ? 'selected' : '' }}>🟡 Proses</option>
+                            <option value="selesai" class="text-dark bg-white" {{ $row->status === 'selesai' ? 'selected' : '' }}>🟢 Selesai</option>
+                        </select>
+                        @else
                         <span class="badge bg-{{ $row->status_badge }}" style="font-size:0.7rem;">{{ $row->status_label }}</span>
-                        @if($row->selesai_at)
-                        <div class="text-muted" style="font-size:0.65rem; margin-top:2px;">{{ $row->selesai_at->format('d/m/Y') }}</div>
                         @endif
+                        <div class="js-selesai-at-date text-muted" style="font-size:0.65rem; margin-top:2px;">{{ $row->selesai_at ? $row->selesai_at->format('d/m/Y') : '' }}</div>
                     </td>
                     <td style="word-break:break-word; vertical-align:top;">
                         @if($row->dokumen->count() > 0)
                         @foreach($row->dokumen as $dok)
                         <div class="d-flex align-items-center gap-1 mb-1">
-                            <a href="{{ route('dokumen.download', $dok) }}" class="text-decoration-none flex-grow-1" style="font-size:0.75rem;">
-                                <i class="bi bi-file-earmark me-1 text-muted"></i>{{ Str::limit($dok->nama_file, 22) }}
+                            <button type="button" class="btn btn-xs p-0 border-0 bg-transparent text-primary me-1" style="font-size:0.78rem;"
+                                    onclick="openGlobalPreview('{{ route('dokumen.preview', $dok) }}', '{{ route('dokumen.download', $dok) }}', '{{ addslashes($dok->nama_file) }}')"
+                                    title="Preview Dokumen">
+                                <i class="bi bi-eye text-primary"></i>
+                            </button>
+                            <a href="javascript:void(0)"
+                               onclick="openGlobalPreview('{{ route('dokumen.preview', $dok) }}', '{{ route('dokumen.download', $dok) }}', '{{ addslashes($dok->nama_file) }}')"
+                               class="text-decoration-none flex-grow-1 text-truncate text-primary fw-medium"
+                               style="font-size:0.75rem; cursor:pointer;"
+                               title="{{ $dok->nama_file }} (Klik untuk Live Preview)">
+                                {{ Str::limit($dok->nama_file, 20) }}
                             </a>
                             @if(auth()->user()->isAdmin())
                             <form action="{{ route('dokumen.destroy', $dok) }}" method="POST" class="mb-0" onsubmit="return confirm('Hapus dokumen ini?')">
@@ -261,16 +280,6 @@
                     @if(auth()->user()->isAdmin())
                     <td class="text-center" style="vertical-align:top; padding-top:6px;">
                         <div class="d-flex gap-1 justify-content-center">
-                            <button class="btn btn-xs py-0 px-1"
-                                style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:0.68rem;"
-                                data-bs-toggle="modal" data-bs-target="#modalUbahStatus"
-                                data-opd-id="{{ $row->id }}"
-                                data-opd-judul="{{ $row->permintaan->judul_permintaan }}"
-                                data-status="{{ $row->status }}"
-                                data-catatan="{{ $row->catatan }}"
-                                title="Ubah Status">
-                                <i class="bi bi-pencil-square"></i>
-                            </button>
                             <button class="btn btn-xs py-0 px-1"
                                 style="background:#f9fafb; color:#6b7280; border:1px solid #e5e7eb; font-size:0.68rem;"
                                 data-bs-toggle="modal" data-bs-target="#modalUploadOpd"
@@ -309,39 +318,6 @@
 @endforelse
 
 @if(auth()->user()->isAdmin())
-<div class="modal fade" id="modalUbahStatus" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Ubah Status</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formUbahStatus" method="POST">
-                @csrf @method('PUT')
-                <div class="modal-body">
-                    <div class="mb-3 small text-muted">Data: <span id="ubah-status-judul" class="fw-semibold text-dark"></span></div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
-                        <select name="status" id="ubah-status-value" class="form-select" required>
-                            <option value="belum">Belum</option>
-                            <option value="proses">Sedang Diproses</option>
-                            <option value="selesai">Selesai</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Catatan</label>
-                        <textarea name="catatan" id="ubah-status-catatan" class="form-control" rows="2" placeholder="Catatan (opsional)"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-save me-1"></i>Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <div class="modal fade" id="modalUploadOpd" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -460,17 +436,6 @@ function toggleSurat(id) {
     icon.innerHTML = expanded
         ? '<i class="bi bi-chevron-right"></i>'
         : '<i class="bi bi-chevron-down text-dark"></i>';
-}
-
-const modalUbahStatus = document.getElementById('modalUbahStatus');
-if (modalUbahStatus) {
-    modalUbahStatus.addEventListener('show.bs.modal', function(e) {
-        const btn = e.relatedTarget;
-        document.getElementById('formUbahStatus').action = '/permintaan-opd/' + btn.dataset.opdId;
-        document.getElementById('ubah-status-judul').textContent = btn.dataset.opdJudul;
-        document.getElementById('ubah-status-value').value = btn.dataset.status || 'belum';
-        document.getElementById('ubah-status-catatan').value = btn.dataset.catatan || '';
-    });
 }
 
 const modalUploadOpd = document.getElementById('modalUploadOpd');
@@ -720,5 +685,39 @@ function checkArsipSelection() {
     }
 }
 
+function quickUpdateStatus(selectEl) {
+    const opdId = selectEl.dataset.opdId;
+    const newStatus = selectEl.value;
+    selectEl.style.backgroundColor = newStatus === 'selesai' ? '#16a34a' : (newStatus === 'proses' ? '#d97706' : '#dc2626');
+
+    fetch(`/permintaan-opd/${opdId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            _method: 'PUT',
+            status: newStatus
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const container = selectEl.closest('td');
+            if (container) {
+                const dateEl = container.querySelector('.js-selesai-at-date');
+                if (dateEl) dateEl.textContent = data.selesai_at || '';
+            }
+        } else {
+            alert('Gagal memperbarui status');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Terjadi kesalahan saat memperbarui status');
+    });
+}
 </script>
 @endsection

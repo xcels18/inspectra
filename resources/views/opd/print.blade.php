@@ -6,154 +6,217 @@
     <style>
         @page {
             size: A4;
-            margin: 15mm 15mm 15mm 15mm;
+            margin: 10mm 12mm 15mm 12mm;
         }
         body {
-            font-family: "Times New Roman", Times, serif;
-            color: #000;
-            font-size: 12px;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: #1e293b;
+            font-size: 9pt;
             line-height: 1.4;
+            background: #fff;
         }
+        
+        /* KOP SURAT FORMAL */
         .kop-surat { width: 100%; border: none; margin-bottom: 0; margin-top: -5px; }
         .kop-surat td { border: none; padding: 0; vertical-align: middle; }
-        .kop-logo-left { width: 90px; text-align: left; }
-        .kop-logo-right { width: 90px; text-align: right; }
-        .kop-logo-left img, .kop-logo-right img { width: 65px; height: auto; }
+        .kop-logo-left { width: 70px; text-align: left; }
+        .kop-logo-right { width: 70px; text-align: right; }
+        .kop-logo-left img, .kop-logo-right img { width: 58px; height: auto; }
         .kop-text { text-align: center; }
-        .kop-title-1 { font-size: 16px; font-weight: normal; margin-bottom: 2px; font-family: Arial, sans-serif; }
-        .kop-title-2 { font-size: 22px; font-weight: bold; margin-bottom: 2px; letter-spacing: 1px; font-family: Arial, sans-serif; }
-        .kop-address { font-size: 11px; font-family: Arial, sans-serif; }
-        .kop-line-1 { border-top: 3px solid #000; margin-top: 8px; }
-        .kop-line-2 { border-top: 1px solid #000; margin-top: 2px; margin-bottom: 20px; }
+        .kop-title-1 { font-size: 10.5pt; font-weight: normal; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kop-title-2 { font-size: 13.5pt; font-weight: 900; margin-bottom: 2px; letter-spacing: 1px; color: #0b192c; text-transform: uppercase; }
+        .kop-address { font-size: 7.5pt; color: #475569; }
+        .kop-line-double { border-top: 3px double #000; margin-top: 6px; margin-bottom: 12px; }
 
         .report-header {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-align: center;
         }
         .title {
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 11pt;
+            font-weight: 800;
             text-transform: uppercase;
-            text-decoration: underline;
-            margin: 0 0 4px 0;
+            color: #0b192c;
+            margin: 0 0 2px 0;
         }
         .meta {
-            font-size: 12px;
+            font-size: 9pt;
+            color: #475569;
             margin: 2px 0;
         }
+        
         .body-surat {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-align: justify;
+            font-size: 8.5pt;
         }
         .body-surat p {
-            margin: 8px 0;
-            text-indent: 30px;
+            margin: 4px 0;
+            text-indent: 20px;
         }
         .body-surat ul {
-            margin: 5px 0 10px 40px;
+            margin: 4px 0 6px 25px;
             padding: 0;
         }
         .body-surat li {
-            margin: 2px 0;
+            margin: 1px 0;
         }
+
+        /* TABEL DEPAN SURAT (DARK NAVY HEADER & BADGES) */
         table.data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-            margin-bottom: 20px;
-        }
-        table.data-table th, table.data-table td {
-            border: 1px solid #000;
-            padding: 6px 8px;
-            vertical-align: middle;
+            margin-top: 6px;
+            margin-bottom: 12px;
+            font-size: 8pt;
         }
         table.data-table th {
-            font-weight: bold;
+            background-color: #0b192c;
+            color: #ffffff;
+            font-weight: 700;
+            padding: 5px 6px;
             text-align: center;
-            background-color: #f2f2f2;
+            border: 1px solid #1e293b;
+            vertical-align: middle;
+        }
+        table.data-table td {
+            border: 1px solid #cbd5e1;
+            padding: 4px 6px;
+            vertical-align: middle;
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
+        .text-left { text-align: left; }
+
+        .progress-bar-bg {
+            background-color: #e2e8f0;
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            width: 100%;
+            margin-top: 2px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #16a34a;
+        }
+
+        .badge-num {
+            display: inline-block;
+            font-weight: 700;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 7.5pt;
+        }
+        .badge-num-belum { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .badge-num-proses { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .badge-num-selesai { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
         
+        /* TTD SECTION */
         .ttd-section {
             width: 100%;
             border: none;
-            margin-top: 30px;
+            margin-top: 15px;
             page-break-inside: avoid;
+            font-size: 8pt;
         }
         .ttd-section td {
             border: none;
             padding: 0;
             vertical-align: top;
         }
+
         .footer {
             position: fixed;
             bottom: -5px;
             right: 0px;
             text-align: right;
-            font-size: 9px;
-            color: #666;
-            font-family: "Courier New", Courier, monospace;
+            font-size: 7pt;
+            color: #94a3b8;
         }
-        
-        /* Details */
-        .detail-section { margin-top: 20px; }
+
+        /* LAMPIRAN (RINCIAN DOKUMEN PER OPD) */
+        .detail-section {
+            margin-top: 10px;
+        }
         .detail-header {
             margin-bottom: 10px;
+            border-bottom: 2px solid #0b192c;
+            padding-bottom: 4px;
+            text-align: center;
         }
         .detail-title {
-            font-size: 13px;
-            font-weight: bold;
-            text-decoration: underline;
+            font-size: 10.5pt;
+            font-weight: 800;
+            color: #0b192c;
+            text-transform: uppercase;
         }
+        .detail-subtitle {
+            font-size: 7.5pt;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
         .opd-card {
-            border: 1px solid #000;
-            margin-bottom: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
             page-break-inside: avoid;
         }
-        .opd-card.new-page {
-            page-break-before: always;
-            break-before: page;
-        }
         .opd-card-header {
-            border-bottom: 1px solid #000;
-            background: #f2f2f2;
+            background-color: #f1f5f9;
+            border-bottom: 1px solid #cbd5e1;
             padding: 5px 8px;
-            font-weight: bold;
+            font-weight: 800;
+            font-size: 8pt;
+            color: #0b192c;
         }
-        .opd-card-body {
-            padding: 8px;
+
+        .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 3px;
+            vertical-align: middle;
         }
-        .status-block {
-            margin-bottom: 10px;
+        .dot-green { background-color: #16a34a; }
+        .dot-yellow { background-color: #d97706; }
+        .dot-red { background-color: #dc2626; }
+
+        .status-badge-head {
+            font-weight: 800;
+            font-size: 7pt;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-bottom: 4px;
+            display: inline-block;
         }
-        .status-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            text-decoration: underline;
+        .head-selesai { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .head-proses { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .head-belum { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+
+        .surat-group-head {
+            font-weight: 700;
+            font-size: 7pt;
+            color: #334155;
+            margin-top: 3px;
+            margin-bottom: 1px;
         }
-        .surat-group {
-            margin-bottom: 8px;
+        .item-list {
+            margin: 0;
+            padding-left: 12px;
+            font-size: 6.8pt;
+            line-height: 1.3;
         }
-        .surat-head {
-            font-weight: bold;
-            margin-bottom: 3px;
-        }
-        .detail-list {
-            margin: 0 0 0 20px;
-            padding: 0;
-        }
-        .detail-list li {
-            margin-bottom: 3px;
-        }
-        .empty-note {
-            font-style: italic;
-            color: #555;
+        .item-list li {
+            margin-bottom: 1px;
         }
     </style>
 </head>
 <body>
+    {{-- KOP FORMAL SURAT --}}
     <table class="kop-surat">
         <tr>
             <td class="kop-logo-left">
@@ -161,22 +224,20 @@
             </td>
             <td class="kop-text">
                 <div class="kop-title-1">PEMERINTAH KABUPATEN PUNCAK JAYA</div>
-                <div class="kop-title-2">INSPEKTORAT</div>
-                <div class="kop-address">Jl. Drs. P.A.Coem, No.01, Mulia, Puncak Jaya</div>
-                <div class="kop-address">email : inspektorat@puncakjayakab.go.id</div>
+                <div class="kop-title-2">INSPEKTORAT DAERAH</div>
+                <div class="kop-address">Jl. Yos Sudarso No. 1 Mulia - Papua Tengah &bull; Email: inspektorat@puncakjayakab.go.id</div>
             </td>
             <td class="kop-logo-right">
                 <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/logo-inspektorat.png'))) }}" alt="Logo Inspektorat">
             </td>
         </tr>
     </table>
-    <div class="kop-line-1"></div>
-    <div class="kop-line-2"></div>
+    <div class="kop-line-double"></div>
 
     <div class="report-header">
         <div class="title">{{ strtoupper($judulLaporan) }}</div>
         @if(isset($pemeriksaan) && $pemeriksaan)
-            <div class="meta" style="font-weight:bold; font-size:11pt; margin-top:2px;">{{ $pemeriksaan->nama }} ({{ $pemeriksaan->tahun }})</div>
+            <div class="meta" style="font-weight:bold; font-size:10pt; margin-top:2px;">{{ $pemeriksaan->nama }} (Tahun {{ $pemeriksaan->tahun }})</div>
         @endif
     </div>
 
@@ -194,35 +255,52 @@
             @endforeach
         </ul>
         
-        <p>Berdasarkan data yang telah dihimpun per tanggal {{ $generatedAt->setTimezone('Asia/Jayapura')->format('d-m-Y H:i') }} WIT, berikut adalah rincian capaian progres pemenuhan dokumen dari masing-masing OPD:</p>
+        <p>Berdasarkan data yang telah dihimpun per tanggal {{ $generatedAt->setTimezone('Asia/Jayapura')->translatedFormat('d F Y - H:i') }} WIT, berikut adalah rincian capaian progres pemenuhan dokumen dari masing-masing OPD:</p>
     </div>
 
+    {{-- TABEL DEPAN SURAT (REDESIGNED DARK NAVY HEADER & STATUS BADGES) --}}
     <table class="data-table">
         <thead>
             <tr>
-                <th style="width: 40px; background-color: #f8fafc;">No.</th>
-                <th style="background-color: #f8fafc;">Nama OPD</th>
-                <th style="width: 60px; background-color: #f8fafc;">Total</th>
-                <th style="width: 60px; background-color: #fef2f2;">Belum</th>
-                <th style="width: 60px; background-color: #fefce8;">Proses</th>
-                <th style="width: 60px; background-color: #f0fdf4;">Selesai</th>
-                <th style="width: 80px; background-color: #f8fafc;">Capaian (%)</th>
+                <th style="width: 22px;">NO</th>
+                <th class="text-left">NAMA ENTITAS / OPD</th>
+                <th style="width: 45px;">TOTAL</th>
+                <th style="width: 45px;">BELUM</th>
+                <th style="width: 45px;">PROSES</th>
+                <th style="width: 45px;">SELESAI</th>
+                <th style="width: 75px;">CAPAIAN (%)</th>
             </tr>
         </thead>
         <tbody>
             @forelse($stats as $i => $row)
+                @php
+                    $pct = (float) $row['progress'];
+                @endphp
                 <tr>
                     <td class="text-center">{{ $i + 1 }}</td>
-                    <td>{{ $row['opd'] }}</td>
-                    <td class="text-center">{{ $row['total'] }}</td>
-                    <td class="text-center" style="background-color: #fef2f2; color: #991b1b; font-weight: bold;">{{ $row['belum'] }}</td>
-                    <td class="text-center" style="background-color: #fefce8; color: #854d0e; font-weight: bold;">{{ $row['proses'] }}</td>
-                    <td class="text-center" style="background-color: #f0fdf4; color: #166534; font-weight: bold;">{{ $row['selesai'] }}</td>
-                    <td class="text-right">{{ number_format((float) $row['progress'], 2, ',', '.') }}%</td>
+                    <td class="text-left" style="font-weight: 600;">{{ $row['opd'] }}</td>
+                    <td class="text-center" style="font-weight: 700;">{{ $row['total'] }}</td>
+                    <td class="text-center">
+                        <span class="badge-num badge-num-belum">{{ $row['belum'] }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge-num badge-num-proses">{{ $row['proses'] }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge-num badge-num-selesai">{{ $row['selesai'] }}</span>
+                    </td>
+                    <td class="text-center">
+                        <div style="font-weight: 800; font-size: 7.5pt; color: {{ $pct >= 100 ? '#15803d' : ($pct > 0 ? '#b45309' : '#dc2626') }}">
+                            {{ number_format($pct, 2, ',', '.') }}%
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: {{ $pct }}%;"></div>
+                        </div>
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center">Tidak ada data monitoring untuk kriteria yang dipilih.</td>
+                    <td colspan="7" class="text-center" style="padding: 12px; color: #64748b;">Tidak ada data monitoring untuk kriteria yang dipilih.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -236,87 +314,85 @@
         <tr>
             <td style="width: 60%;"></td>
             <td style="width: 40%; text-align: left;">
-                Mulia, {{ $generatedAt->setTimezone('Asia/Jayapura')->format('d M Y') }}<br>
+                Mulia, {{ $generatedAt->setTimezone('Asia/Jayapura')->translatedFormat('d F Y') }}<br>
                 <strong>Inspektur Kabupaten Puncak Jaya</strong>
                 <br>
                 @php
-                    $qrCodeUrl = route('validasi', ['kode' => 'DOC-'.$generatedAt->format('YmdHis')]);
-                    $qrCodeSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(90)->margin(0)->generate($qrCodeUrl);
+                    $qrCodeUrl = route('validasi.index', ['kode' => 'DOC-'.$generatedAt->format('YmdHis')]);
+                    $qrCodeSvg = \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(80)->margin(0)->generate($qrCodeUrl);
                     $qrCodeBase64 = base64_encode($qrCodeSvg);
                 @endphp
-                <img src="data:image/svg+xml;base64,{{ $qrCodeBase64 }}" alt="QR Code Validasi" style="margin-top: 10px; margin-bottom: 5px;">
+                <img src="data:image/svg+xml;base64,{{ $qrCodeBase64 }}" alt="QR Code Validasi" style="margin-top: 8px; margin-bottom: 4px;">
                 <br>
-                <i>(Ditandatangani secara elektronik)</i>
+                <i style="font-size: 7.5pt; color: #64748b;">(Ditandatangani secara elektronik)</i>
             </td>
         </tr>
     </table>
 
+    {{-- BAGIAN LAMPIRAN: RINCIAN DOKUMEN PER OPD (REDESIGNED 3-COLUMN STATUS CARDS) --}}
     @if(!empty($showDetail))
+        <div style="page-break-before: always;"></div>
         <div class="detail-section">
             <div class="detail-header">
-                <div class="detail-title">LAMPIRAN: RINCIAN DOKUMEN PER OPD</div>
+                <div class="detail-title">LAMPIRAN: RINCIAN DOKUMEN PER ENTITAS / OPD</div>
+                <div class="detail-subtitle">Pengelompokan rincian item dokumen berdasarkan status pemenuhan</div>
             </div>
 
-            @php
-                $statusClassMap = [
-                    'selesai' => 'Selesai',
-                    'proses' => 'Proses',
-                    'belum' => 'Belum',
-                ];
-            @endphp
-
-            @forelse($detailByStatus as $opdGroup)
-                <div class="opd-card new-page">
-                    <div class="opd-card-header">{{ $opdGroup['opd'] }}</div>
-                    <div class="opd-card-body">
-                        @foreach(($opdGroup['statuses'] ?? []) as $st)
-                            <div class="status-block">
+            @forelse($detailByStatus as $opdIndex => $opdGroup)
+                <div class="opd-card">
+                    <div class="opd-card-header">
+                        {{ $opdIndex + 1 }}. {{ $opdGroup['opd'] }}
+                    </div>
+                    
+                    <table style="width: 100%; border-collapse: collapse; font-size: 7.5pt;">
+                        <tr>
+                            @foreach(($opdGroup['statuses'] ?? []) as $st)
                                 @php
-                                    $bgLabel = '#f8fafc'; $colLabel = '#475569';
-                                    if ($st['status_label'] === 'Belum') {
-                                        $bgLabel = '#fef2f2'; $colLabel = '#991b1b';
-                                    } elseif ($st['status_label'] === 'Proses') {
-                                        $bgLabel = '#fefce8'; $colLabel = '#854d0e';
+                                    $isLast = $loop->last;
+                                    $headClass = 'head-belum';
+                                    $dotClass = 'dot-red';
+                                    if ($st['status_label'] === 'Proses') {
+                                        $headClass = 'head-proses'; $dotClass = 'dot-yellow';
                                     } elseif ($st['status_label'] === 'Selesai') {
-                                        $bgLabel = '#f0fdf4'; $colLabel = '#166534';
+                                        $headClass = 'head-selesai'; $dotClass = 'dot-green';
                                     }
                                 @endphp
-                                <div class="status-title" style="background-color: {{ $bgLabel }}; color: {{ $colLabel }}; padding: 4px 8px; border-radius: 4px; display: inline-block; text-decoration: none; border: 1px solid {{ $bgLabel }};">
-                                    Status: {{ $st['status_label'] }}
-                                </div>
+                                <td style="width: 33.3%; vertical-align: top; padding: 6px; {{ !$isLast ? 'border-right: 1px solid #cbd5e1;' : '' }}">
+                                    <div class="status-badge-head {{ $headClass }}">
+                                        <span class="dot {{ $dotClass }}"></span> {{ strtoupper($st['status_label']) }}
+                                    </div>
 
-                                @if(empty($st['surat_groups']))
-                                    <p class="empty-note">- Nihil -</p>
-                                @else
-                                    @foreach($st['surat_groups'] as $sg)
-                                        <div class="surat-group">
-                                            <div class="surat-head">
-                                                Surat: {{ $sg['nomor_surat'] }} ({{ $sg['perihal'] ?? '-' }})
+                                    @if(empty($st['surat_groups']))
+                                        <p style="margin: 0; color: #94a3b8; font-style: italic; font-size: 6.8pt;">- Nihil -</p>
+                                    @else
+                                        @foreach($st['surat_groups'] as $sg)
+                                            <div class="surat-group-head">
+                                                Surat: {{ $sg['nomor_surat'] }}
                                             </div>
                                             @if(empty($sg['items']))
-                                                <p class="empty-note">- Tidak ada rincian -</p>
+                                                <p style="margin: 0; color: #94a3b8; font-style: italic; font-size: 6.8pt;">- Tidak ada rincian -</p>
                                             @else
-                                                <ol class="detail-list">
+                                                <ol class="item-list">
                                                     @foreach($sg['items'] as $item)
-                                                        <li>{{ \Illuminate\Support\Str::limit($item, 240) }}</li>
+                                                        <li>{{ \Illuminate\Support\Str::limit($item, 200) }}</li>
                                                     @endforeach
                                                 </ol>
                                             @endif
-                                        </div>
-                                    @endforeach
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
+                                        @endforeach
+                                    @endif
+                                </td>
+                            @endforeach
+                        </tr>
+                    </table>
                 </div>
             @empty
-                <div class="empty-note">Tidak ada detail data untuk filter yang dipilih.</div>
+                <div style="text-align: center; color: #64748b; font-style: italic; padding: 15px;">Tidak ada detail data untuk filter yang dipilih.</div>
             @endforelse
         </div>
     @endif
 
     <div class="footer">
-        Dicetak otomatis oleh Sistem Informasi Inspectra ({{ $generatedAt->setTimezone('Asia/Jayapura')->format('d-m-Y H:i') }})
+        Dicetak otomatis oleh Sistem Informasi Inspectra ({{ $generatedAt->setTimezone('Asia/Jayapura')->translatedFormat('d F Y - H:i') }} WIT)
     </div>
 </body>
 </html>

@@ -6,13 +6,13 @@
     <title>Inspectra &mdash; Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             min-height: 100vh;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif !important;
             display: flex;
             overflow: hidden;
         }
@@ -70,7 +70,7 @@
         
         .brand-logo .name {
             font-size: 1.1rem;
-            font-weight: 700;
+            font-weight: 800;
             color: #fff;
             letter-spacing: -0.01em;
         }
@@ -112,7 +112,7 @@
 
         /* Right login panel */
         .login-panel {
-            width: 460px;
+            width: 470px;
             flex-shrink: 0;
             display: flex;
             align-items: center;
@@ -136,8 +136,8 @@
 
         .login-box .sub {
             font-size: 0.8rem;
-            color: #6b7280;
-            margin-bottom: 2rem;
+            color: #64748b;
+            margin-bottom: 1.25rem;
         }
 
         .login-box label {
@@ -150,8 +150,8 @@
 
         .login-box .form-control {
             font-size: 0.85rem;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 0.6rem;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 0.65rem;
             padding: 0.6rem 0.85rem;
             color: #111827;
             transition: border-color 0.15s, box-shadow 0.15s;
@@ -182,20 +182,21 @@
         }
 
         .btn-login {
-            background: linear-gradient(135deg, #1a3a6b 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #0b192c 0%, #1e40af 100%);
             border: none;
             border-radius: 0.65rem;
             padding: 0.65rem;
             font-size: 0.88rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #fff;
             width: 100%;
             transition: opacity 0.15s, transform 0.1s;
             letter-spacing: 0.01em;
+            box-shadow: 0 4px 12px rgba(30,64,175,0.25);
         }
 
         .btn-login:hover {
-            opacity: 0.92;
+            opacity: 0.94;
             transform: translateY(-1px);
             color: #fff;
         }
@@ -204,8 +205,8 @@
 
         .divider {
             height: 1px;
-            background: #f3f4f6;
-            margin: 1.5rem 0;
+            background: #f1f5f9;
+            margin: 1.25rem 0;
         }
 
         .remember-row {
@@ -224,7 +225,7 @@
 
         .remember-row label {
             font-size: 0.78rem;
-            color: #6b7280;
+            color: #64748b;
             margin: 0;
             cursor: pointer;
         }
@@ -240,6 +241,18 @@
             display: flex;
             align-items: center;
             gap: 6px;
+        }
+
+        /* ── Modern 2-Tab Navigation ── */
+        .login-nav-tabs .nav-link {
+            color: #64748b;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .login-nav-tabs .nav-link.active {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
         }
 
         @media (max-width: 768px) {
@@ -278,20 +291,19 @@
     <div class="login-panel">
         <div class="login-box">
             {{-- Logo --}}
-            <div style="display:flex; align-items:center; gap:14px; margin-bottom:2rem;">
-                <img src="/images/logo-puncak-jaya.png" alt="Logo Kab. Puncak Jaya" style="height:54px; width:auto; object-fit:contain;">
-                <div style="width:1px; height:44px; background:#e5e7eb;"></div>
-                <img src="/images/logo-inspektorat.png" alt="Logo Inspektorat" style="height:54px; width:auto; object-fit:contain;">
-                <div style="width:1px; height:44px; background:#e5e7eb;"></div>
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:1.5rem;">
+                <img src="/images/logo-puncak-jaya.png" alt="Logo Kab. Puncak Jaya" style="height:50px; width:auto; object-fit:contain;">
+                <div style="width:1px; height:40px; background:#e2e8f0;"></div>
+                <img src="/images/logo-inspektorat.png" alt="Logo Inspektorat" style="height:50px; width:auto; object-fit:contain;">
+                <div style="width:1px; height:40px; background:#e2e8f0;"></div>
                 <div>
                     <div style="font-size:1rem;font-weight:800;color:#0b192c;line-height:1.2;letter-spacing:-0.01em;">INSPECTRA</div>
                     <div style="font-size:0.68rem;color:#64748b;line-height:1.4;margin-top:2px;">Inspektorat Kab. Puncak Jaya</div>
-                    <div style="font-size:0.62rem;color:#94a3b8;line-height:1.3;">Manajemen Bahan Pemeriksaan</div>
                 </div>
             </div>
 
             <div class="welcome">Selamat Datang</div>
-            <div class="sub">Masuk ke akun Anda untuk melanjutkan</div>
+            <div class="sub">Silahkan pilih metode masuk yang Anda inginkan</div>
 
             @if($errors->any())
             <div class="alert-error">
@@ -300,41 +312,82 @@
             </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
+            {{-- Modern 2-Tab Navigation Switcher --}}
+            <ul class="nav nav-pills nav-fill mb-3 p-1 rounded-3 login-nav-tabs" id="loginTab" role="tablist" style="background:#f1f5f9; border:1px solid #e2e8f0;">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold py-2" id="tab-email-tab" data-bs-toggle="pill" data-bs-target="#tab-email" type="button" role="tab" style="font-size:0.78rem;">
+                        <i class="bi bi-key-fill me-1 text-primary"></i>1. Email & Password
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold py-2" id="tab-quick-tab" data-bs-toggle="pill" data-bs-target="#tab-quick" type="button" role="tab" style="font-size:0.78rem;">
+                        <i class="bi bi-lightning-charge-fill me-1 text-warning"></i>2. Login Cepat / PIN
+                    </button>
+                </li>
+            </ul>
 
-                <div class="mb-3">
-                    <label for="email">Email</label>
-                    <div class="input-icon-wrap">
-                        <i class="bi bi-envelope"></i>
-                        <input type="email" id="email" name="email"
-                            class="form-control @error('email') is-invalid @enderror"
-                            value="{{ old('email') }}"
-                            placeholder="email@domain.com"
-                            required autofocus>
+            <div class="tab-content" id="loginTabContent">
+
+                {{-- TAB 1: FORMAL EMAIL & PASSWORD --}}
+                <div class="tab-pane fade show active" id="tab-email" role="tabpanel" aria-labelledby="tab-email-tab">
+                    <form method="POST" action="{{ route('login') }}">
+                        @csrf
+
+                        <div class="mb-3">
+                            <label for="email">Email Pengguna</label>
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-envelope"></i>
+                                <input type="email" id="email" name="email"
+                                    class="form-control @error('email') is-invalid @enderror"
+                                    value="{{ old('email') }}"
+                                    placeholder="email@domain.com"
+                                    autofocus>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password">Password</label>
+                            <div class="input-icon-wrap">
+                                <i class="bi bi-lock"></i>
+                                <input type="password" id="password" name="password"
+                                    class="form-control @error('password') is-invalid @enderror"
+                                    placeholder="••••••••">
+                            </div>
+                        </div>
+
+                        <div class="remember-row">
+                            <input type="checkbox" name="remember" id="remember">
+                            <label for="remember">Ingat saya di perangkat ini</label>
+                        </div>
+
+                        <button type="submit" class="btn-login">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Masuk Akun
+                        </button>
+                    </form>
+                </div>
+
+                {{-- TAB 2: QUICK LOGIN (PIN) --}}
+                <div class="tab-pane fade" id="tab-quick" role="tabpanel" aria-labelledby="tab-quick-tab">
+                    <div class="p-3 rounded-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                        <div class="fw-bold text-dark mb-1" style="font-size:0.82rem;">
+                            <i class="bi bi-shield-check text-primary me-1"></i>Masuk Menggunakan PIN Cepat
+                        </div>
+                        <div class="text-muted mb-3" style="font-size:0.72rem;">Masukkan PIN 6-digit di bawah ini untuk langsung masuk.</div>
+
+                        <form method="POST" action="{{ route('quick-login') }}">
+                            @csrf
+                            <label for="pin_code">PIN Akses Cepat</label>
+                            <div class="input-group">
+                                <input type="password" id="pin_code" name="pin" class="form-control text-center fw-bold letter-spacing-2" placeholder="••••••" maxlength="6" style="font-size:1.1rem; letter-spacing:4px;" autofocus>
+                                <button type="submit" class="btn btn-primary fw-bold px-3" style="font-size:0.82rem;">
+                                    <i class="bi bi-arrow-right-circle-fill me-1"></i>Masuk
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label for="password">Password</label>
-                    <div class="input-icon-wrap">
-                        <i class="bi bi-lock"></i>
-                        <input type="password" id="password" name="password"
-                            class="form-control @error('password') is-invalid @enderror"
-                            placeholder="••••••••"
-                            required>
-                    </div>
-                </div>
-
-                <div class="remember-row">
-                    <input type="checkbox" name="remember" id="remember">
-                    <label for="remember">Ingat saya di perangkat ini</label>
-                </div>
-
-                <button type="submit" class="btn-login">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Masuk
-                </button>
-            </form>
+            </div>
 
             <div class="divider"></div>
 
@@ -342,7 +395,7 @@
                 <i class="bi bi-shield-lock me-1"></i>Akses terbatas untuk pengguna yang berwenang
             </div>
 
-            <div style="font-size:0.68rem; color:#d1d5db; text-align:center; margin-top:2rem;">
+            <div style="font-size:0.68rem; color:#d1d5db; text-align:center; margin-top:1.5rem;">
                 &copy; {{ date('Y') }} Pemerintah Kabupaten Puncak Jaya
             </div>
         </div>

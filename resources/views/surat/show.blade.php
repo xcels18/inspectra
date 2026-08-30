@@ -152,6 +152,11 @@
                     data-bs-toggle="modal" data-bs-target="#modalBulkAssignOpd" disabled>
                 <i class="bi bi-diagram-3 me-1"></i>Tandai ke OPD (<span id="bulkSelectedCount">0</span>)
             </button>
+            <button class="btn btn-sm py-0 px-2" type="button" id="btnBulkUpdateStatus"
+                    style="background:#fef3c7; color:#b45309; border:1px solid #fde68a; font-size:0.75rem;"
+                    data-bs-toggle="modal" data-bs-target="#modalBulkUpdateStatus" disabled>
+                <i class="bi bi-check2-square me-1"></i>Ubah Status Massal (<span class="js-bulk-status-selected-count">0</span>)
+            </button>
             @endif
             <button class="btn btn-sm py-0 px-2" id="btnBukaSemuaJudul" onclick="toggleSemuaJudul(true)"
                     style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:0.75rem;">
@@ -300,39 +305,6 @@
     </div>
 </div>
 
-{{-- Modal Update Status OPD --}}
-<div class="modal fade" id="modalUpdateOpd" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Update Status OPD</h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formUpdateOpd" method="POST">
-                @csrf @method('PUT')
-                <div class="modal-body">
-                    <div class="mb-2 small text-muted">OPD: <span id="update-opd-nama" class="fw-semibold text-dark"></span></div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
-                        <select name="status" id="update-opd-status" class="form-select" required>
-                            <option value="belum">Belum</option>
-                            <option value="proses">Sedang Diproses</option>
-                            <option value="selesai">Selesai</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Catatan</label>
-                        <textarea name="catatan" id="update-opd-catatan" class="form-control" rows="2" placeholder="Catatan untuk OPD ini..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary btn-sm"><i class="bi bi-save"></i> Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 {{-- Modal Update Status --}}
 <div class="modal fade" id="modalUpdateStatus" tabindex="-1">
@@ -522,6 +494,45 @@
         </div>
     </div>
 </div>
+
+{{-- Modal Bulk Update Status --}}
+<div class="modal fade" id="modalBulkUpdateStatus" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title"><i class="bi bi-check2-square me-2"></i>Ubah Status Massal</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formBulkUpdateStatus" action="{{ route('permintaan-opd.bulk-update.post') }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div id="bulkStatusPermintaanIdsContainer"></div>
+                <div class="modal-body">
+                    <div class="mb-3 small text-muted">
+                        Item terpilih: <span class="fw-semibold text-dark js-bulk-status-selected-count-modal">0</span> item
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Status Baru <span class="text-danger">*</span></label>
+                        <select name="status" class="form-select" required>
+                            <option value="">-- Pilih Status Baru --</option>
+                            <option value="belum">🔴 Belum Ada</option>
+                            <option value="proses">🟡 Sedang Diproses</option>
+                            <option value="selesai">🟢 Selesai</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Catatan (Opsional)</label>
+                        <input type="text" name="catatan" class="form-control" placeholder="Catatan untuk semua item terpilih">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning btn-sm fw-bold"><i class="bi bi-check-lg me-1"></i>Terapkan ke Semua</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endif
 @endsection
 
@@ -556,12 +567,17 @@ function updateBulkSelectionUI() {
     const selectedIds = getSelectedPermintaanIds();
     const count = selectedIds.length;
     const btnBulk = document.getElementById('btnBulkAssignOpd');
+    const btnBulkStatus = document.getElementById('btnBulkUpdateStatus');
     const countBtn = document.getElementById('bulkSelectedCount');
     const countModal = document.getElementById('bulkSelectedCountModal');
+
+    document.querySelectorAll('.js-bulk-status-selected-count').forEach(el => el.textContent = String(count));
+    document.querySelectorAll('.js-bulk-status-selected-count-modal').forEach(el => el.textContent = String(count));
 
     if (countBtn) countBtn.textContent = String(count);
     if (countModal) countModal.textContent = String(count);
     if (btnBulk) btnBulk.disabled = count === 0;
+    if (btnBulkStatus) btnBulkStatus.disabled = count === 0;
 }
 
 function loadJudulItems(judulId, page, search = '') {
@@ -897,18 +913,6 @@ if (modalUploadEl) {
     });
 }
 
-// ── Modal Update OPD ─────────────────────────────────────────────────────────
-const modalUpdateOpd = document.getElementById('modalUpdateOpd');
-if (modalUpdateOpd) {
-    modalUpdateOpd.addEventListener('show.bs.modal', function(e) {
-        const btn = e.relatedTarget;
-        document.getElementById('formUpdateOpd').action = '/permintaan-opd/' + btn.dataset.opdId;
-        document.getElementById('update-opd-nama').textContent = btn.dataset.opdNama;
-        document.getElementById('update-opd-status').value = btn.dataset.status || 'belum';
-        document.getElementById('update-opd-catatan').value = btn.dataset.catatan || '';
-    });
-}
-
 // ── Modal Update Status ───────────────────────────────────────────────────────
 const modalUpdateStatus = document.getElementById('modalUpdateStatus');
 if (modalUpdateStatus) {
@@ -974,6 +978,69 @@ if (formBulkAssignOpd) {
         if (container) {
             container.innerHTML = selectedIds.map(id => `<input type="hidden" name="permintaan_ids[]" value="${id}">`).join('');
         }
+    });
+}
+
+// ── Modal Bulk Update Status ──────────────────────────────────────────────────
+const modalBulkUpdateStatus = document.getElementById('modalBulkUpdateStatus');
+if (modalBulkUpdateStatus) {
+    modalBulkUpdateStatus.addEventListener('show.bs.modal', function() {
+        const selectedIds = getSelectedPermintaanIds();
+        const container = document.getElementById('bulkStatusPermintaanIdsContainer');
+        if (container) {
+            container.innerHTML = selectedIds.map(id => `<input type="hidden" name="permintaan_ids[]" value="${id}">`).join('');
+        }
+    });
+}
+
+const formBulkUpdateStatus = document.getElementById('formBulkUpdateStatus');
+if (formBulkUpdateStatus) {
+    formBulkUpdateStatus.addEventListener('submit', function(e) {
+        const selectedIds = getSelectedPermintaanIds();
+        if (selectedIds.length === 0) {
+            e.preventDefault();
+            alert('Pilih minimal 1 item permintaan data.');
+            return;
+        }
+        const container = document.getElementById('bulkStatusPermintaanIdsContainer');
+        if (container) {
+            container.innerHTML = selectedIds.map(id => `<input type="hidden" name="permintaan_ids[]" value="${id}">`).join('');
+        }
+    });
+}
+
+function quickUpdateStatus(selectEl) {
+    const opdId = selectEl.dataset.opdId;
+    const newStatus = selectEl.value;
+    selectEl.style.backgroundColor = newStatus === 'selesai' ? '#16a34a' : (newStatus === 'proses' ? '#d97706' : '#dc2626');
+
+    fetch(`/permintaan-opd/${opdId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            _method: 'PUT',
+            status: newStatus
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const container = selectEl.closest('td');
+            if (container) {
+                const dateEl = container.querySelector('.js-selesai-at-date');
+                if (dateEl) dateEl.textContent = data.selesai_at || '';
+            }
+        } else {
+            alert('Gagal memperbarui status');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Terjadi kesalahan saat memperbarui status');
     });
 }
 </script>

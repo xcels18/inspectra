@@ -65,9 +65,9 @@
             </div>
         </div>
 
-        <div class="card section-card mb-0">
+        <div class="card section-card mb-3">
             <div class="card-header">
-                <i class="bi bi-key me-2 text-primary"></i>Ubah Password
+                <i class="bi bi-key me-2 text-primary"></i>Ubah Password Akun
             </div>
             <div class="card-body pt-3 pb-3">
                 <div class="text-muted small mb-3"><i class="bi bi-info-circle me-1"></i>Kosongkan password jika tidak ingin mengubah</div>
@@ -80,6 +80,31 @@
                     <div class="col-md-6">
                         <label class="form-label">Konfirmasi Password Baru</label>
                         <input type="password" name="password_confirmation" class="form-control">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Pengaturan PIN Akses Cepat --}}
+        <div class="card section-card mb-0">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-shield-lock me-2 text-warning"></i>Pengaturan PIN Akses Cepat</span>
+                <span class="badge bg-primary text-white" style="font-size:0.65rem;">LOKAL MODE</span>
+            </div>
+            <div class="card-body pt-3 pb-3">
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <label class="form-label">Set Ulang PIN Akses Cepat (6 Digit)</label>
+                        <input type="text" name="quick_pin" class="form-control" placeholder="Contoh: 121212" maxlength="10">
+                        <div class="form-text" style="font-size:0.72rem;">Kosongkan jika tidak ingin mengubah PIN saat ini.</div>
+                    </div>
+                    <div class="col-md-5 d-flex align-items-end">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="reset_pin" value="1" id="reset_pin">
+                            <label class="form-check-label fw-bold text-danger" for="reset_pin" style="font-size:0.8rem;">
+                                Reset PIN ke Default (121212)
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>

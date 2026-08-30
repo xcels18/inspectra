@@ -112,24 +112,42 @@
                             @endif
                         </td>
                         <td>
+                            @if($isAdmin)
+                            <select class="form-select form-select-sm js-quick-status-select border-0 text-white fw-bold shadow-sm"
+                                    data-opd-id="{{ $opdRow->id }}"
+                                    style="font-size:0.68rem; padding: 2px 24px 2px 8px; border-radius: 12px; cursor: pointer;
+                                           background-color: {{ $opdRow->status === 'selesai' ? '#16a34a' : ($opdRow->status === 'proses' ? '#d97706' : '#dc2626') }};"
+                                    onchange="quickUpdateStatus(this)">
+                                <option value="belum" class="text-dark bg-white" {{ $opdRow->status === 'belum' ? 'selected' : '' }}>🔴 Belum Ada</option>
+                                <option value="proses" class="text-dark bg-white" {{ $opdRow->status === 'proses' ? 'selected' : '' }}>🟡 Proses</option>
+                                <option value="selesai" class="text-dark bg-white" {{ $opdRow->status === 'selesai' ? 'selected' : '' }}>🟢 Selesai</option>
+                            </select>
+                            @else
                             <span class="badge bg-{{ $opdRow->status_badge }}" style="font-size:0.65rem;">{{ $opdRow->status_label }}</span>
-                            @if($opdRow->selesai_at)
-                            <div class="text-muted" style="font-size:0.65rem; margin-top:2px;">{{ $opdRow->selesai_at->format('d/m/Y') }}</div>
                             @endif
+                            <div class="js-selesai-at-date text-muted" style="font-size:0.65rem; margin-top:2px;">{{ $opdRow->selesai_at ? $opdRow->selesai_at->format('d/m/Y') : '' }}</div>
                         </td>
                         <td style="vertical-align:top;">
                             @if($opdRow->dokumen->count() > 0)
                             @foreach($opdRow->dokumen as $dok)
                             <div class="d-flex align-items-center gap-1 mb-1">
-                                <i class="bi bi-file-earmark text-muted" style="font-size:0.7rem;"></i>
-                                <a href="{{ route('dokumen.download', $dok) }}" class="text-decoration-none" style="font-size:0.72rem;">
-                                    {{ Str::limit($dok->nama_file, 20) }}
+                                <button type="button" class="btn btn-xs p-0 border-0 bg-transparent text-primary" style="font-size:0.78rem;"
+                                        onclick="openGlobalPreview('{{ route('dokumen.preview', $dok) }}', '{{ route('dokumen.download', $dok) }}', '{{ addslashes($dok->nama_file) }}')"
+                                        title="Preview Dokumen">
+                                    <i class="bi bi-eye text-primary"></i>
+                                </button>
+                                <a href="javascript:void(0)"
+                                   onclick="openGlobalPreview('{{ route('dokumen.preview', $dok) }}', '{{ route('dokumen.download', $dok) }}', '{{ addslashes($dok->nama_file) }}')"
+                                   class="text-decoration-none text-truncate text-primary fw-medium"
+                                   style="font-size:0.72rem; max-width:140px; cursor:pointer;"
+                                   title="{{ $dok->nama_file }} (Klik untuk Live Preview)">
+                                    {{ Str::limit($dok->nama_file, 18) }}
                                 </a>
                                 @if($isAdmin)
                                 <form action="{{ route('dokumen.destroy', $dok) }}" method="POST" class="d-inline mb-0"
                                       onsubmit="return confirm('Hapus?')">
                                     @csrf @method('DELETE')
-                                    <button class="btn btn-link p-0 text-danger" style="font-size:0.65rem; line-height:1;">
+                                    <button class="btn btn-link p-0 text-danger" style="font-size:0.65rem; line-height:1;" title="Hapus">
                                         <i class="bi bi-x-lg"></i>
                                     </button>
                                 </form>
@@ -147,17 +165,9 @@
                                         style="background:#f9fafb; color:#6b7280; border:1px solid #e5e7eb; font-size:0.68rem;"
                                         data-bs-toggle="modal" data-bs-target="#modalUpload"
                                         data-opd-id="{{ $opdRow->id }}"
-                                        data-opd-nama="{{ $opdRow->opd }}">
-                                    <i class="bi bi-upload"></i>
-                                </button>
-                                <button class="btn btn-sm py-0 px-2"
-                                        style="background:#eff6ff; color:#1d4ed8; border:1px solid #bfdbfe; font-size:0.68rem;"
-                                        data-bs-toggle="modal" data-bs-target="#modalUpdateOpd"
-                                        data-opd-id="{{ $opdRow->id }}"
                                         data-opd-nama="{{ $opdRow->opd }}"
-                                        data-status="{{ $opdRow->status }}"
-                                        data-catatan="{{ $opdRow->catatan }}">
-                                    <i class="bi bi-pencil-square"></i>
+                                        title="Upload Dokumen">
+                                    <i class="bi bi-upload"></i>
                                 </button>
                                 <form action="/permintaan-opd/{{ $opdRow->id }}" method="POST" class="mb-0"
                                       onsubmit="return confirm('Hapus tag OPD {{ $opdRow->opd }} dari permintaan ini?')">

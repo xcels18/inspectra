@@ -51,7 +51,15 @@ class MasterOpdController extends Controller
             'kategori' => 'required|string|in:OPD,Sekolah,Partai Politik,Instansi Vertical',
         ]);
 
+        $oldNama = $masterOpd->nama;
+        $newNama = $request->nama;
+
         $masterOpd->update($request->all());
+
+        if ($oldNama !== $newNama) {
+            // Update all existing tags in PermintaanOpd so they are not orphaned
+            \App\Models\PermintaanOpd::where('opd', $oldNama)->update(['opd' => $newNama]);
+        }
 
         return redirect()->route('master-opd.index')->with('success', 'OPD berhasil diperbarui.');
     }

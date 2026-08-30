@@ -66,7 +66,8 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('users.edit', compact('user'));
+        $currentPin = \App\Models\Setting::get('quick_pin', '121212');
+        return view('users.edit', compact('user', 'currentPin'));
     }
 
     public function update(Request $request, User $user)
@@ -77,6 +78,8 @@ class UserController extends Controller
             'role' => 'required|in:admin,tim_bpk',
             'is_active' => 'nullable',
             'password' => 'nullable|min:6|confirmed',
+            'quick_pin' => 'nullable|string|max:10',
+            'reset_pin' => 'nullable|boolean',
         ]);
 
         if (!empty($validated['password'])) {
@@ -88,7 +91,13 @@ class UserController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $user->update($validated);
 
-        return redirect()->route('users.index')->with('success', 'Pengguna berhasil diperbarui.');
+        if ($request->has('reset_pin') && $request->reset_pin == 1) {
+            \App\Models\Setting::set('quick_pin', '121212');
+        } elseif ($request->filled('quick_pin')) {
+            \App\Models\Setting::set('quick_pin', trim((string) $request->quick_pin));
+        }
+
+        return redirect()->route('users.index')->with('success', 'Pengguna dan Pengaturan PIN Cepat berhasil diperbarui.');
     }
 
     public function destroy(User $user)

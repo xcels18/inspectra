@@ -28,6 +28,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
 
+        // Memory Management: Prevent memory exhaustion crashes for heavy dataset processing
+        if (function_exists('ini_set')) {
+            @ini_set('memory_limit', '512M');
+            @ini_set('max_execution_time', '300');
+        }
+
         Storage::extend('google', function ($app, $config) {
             $client = new GoogleClient();
             

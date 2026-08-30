@@ -29,6 +29,17 @@ class PermintaanOpdController extends Controller
 
         $permintaanOpd->update($validated);
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diperbarui.',
+                'status'  => $permintaanOpd->status,
+                'status_badge' => $permintaanOpd->status_badge,
+                'status_label' => $permintaanOpd->status_label,
+                'selesai_at' => $permintaanOpd->selesai_at ? $permintaanOpd->selesai_at->format('d/m/Y') : null,
+            ]);
+        }
+
         $opdNama = urlencode($permintaanOpd->opd);
         if (url()->previous() && str_contains(url()->previous(), '/opd/')) {
             return redirect()->back()->with('success', 'Status berhasil diperbarui.');
@@ -43,19 +54,34 @@ class PermintaanOpdController extends Controller
         if (!auth()->user()->isAdmin()) abort(403);
 
         $validated = $request->validate([
-            'permintaan_opd_ids'   => 'required|array|min:1',
+            'permintaan_opd_ids'   => 'nullable|array',
             'permintaan_opd_ids.*' => 'integer|exists:permintaan_opd,id',
+            'permintaan_ids'       => 'nullable|array',
+            'permintaan_ids.*'     => 'integer|exists:permintaan_data,id',
             'status'               => 'required|in:belum,proses,selesai',
             'catatan'              => 'nullable|string',
         ]);
 
-        $rows = PermintaanOpd::whereIn('id', $validated['permintaan_opd_ids'])->get();
+        $opdIds = $validated['permintaan_opd_ids'] ?? [];
+        if (!empty($validated['permintaan_ids'])) {
+            $fromPermintaan = PermintaanOpd::whereIn('permintaan_id', $validated['permintaan_ids'])->pluck('id')->toArray();
+            $opdIds = array_unique(array_merge($opdIds, $fromPermintaan));
+        }
+
+        if (empty($opdIds)) {
+            return redirect()->back()->with('error', 'Tidak ada item data yang dipilih.');
+        }
+
+        $rows = PermintaanOpd::whereIn('id', $opdIds)->get();
 
         foreach ($rows as $row) {
             $payload = [
                 'status' => $validated['status'],
-                'catatan' => $validated['catatan'] ?? null,
             ];
+
+            if ($request->filled('catatan')) {
+                $payload['catatan'] = $validated['catatan'];
+            }
 
             if ($validated['status'] === 'selesai' && $row->status !== 'selesai') {
                 $payload['selesai_at'] = now();
@@ -66,7 +92,7 @@ class PermintaanOpdController extends Controller
             $row->update($payload);
         }
 
-        return redirect()->back()->with('success', 'Status berhasil diperbarui secara massal.');
+        return redirect()->back()->with('success', count($rows) . ' status berhasil diperbarui secara massal.');
     }
 
     public function destroy(PermintaanOpd $permintaanOpd)

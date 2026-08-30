@@ -186,10 +186,56 @@ class DokumenController extends Controller
 
     public function download(Dokumen $dokumen)
     {
+        if (!$this->checkDokumenAccess(auth()->user(), $dokumen)) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengunduh dokumen ini.');
+        }
+
         if (!Storage::disk('local')->exists($dokumen->path_file)) {
             abort(404, 'File tidak ditemukan.');
         }
 
         return Storage::disk('local')->download($dokumen->path_file, $dokumen->nama_file);
+    }
+
+    public function preview(Dokumen $dokumen)
+    {
+        if (!$this->checkDokumenAccess(auth()->user(), $dokumen)) {
+            abort(403, 'Anda tidak memiliki hak akses untuk melihat pratinjau dokumen ini.');
+        }
+
+        if (!Storage::disk('local')->exists($dokumen->path_file)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        $mime = Storage::disk('local')->mimeType($dokumen->path_file);
+        $file = Storage::disk('local')->get($dokumen->path_file);
+
+        return response($file, 200, [
+            'Content-Type'        => $mime ?: 'application/octet-stream',
+            'Content-Disposition' => 'inline; filename="' . rawurlencode($dokumen->nama_file) . '"',
+        ]);
+    }
+
+    private function checkDokumenAccess($user, Dokumen $dokumen): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        if ($dokumen->uploaded_by === $user->id) {
+            return true;
+        }
+
+        $surat = $dokumen->permintaanOpd
+            ? $dokumen->permintaanOpd->permintaan?->surat
+            : ($dokumen->permintaan ? $dokumen->permintaan->surat : null);
+
+        if ($surat && $surat->pemeriksaan_id) {
+            return \App\Models\Pemeriksaan::where('id', $surat->pemeriksaan_id)
+                ->whereHas('users', fn($q) => $q->where('user_id', $user->id))
+                ->exists();
+        }
+
+        return true;
     }
 }

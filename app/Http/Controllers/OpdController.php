@@ -95,7 +95,11 @@ class OpdController extends Controller
 
         $masterOpds = \App\Models\MasterOpd::orderBy('nama')->get()->groupBy('kategori');
 
-        return view('laporan.index', compact('pemeriksaanList', 'suratList', 'masterOpds'));
+        $penandatanganNama = \App\Models\Setting::get('penandatangan_nama', '');
+        $penandatanganJabatan = \App\Models\Setting::get('penandatangan_jabatan', 'Inspektur Kabupaten Puncak Jaya');
+        $penandatanganNip = \App\Models\Setting::get('penandatangan_nip', '');
+
+        return view('laporan.index', compact('pemeriksaanList', 'suratList', 'masterOpds', 'penandatanganNama', 'penandatanganJabatan', 'penandatanganNip'));
     }
 
     public function print(Request $request)
@@ -467,9 +471,395 @@ class OpdController extends Controller
             });
             
             return response()->json($data);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             \Log::error('Arsip Error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    private function buildEksekutifData(Request $request): array
+    {
+        $validated = $request->validate([
+            'judul_laporan'          => 'required|string|max:255',
+            'surat_ids'              => 'required|array|min:1',
+            'surat_ids.*'            => 'required|integer|exists:surat,id',
+            'pemeriksaan_id'         => 'nullable',
+            'opds'                   => 'nullable|array',
+            'opds.*'                 => 'string',
+            'filter_kepatuhan'       => 'nullable|string|in:semua,belum_lengkap,selesai_100',
+            'penandatangan_nama'    => 'nullable|string|max:255',
+            'penandatangan_jabatan' => 'nullable|string|max:255',
+            'penandatangan_nip'     => 'nullable|string|max:255',
+        ]);
+
+        if (isset($validated['penandatangan_nama'])) {
+            \App\Models\Setting::set('penandatangan_nama', (string) $validated['penandatangan_nama']);
+        }
+        if (isset($validated['penandatangan_jabatan'])) {
+            \App\Models\Setting::set('penandatangan_jabatan', (string) $validated['penandatangan_jabatan']);
+        }
+        if (isset($validated['penandatangan_nip'])) {
+            \App\Models\Setting::set('penandatangan_nip', (string) $validated['penandatangan_nip']);
+        }
+
+        $filterSuratIds = collect($validated['surat_ids'])->map(fn($id) => (int) $id)->unique()->values()->all();
+        $filterPemeriksaanId = $validated['pemeriksaan_id'] ?? null;
+        $filterOpds = $validated['opds'] ?? [];
+        $filterKepatuhan = $validated['filter_kepatuhan'] ?? 'semua';
+
+        $suratList = \App\Models\Surat::whereIn('id', $filterSuratIds)->orderBy('tanggal_terima', 'desc')->get();
+        $permintaanDataList = \App\Models\PermintaanData::with(['judulPermintaan', 'surat'])
+            ->whereIn('surat_id', $filterSuratIds)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        // Group columns by Judul Permintaan to prevent 1000 columns overflow
+        $judulGroups = [];
+        foreach ($permintaanDataList as $item) {
+            $jTitle = $item->judulPermintaan ? $item->judulPermintaan->judul_permintaan : ($item->judul_permintaan ?: 'Permintaan Data');
+            if (!isset($judulGroups[$jTitle])) {
+                $judulGroups[$jTitle] = [
+                    'title' => $jTitle,
+                    'item_ids' => [],
+                ];
+            }
+            $judulGroups[$jTitle]['item_ids'][] = $item->id;
+        }
+
+        $daftarOpd = PermintaanData::daftarOpd();
+        if (!empty($filterOpds)) {
+            $daftarOpd = array_values(array_intersect($daftarOpd, $filterOpds));
+        }
+
+        $allPermintaanOpd = PermintaanOpd::with(['dokumen', 'permintaan'])
+            ->whereHas('permintaan', fn($q) => $q->whereIn('surat_id', $filterSuratIds))
+            ->get()
+            ->groupBy('opd');
+
+        $opdRows = [];
+        $totalOpd = 0;
+        $opdLengkapCount = 0;
+        $opdProsesCount = 0;
+        $opdBelumCount = 0;
+        $totalCellCount = 0;
+        $selesaiCellCount = 0;
+
+        foreach ($daftarOpd as $opdNama) {
+            $itemsForOpd = $allPermintaanOpd->get($opdNama, collect());
+            if ($itemsForOpd->isEmpty()) continue;
+
+            $itemMap = [];
+            $selesai = 0;
+            $proses = 0;
+            $belum = 0;
+            $total = $itemsForOpd->count();
+
+            foreach ($itemsForOpd as $po) {
+                $itemMap[$po->permintaan_id] = $po;
+                if ($po->status === 'selesai') $selesai++;
+                elseif ($po->status === 'proses') $proses++;
+                else $belum++;
+            }
+
+            $pct = $total > 0 ? round(($selesai / $total) * 100) : 0;
+
+            if ($filterKepatuhan === 'belum_lengkap' && $pct >= 100) continue;
+            if ($filterKepatuhan === 'selesai_100' && $pct < 100) continue;
+
+            $totalOpd++;
+            if ($pct >= 100) $opdLengkapCount++;
+            elseif ($selesai > 0 || $proses > 0) $opdProsesCount++;
+            else $opdBelumCount++;
+
+            $totalCellCount += $total;
+            $selesaiCellCount += $selesai;
+
+            // Calculate status per Judul Group
+            $groupStats = [];
+            foreach ($judulGroups as $jTitle => $gInfo) {
+                $gTotal = 0;
+                $gSelesai = 0;
+                $gProses = 0;
+                $gBelum = 0;
+                $gDocs = 0;
+
+                foreach ($gInfo['item_ids'] as $pId) {
+                    if (isset($itemMap[$pId])) {
+                        $po = $itemMap[$pId];
+                        $gTotal++;
+                        if ($po->status === 'selesai') $gSelesai++;
+                        elseif ($po->status === 'proses') $gProses++;
+                        else $gBelum++;
+                        $gDocs += $po->dokumen->count();
+                    }
+                }
+
+                $gPct = $gTotal > 0 ? round(($gSelesai / $gTotal) * 100) : 0;
+                $groupStats[$jTitle] = [
+                    'total'   => $gTotal,
+                    'selesai' => $gSelesai,
+                    'proses'  => $gProses,
+                    'belum'   => $gBelum,
+                    'docs'    => $gDocs,
+                    'pct'     => $gPct,
+                ];
+            }
+
+            // Categorize detailed item titles per OPD (Selesai, Proses, Belum)
+            $detailItems = [
+                'selesai' => [],
+                'proses'  => [],
+                'belum'   => [],
+            ];
+            foreach ($permintaanDataList as $item) {
+                $po = $itemMap[$item->id] ?? null;
+                if ($po) {
+                    $docCount = $po->dokumen->count();
+                    $itemLabel = $item->judul_permintaan . ($docCount > 0 ? " ($docCount berkas)" : "");
+                    if ($po->status === 'selesai') {
+                        $detailItems['selesai'][] = $itemLabel;
+                    } elseif ($po->status === 'proses') {
+                        $detailItems['proses'][] = $itemLabel;
+                    } else {
+                        $detailItems['belum'][] = $item->judul_permintaan;
+                    }
+                }
+            }
+
+            $opdRows[] = [
+                'opd_nama'     => $opdNama,
+                'items'        => $itemMap,
+                'groupStats'   => $groupStats,
+                'detailItems'  => $detailItems,
+                'total'        => $total,
+                'selesai'      => $selesai,
+                'proses'       => $proses,
+                'belum'        => $belum,
+                'progress_pct' => $pct,
+            ];
+        }
+
+        usort($opdRows, function ($a, $b) {
+            if ($a['progress_pct'] === $b['progress_pct']) {
+                return strcmp($a['opd_nama'], $b['opd_nama']);
+            }
+            return $b['progress_pct'] <=> $a['progress_pct'];
+        });
+
+        $pemeriksaan = ($filterPemeriksaanId && $filterPemeriksaanId !== 'null')
+            ? \App\Models\Pemeriksaan::find($filterPemeriksaanId)
+            : null;
+            
+        $overallPct = $totalCellCount > 0 ? round(($selesaiCellCount / $totalCellCount) * 100) : 0;
+
+        // Base64 encode logos for formal PDF Kop
+        $logoLeftPath = public_path('images/logo-puncak-jaya.png');
+        $logoRightPath = public_path('images/logo-inspektorat.png');
+        $logoLeftBase64 = file_exists($logoLeftPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoLeftPath)) : null;
+        $logoRightBase64 = file_exists($logoRightPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoRightPath)) : null;
+
+        return [
+            'validated' => $validated,
+            'pemeriksaan' => $pemeriksaan,
+            'suratList' => $suratList,
+            'permintaanDataList' => $permintaanDataList,
+            'judulGroups' => $judulGroups,
+            'opdRows' => $opdRows,
+            'summary' => [
+                'total_opd' => $totalOpd,
+                'opd_lengkap' => $opdLengkapCount,
+                'opd_proses' => $opdProsesCount,
+                'opd_belum' => $opdBelumCount,
+                'overall_pct' => $overallPct,
+            ],
+            'logoLeftBase64' => $logoLeftBase64,
+            'logoRightBase64' => $logoRightBase64,
+            'generatedAt' => now()->setTimezone('Asia/Jayapura'),
+        ];
+    }
+
+    public function exportEksekutifPdf(Request $request)
+    {
+        @ini_set('memory_limit', '1024M');
+        @set_time_limit(300);
+
+        $data = $this->buildEksekutifData($request);
+        $filename = 'laporan-eksekutif-bpk-' . $data['generatedAt']->format('Ymd-His') . '.pdf';
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('laporan.pdf_eksekutif', $data)
+            ->setPaper('a4', 'landscape');
+
+        gc_collect_cycles();
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            'Cache-Control' => 'private, max-age=0, must-revalidate',
+        ]);
+    }
+
+    public function exportEksekutifExcel(Request $request)
+    {
+        @ini_set('memory_limit', '1024M');
+        @set_time_limit(300);
+
+        $data = $this->buildEksekutifData($request);
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+        // Sheet 1: Matriks Pemenuhan
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Matriks Pemenuhan');
+
+        $sheet->setCellValue('A1', strtoupper($data['validated']['judul_laporan']));
+        $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(13);
+
+        $sheet->setCellValue('A3', 'Pemeriksaan: ' . ($data['pemeriksaan'] ? $data['pemeriksaan']->nama : 'Semua Pemeriksaan'));
+        $sheet->setCellValue('A4', 'Tanggal Cetak: ' . $data['generatedAt']->format('d/m/Y H:i') . ' WIT');
+        $sheet->setCellValue('A5', 'Total Entitas: ' . $data['summary']['total_opd'] . ' | Lengkap (100%): ' . $data['summary']['opd_lengkap'] . ' | Total Kepatuhan: ' . $data['summary']['overall_pct'] . '%');
+
+        $row = 7;
+        $sheet->setCellValue('A' . $row, 'NO');
+        $sheet->setCellValue('B' . $row, 'ENTITAS / OPD');
+        $sheet->setCellValue('C' . $row, 'KEPATUHAN (%)');
+        $sheet->setCellValue('D' . $row, 'SELESAI');
+        $sheet->setCellValue('E' . $row, 'PROSES');
+        $sheet->setCellValue('F' . $row, 'BELUM');
+
+        $colIdx = 7;
+        foreach ($data['permintaanDataList'] as $item) {
+            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIdx);
+            $sheet->setCellValue($colLetter . $row, $item->judul_permintaan);
+            $colIdx++;
+        }
+
+        $lastColLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIdx - 1);
+        $headerRange = 'A' . $row . ':' . $lastColLetter . $row;
+        $sheet->getStyle($headerRange)->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFF'));
+        $sheet->getStyle($headerRange)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('0B192C');
+
+        $no = 1;
+        $row++;
+        foreach ($data['opdRows'] as $opd) {
+            $sheet->setCellValue('A' . $row, $no++);
+            $sheet->setCellValue('B' . $row, $opd['opd_nama']);
+            $sheet->setCellValue('C' . $row, $opd['progress_pct'] . '%');
+            $sheet->setCellValue('D' . $row, $opd['selesai']);
+            $sheet->setCellValue('E' . $row, $opd['proses']);
+            $sheet->setCellValue('F' . $row, $opd['belum']);
+
+            $cIdx = 7;
+            foreach ($data['permintaanDataList'] as $item) {
+                $cLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($cIdx);
+                $po = $opd['items'][$item->id] ?? null;
+                if ($po) {
+                    $docCount = $po->dokumen->count();
+                    $cellText = strtoupper($po->status) . ($docCount > 0 ? " ($docCount)" : "");
+                    $sheet->setCellValue($cLetter . $row, $cellText);
+
+                    $cellStyle = $sheet->getStyle($cLetter . $row);
+                    if ($po->status === 'selesai') {
+                        $cellStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('DCFCE7');
+                        $cellStyle->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('15803D'));
+                    } elseif ($po->status === 'proses') {
+                        $cellStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FEF3C7');
+                        $cellStyle->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('B45309'));
+                    } else {
+                        $cellStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FEE2E2');
+                        $cellStyle->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('DC2626'));
+                    }
+                } else {
+                    $sheet->setCellValue($cLetter . $row, '-');
+                }
+                $cIdx++;
+            }
+            $row++;
+        }
+
+        for ($i = 1; $i <= $colIdx - 1; $i++) {
+            $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i);
+            $sheet->getColumnDimension($colLetter)->setAutoSize(true);
+        }
+
+        // Sheet 2: Rincian Status per OPD
+        $sheet2 = $spreadsheet->createSheet();
+        $sheet2->setTitle('Rincian Status per OPD');
+        $sheet2->setCellValue('A1', 'NO');
+        $sheet2->setCellValue('B1', 'ENTITAS / OPD');
+        $sheet2->setCellValue('C1', 'JUDUL PERMINTAAN DATA');
+        $sheet2->setCellValue('D1', 'STATUS');
+        $sheet2->setCellValue('E1', 'JUMLAH FILE');
+        $sheet2->getStyle('A1:E1')->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFF'));
+        $sheet2->getStyle('A1:E1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('0B192C');
+
+        $r2 = 2;
+        $no2 = 1;
+        foreach ($data['opdRows'] as $opd) {
+            foreach ($data['permintaanDataList'] as $item) {
+                $po = $opd['items'][$item->id] ?? null;
+                $statusStr = $po ? strtoupper($po->status) : 'BELUM';
+                $docCount = $po ? $po->dokumen->count() : 0;
+
+                $sheet2->setCellValue('A' . $r2, $no2++);
+                $sheet2->setCellValue('B' . $r2, $opd['opd_nama']);
+                $sheet2->setCellValue('C' . $r2, $item->judul_permintaan);
+                $sheet2->setCellValue('D' . $r2, $statusStr);
+                $sheet2->setCellValue('E' . $r2, $docCount);
+
+                $cellStyle = $sheet2->getStyle('D' . $r2);
+                if ($statusStr === 'SELESAI') {
+                    $cellStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('DCFCE7');
+                    $cellStyle->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('15803D'));
+                } elseif ($statusStr === 'PROSES') {
+                    $cellStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FEF3C7');
+                    $cellStyle->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('B45309'));
+                } else {
+                    $cellStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FEE2E2');
+                    $cellStyle->getFont()->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('DC2626'));
+                }
+                $r2++;
+            }
+        }
+        foreach (['A', 'B', 'C', 'D', 'E'] as $col) {
+            $sheet2->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        // Sheet 3: Rincian File Dokumen
+        $sheet3 = $spreadsheet->createSheet();
+        $sheet3->setTitle('Rincian File Dokumen');
+        $sheet3->setCellValue('A1', 'NO');
+        $sheet3->setCellValue('B1', 'OPD');
+        $sheet3->setCellValue('C1', 'JUDUL PERMINTAAN');
+        $sheet3->setCellValue('D1', 'NAMA FILE');
+        $sheet3->setCellValue('E1', 'TANGGAL UPLOAD');
+        $sheet3->getStyle('A1:E1')->getFont()->setBold(true)->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFF'));
+        $sheet3->getStyle('A1:E1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('0B192C');
+
+        $r3 = 2;
+        $no3 = 1;
+        foreach ($data['opdRows'] as $opd) {
+            foreach ($opd['items'] as $po) {
+                foreach ($po->dokumen as $dok) {
+                    $sheet3->setCellValue('A' . $r3, $no3++);
+                    $sheet3->setCellValue('B' . $r3, $opd['opd_nama']);
+                    $sheet3->setCellValue('C' . $r3, $po->permintaan->judul_permintaan ?? '-');
+                    $sheet3->setCellValue('D' . $r3, $dok->nama_file);
+                    $sheet3->setCellValue('E' . $r3, $dok->created_at ? $dok->created_at->format('d/m/Y H:i') : '-');
+                    $r3++;
+                }
+            }
+        }
+        foreach (['A', 'B', 'C', 'D', 'E'] as $col) {
+            $sheet3->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $filename = 'matriks-eksekutif-bpk-' . $data['generatedAt']->format('Ymd-His') . '.xlsx';
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
     }
 }

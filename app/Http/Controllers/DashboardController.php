@@ -86,21 +86,24 @@ class DashboardController extends Controller
                     $q->whereHas('users', fn($uq) => $uq->where('user_id', $userId));
                 }
             })
-            ->selectRaw('opd, count(*) as total, sum(case when status in ("selesai","proses") then 1 else 0 end) as selesai')
+            ->selectRaw('opd, count(*) as total, sum(case when status = "selesai" then 1 else 0 end) as selesai, sum(case when status = "proses" then 1 else 0 end) as proses, sum(case when status = "belum" then 1 else 0 end) as belum')
             ->groupBy('opd')
             ->having('total', '>', 0)
             ->get()
             ->map(function($item) {
-                $item->persentase = round(($item->selesai / $item->total) * 100);
+                $item->persentase = $item->total > 0 ? round(($item->selesai / $item->total) * 100) : 0;
                 return $item;
             });
             
-        // Urutkan persentase, lalu jika seri urutkan berdasar jumlah selesai
+        // Top 5 OPD (Performa Terbaik)
         $topOpd = $opdRankings->sortByDesc(function($item) {
             return $item->persentase * 1000 + $item->selesai;
         })->take(5)->values();
         
-        $bottomOpd = $opdRankings->sortBy(function($item) {
+        // Perlu Perhatian: Filter out OPDs with 100% completion!
+        $bottomOpd = $opdRankings->filter(function($item) {
+            return $item->persentase < 100;
+        })->sortBy(function($item) {
             return $item->persentase * 1000 - $item->total;
         })->take(5)->values();
 

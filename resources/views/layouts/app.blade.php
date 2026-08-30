@@ -190,7 +190,155 @@
         </div>
     </div>
 
+    {{-- Global Document Live Preview Modal --}}
+    <div class="modal fade" id="modalGlobalPreview" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                <div class="modal-header bg-dark text-white px-4 py-3 border-0 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-2 overflow-hidden me-3">
+                        <span id="previewFileIcon" class="fs-4 text-info"><i class="bi bi-file-earmark-text"></i></span>
+                        <div class="text-truncate">
+                            <h6 class="modal-title mb-0 fw-bold text-white text-truncate" id="previewFileName">Preview Dokumen</h6>
+                            <small class="text-white-50" style="font-size: 0.72rem;" id="previewFileInfo">Memuat detail...</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                        <a id="previewDownloadBtn" href="#" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm" download>
+                            <i class="bi bi-download me-1"></i>Unduh File
+                        </a>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body p-0 bg-secondary-subtle d-flex flex-column align-items-center justify-content-center" id="previewContainer" style="min-height: 520px; max-height: 80vh; overflow: auto;">
+                    <div class="text-center py-5" id="previewLoading">
+                        <div class="spinner-border text-primary mb-2" role="status"></div>
+                        <div class="text-muted small">Memuat preview dokumen...</div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-white border-top py-2 px-4 justify-content-between text-muted small" style="font-size: 0.75rem;">
+                    <span id="previewFileFooter"><i class="bi bi-shield-check text-success me-1"></i>Inspectra Live Preview Engine</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+    function openGlobalPreview(previewUrl, downloadUrl, fileName) {
+        const modalEl = document.getElementById('modalGlobalPreview');
+        const modal = new bootstrap.Modal(modalEl);
+        const nameEl = document.getElementById('previewFileName');
+        const infoEl = document.getElementById('previewFileInfo');
+        const iconEl = document.getElementById('previewFileIcon');
+        const container = document.getElementById('previewContainer');
+        const downloadBtn = document.getElementById('previewDownloadBtn');
+
+        nameEl.textContent = fileName || 'Dokumen';
+        infoEl.textContent = 'Memproses preview...';
+        downloadBtn.href = downloadUrl;
+        downloadBtn.setAttribute('download', fileName);
+
+        const ext = (fileName.split('.').pop() || '').toLowerCase();
+        let iconClass = 'bi-file-earmark';
+        if (['pdf'].includes(ext)) iconClass = 'bi-file-earmark-pdf text-danger';
+        else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) iconClass = 'bi-file-earmark-image text-warning';
+        else if (['xls', 'xlsx', 'csv'].includes(ext)) iconClass = 'bi-file-earmark-excel text-success';
+        else if (['doc', 'docx'].includes(ext)) iconClass = 'bi-file-earmark-word text-primary';
+        else if (['zip', 'rar', '7z'].includes(ext)) iconClass = 'bi-file-earmark-zip text-secondary';
+        
+        iconEl.innerHTML = `<i class="bi ${iconClass}"></i>`;
+        container.innerHTML = `<div class="text-center py-5"><div class="spinner-border text-primary mb-2" role="status"></div><div class="text-muted small">Memuat preview...</div></div>`;
+
+        modal.show();
+
+        if (ext === 'pdf') {
+            infoEl.textContent = 'Format PDF Viewer';
+            container.innerHTML = `<iframe src="${previewUrl}" style="width:100%; height:75vh; border:0;"></iframe>`;
+        } else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) {
+            infoEl.textContent = 'Format Gambar (' + ext.toUpperCase() + ')';
+            container.innerHTML = `
+                <div class="p-3 text-center w-100 h-100 d-flex align-items-center justify-content-center" style="background: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 16px 16px;">
+                    <img src="${previewUrl}" alt="${fileName}" class="img-fluid rounded shadow-sm" style="max-height: 70vh; object-fit: contain;">
+                </div>
+            `;
+        } else if (['xls', 'xlsx', 'csv'].includes(ext)) {
+            infoEl.textContent = 'Format Spreadsheet Excel (' + ext.toUpperCase() + ')';
+            fetch(previewUrl)
+                .then(res => res.arrayBuffer())
+                .then(buffer => {
+                    const data = new Uint8Array(buffer);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    let html = '<div class="w-100 p-3 bg-white" style="height:70vh; overflow:auto;">';
+                    html += '<ul class="nav nav-tabs mb-3" id="excelSheetTabs" role="tablist">';
+                    workbook.SheetNames.forEach((name, idx) => {
+                        html += `<li class="nav-item"><button class="nav-link ${idx === 0 ? 'active' : ''}" data-bs-toggle="tab" data-bs-target="#sheet-${idx}">${name}</button></li>`;
+                    });
+                    html += '</ul><div class="tab-content">';
+                    
+                    workbook.SheetNames.forEach((name, idx) => {
+                        const sheet = workbook.Sheets[name];
+                        const tableHtml = XLSX.utils.sheet_to_html(sheet, { header: '', footer: '' });
+                        html += `<div class="tab-pane fade ${idx === 0 ? 'show active' : ''}" id="sheet-${idx}">
+                            <div class="table-responsive">${tableHtml}</div>
+                        </div>`;
+                    });
+                    html += '</div></div>';
+
+                    container.innerHTML = html;
+                    
+                    // Style generated XLSX tables
+                    container.querySelectorAll('table').forEach(t => {
+                        t.className = 'table table-bordered table-striped table-sm text-nowrap font-monospace small';
+                    });
+                })
+                .catch(err => {
+                    container.innerHTML = `
+                        <div class="text-center p-5">
+                            <i class="bi bi-exclamation-triangle text-danger fs-1"></i>
+                            <h6 class="mt-2">Gagal membaca berkas Excel</h6>
+                            <p class="text-muted small">Anda tetap dapat mengunduh berkas langsung.</p>
+                            <a href="${downloadUrl}" class="btn btn-primary btn-sm"><i class="bi bi-download me-1"></i>Unduh Excel</a>
+                        </div>
+                    `;
+                });
+        } else if (['txt', 'log', 'json', 'xml', 'md'].includes(ext)) {
+            infoEl.textContent = 'Format Teks (' + ext.toUpperCase() + ')';
+            fetch(previewUrl)
+                .then(res => res.text())
+                .then(text => {
+                    container.innerHTML = `<pre class="p-4 bg-dark text-success w-100 h-100 mb-0 font-monospace" style="max-height:70vh; overflow:auto; white-space:pre-wrap;">${escapeHtml(text)}</pre>`;
+                })
+                .catch(err => {
+                    container.innerHTML = `<div class="text-center p-5 text-danger">Gagal memuat pratinjau teks.</div>`;
+                });
+        } else {
+            infoEl.textContent = 'Format Berkas: ' + ext.toUpperCase();
+            container.innerHTML = `
+                <div class="text-center p-5">
+                    <div class="mb-3">
+                        <i class="bi ${iconClass} display-1 text-warning"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark mb-2">${fileName}</h5>
+                    <div class="alert alert-warning d-inline-block px-4 py-2 my-3 rounded-pill shadow-sm" style="font-size:0.85rem;">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>Format berkas <strong>.${ext.toUpperCase()}</strong> tidak mendukung live preview langsung. Silakan unduh file terlebih dahulu.
+                    </div>
+                    <div class="mt-2">
+                        <a href="${downloadUrl}" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm fw-bold" download>
+                            <i class="bi bi-download me-1"></i>Unduh File Sekarang
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function escapeHtml(text) {
+        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+    </script>
     <script>
     (function() {
         const btn = document.getElementById('notifBtn');
