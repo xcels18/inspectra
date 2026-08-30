@@ -447,7 +447,7 @@ body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
                 </a>
 
                 <a href="{{ route('laporan.index') }}" class="tool-tile">
-                    <div class="tool-tile-icon" style="background:#f5f3ff; color:#7c3aed;">
+                    <div class="tool-tile-icon" style="background:#fefce8; color:#d97706;">
                         <i class="bi bi-printer-fill"></i>
                     </div>
                     <span class="tool-tile-label">Cetak Laporan</span>

@@ -11,11 +11,15 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body, input, button, select, textarea {
+        body {
             min-height: 100vh;
             font-family: 'Satoshi', 'Inter', 'Plus Jakarta Sans', sans-serif !important;
             display: flex;
             overflow: hidden;
+        }
+
+        input, button, select, textarea {
+            font-family: 'Satoshi', 'Inter', 'Plus Jakarta Sans', sans-serif !important;
         }
 
         .bg-panel {
