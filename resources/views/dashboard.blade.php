@@ -346,70 +346,70 @@ body, button, input, select, textarea, h1, h2, h3, h4, h5, h6 {
         <div class="magnific-hero-shape-2"></div>
         <div class="magnific-hero-shape-3"></div>
 
-        {{-- Texture Lines & Neuron Connections SVG --}}
+        {{-- Texture Lines & Neuron Connections SVG (Samar-samar / Subtle) --}}
         <svg class="neuron-network-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300" preserveAspectRatio="none">
             <defs>
                 <linearGradient id="neuronGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35" />
-                    <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.15" />
+                    <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.2" />
+                    <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.08" />
                 </linearGradient>
                 <linearGradient id="neuronGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
-                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.3" />
-                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.1" />
+                    <stop offset="0%" stop-color="#10b981" stop-opacity="0.18" />
+                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.06" />
                 </linearGradient>
             </defs>
 
             <!-- Neuron Main Connection Synapses -->
-            <path d="M 50,30 L 180,80 L 340,40 L 520,100 L 700,50 L 860,110 L 960,30" stroke="url(#neuronGrad1)" stroke-width="1.5" fill="none" opacity="0.65" />
-            <path d="M 90,210 L 250,170 L 420,230 L 600,180 L 770,240 L 930,190" stroke="url(#neuronGrad2)" stroke-width="1.5" fill="none" opacity="0.65" />
+            <path d="M 50,30 L 180,80 L 340,40 L 520,100 L 700,50 L 860,110 L 960,30" stroke="url(#neuronGrad1)" stroke-width="1.2" fill="none" opacity="0.35" />
+            <path d="M 90,210 L 250,170 L 420,230 L 600,180 L 770,240 L 930,190" stroke="url(#neuronGrad2)" stroke-width="1.2" fill="none" opacity="0.35" />
 
             <!-- Interconnecting Neural Network Fibers -->
-            <line x1="50" y1="30" x2="90" y2="210" stroke="#3b82f6" stroke-width="1.2" opacity="0.35" stroke-dasharray="4,4" />
-            <line x1="180" y1="80" x2="250" y2="170" stroke="#8b5cf6" stroke-width="1.2" opacity="0.4" />
-            <line x1="340" y1="40" x2="250" y2="170" stroke="#3b82f6" stroke-width="1" opacity="0.35" />
-            <line x1="340" y1="40" x2="420" y2="230" stroke="#6366f1" stroke-width="1.2" opacity="0.35" />
-            <line x1="520" y1="100" x2="420" y2="230" stroke="#10b981" stroke-width="1.2" opacity="0.4" stroke-dasharray="5,4" />
-            <line x1="520" y1="100" x2="600" y2="180" stroke="#3b82f6" stroke-width="1.2" opacity="0.4" />
-            <line x1="700" y1="50" x2="600" y2="180" stroke="#8b5cf6" stroke-width="1" opacity="0.35" />
-            <line x1="700" y1="50" x2="770" y2="240" stroke="#0284c7" stroke-width="1.2" opacity="0.4" stroke-dasharray="4,4" />
-            <line x1="860" y1="110" x2="770" y2="240" stroke="#10b981" stroke-width="1.2" opacity="0.35" />
-            <line x1="860" y1="110" x2="930" y2="190" stroke="#8b5cf6" stroke-width="1.2" opacity="0.4" />
+            <line x1="50" y1="30" x2="90" y2="210" stroke="#3b82f6" stroke-width="1" opacity="0.2" stroke-dasharray="4,4" />
+            <line x1="180" y1="80" x2="250" y2="170" stroke="#8b5cf6" stroke-width="1" opacity="0.22" />
+            <line x1="340" y1="40" x2="250" y2="170" stroke="#3b82f6" stroke-width="0.8" opacity="0.18" />
+            <line x1="340" y1="40" x2="420" y2="230" stroke="#6366f1" stroke-width="1" opacity="0.2" />
+            <line x1="520" y1="100" x2="420" y2="230" stroke="#10b981" stroke-width="1" opacity="0.22" stroke-dasharray="5,4" />
+            <line x1="520" y1="100" x2="600" y2="180" stroke="#3b82f6" stroke-width="1" opacity="0.22" />
+            <line x1="700" y1="50" x2="600" y2="180" stroke="#8b5cf6" stroke-width="0.8" opacity="0.18" />
+            <line x1="700" y1="50" x2="770" y2="240" stroke="#0284c7" stroke-width="1" opacity="0.2" stroke-dasharray="4,4" />
+            <line x1="860" y1="110" x2="770" y2="240" stroke="#10b981" stroke-width="1" opacity="0.18" />
+            <line x1="860" y1="110" x2="930" y2="190" stroke="#8b5cf6" stroke-width="1" opacity="0.22" />
 
             <!-- Secondary Neural Branches -->
-            <path d="M 180,80 L 130,25 L 240,15 L 340,40" stroke="#60a5fa" stroke-width="1" fill="none" opacity="0.3" />
-            <path d="M 600,180 L 660,265 L 720,285 L 770,240" stroke="#c084fc" stroke-width="1" fill="none" opacity="0.3" />
+            <path d="M 180,80 L 130,25 L 240,15 L 340,40" stroke="#60a5fa" stroke-width="0.8" fill="none" opacity="0.15" />
+            <path d="M 600,180 L 660,265 L 720,285 L 770,240" stroke="#c084fc" stroke-width="0.8" fill="none" opacity="0.15" />
 
             <!-- Synaptic Node Bulbs (Glowing Neurons) -->
-            <circle cx="50" cy="30" r="4.5" fill="#3b82f6" opacity="0.85" />
-            <circle cx="50" cy="30" r="9" fill="#3b82f6" opacity="0.25" />
+            <circle cx="50" cy="30" r="3.5" fill="#3b82f6" opacity="0.45" />
+            <circle cx="50" cy="30" r="7" fill="#3b82f6" opacity="0.12" />
 
-            <circle cx="180" cy="80" r="5.5" fill="#8b5cf6" opacity="0.9" />
-            <circle cx="180" cy="80" r="11" fill="#8b5cf6" opacity="0.25" />
+            <circle cx="180" cy="80" r="4" fill="#8b5cf6" opacity="0.5" />
+            <circle cx="180" cy="80" r="8" fill="#8b5cf6" opacity="0.12" />
 
-            <circle cx="340" cy="40" r="4.5" fill="#3b82f6" opacity="0.8" />
+            <circle cx="340" cy="40" r="3" fill="#3b82f6" opacity="0.4" />
 
-            <circle cx="520" cy="100" r="6" fill="#10b981" opacity="0.9" />
-            <circle cx="520" cy="100" r="13" fill="#10b981" opacity="0.25" />
+            <circle cx="520" cy="100" r="4.5" fill="#10b981" opacity="0.5" />
+            <circle cx="520" cy="100" r="9" fill="#10b981" opacity="0.12" />
 
-            <circle cx="700" cy="50" r="5" fill="#0284c7" opacity="0.85" />
+            <circle cx="700" cy="50" r="4" fill="#0284c7" opacity="0.45" />
 
-            <circle cx="860" cy="110" r="6" fill="#8b5cf6" opacity="0.9" />
-            <circle cx="860" cy="110" r="12" fill="#8b5cf6" opacity="0.25" />
+            <circle cx="860" cy="110" r="4.5" fill="#8b5cf6" opacity="0.5" />
+            <circle cx="860" cy="110" r="9" fill="#8b5cf6" opacity="0.12" />
 
-            <circle cx="90" cy="210" r="5" fill="#0284c7" opacity="0.8" />
-            <circle cx="250" cy="170" r="4.5" fill="#6366f1" opacity="0.85" />
-            <circle cx="420" cy="230" r="6" fill="#3b82f6" opacity="0.9" />
-            <circle cx="420" cy="230" r="13" fill="#3b82f6" opacity="0.25" />
+            <circle cx="90" cy="210" r="4" fill="#0284c7" opacity="0.4" />
+            <circle cx="250" cy="170" r="3.5" fill="#6366f1" opacity="0.45" />
+            <circle cx="420" cy="230" r="4.5" fill="#3b82f6" opacity="0.5" />
+            <circle cx="420" cy="230" r="9" fill="#3b82f6" opacity="0.12" />
 
-            <circle cx="600" cy="180" r="4.5" fill="#10b981" opacity="0.8" />
-            <circle cx="770" cy="240" r="5.5" fill="#8b5cf6" opacity="0.85" />
-            <circle cx="930" cy="190" r="4.5" fill="#3b82f6" opacity="0.8" />
+            <circle cx="600" cy="180" r="3.5" fill="#10b981" opacity="0.4" />
+            <circle cx="770" cy="240" r="4" fill="#8b5cf6" opacity="0.45" />
+            <circle cx="930" cy="190" r="3.5" fill="#3b82f6" opacity="0.4" />
 
             <!-- Sparkle Nodes -->
-            <circle cx="130" cy="25" r="2.5" fill="#93c5fd" opacity="0.7" />
-            <circle cx="240" cy="15" r="3" fill="#c4b5fd" opacity="0.7" />
-            <circle cx="660" cy="265" r="3" fill="#a7f3d0" opacity="0.7" />
-            <circle cx="720" cy="285" r="2.5" fill="#93c5fd" opacity="0.7" />
+            <circle cx="130" cy="25" r="2" fill="#93c5fd" opacity="0.35" />
+            <circle cx="240" cy="15" r="2" fill="#c4b5fd" opacity="0.35" />
+            <circle cx="660" cy="265" r="2" fill="#a7f3d0" opacity="0.35" />
+            <circle cx="720" cy="285" r="2" fill="#93c5fd" opacity="0.35" />
         </svg>
 
         <div class="magnific-hero-content">
